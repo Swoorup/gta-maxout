@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\GameVC">
+      <UniqueIdentifier>{10cd86ae-60fc-4cdf-a686-7acee9de0ea2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameVC">
+      <UniqueIdentifier>{59dfef31-e8f3-40db-8ff2-bd7a0bf5924c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameHooks">
+      <UniqueIdentifier>{859dfdea-8b95-466c-8c73-ab2a41614ee2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameHooks">
+      <UniqueIdentifier>{3739715f-4dd8-44ae-90ad-f9d031bd8868}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{de05d31e-ff80-41d4-b9e1-084a950f228b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{bb435fcf-c8d0-4713-a8b0-5eca4dfaedc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3D8Hook">
+      <UniqueIdentifier>{6898153f-d8f4-437c-84fa-e1c2734aae1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D8Hook">
+      <UniqueIdentifier>{c3580afb-f7a1-40b0-a333-573fd465de0d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CTxdStore.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\RenderWare.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CFont.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\GameVC.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="PathBoundariesHack.cpp">
+      <Filter>Source Files\GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="CCustomPathHooks.cpp">
+      <Filter>Source Files\GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="CCustomFont.cpp">
+      <Filter>Source Files\GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CFileLoader.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuMapHack.cpp">
+      <Filter>Source Files\GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="MiscellaneousPatches.cpp">
+      <Filter>Source Files\GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="RadarHack.cpp">
+      <Filter>Source Files\GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="WaterHack.cpp">
+      <Filter>Source Files\GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="CMemory.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CTheCarGenerators.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="FileLoaderAddIns.cpp">
+      <Filter>Source Files\GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="VehicleLimitPatch.cpp">
+      <Filter>Source Files\GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="IDirect3DDevice8Hook.cpp">
+      <Filter>Source Files\D3D8Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="IDirect3D8Hook.cpp">
+      <Filter>Source Files\D3D8Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D8Hook.cpp">
+      <Filter>Source Files\D3D8Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CGameHookManager.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CDebug.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CFileMgr.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CTheZones.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CCullZones.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CPathFind.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CPathFindHook.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CSprite2D.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameVC\RenderWare.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\GameVC.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="CCustomFont.h">
+      <Filter>Header Files\GameHooks</Filter>
+    </ClInclude>
+    <ClInclude Include="CCustomPathHooks.h">
+      <Filter>Header Files\GameHooks</Filter>
+    </ClInclude>
+    <ClInclude Include="PathBoundariesHack.hpp">
+      <Filter>Header Files\GameHooks</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CFileLoader.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GamePatches.h">
+      <Filter>Header Files\GameHooks</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CTheCarGenerators.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirect3DDevice8Hook.h">
+      <Filter>D3D8Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirect3D8Hook.h">
+      <Filter>D3D8Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\loader\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D8Hook.h">
+      <Filter>D3D8Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="CSingleton.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="StdInc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CMemory.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CGameHookManager.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CDebug.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CTxdStore.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CSprite2d.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CFileMgr.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CFont.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CTheZones.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CCullZones.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CPathFind.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CPathFindHook.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ToDos.txt" />
+  </ItemGroup>
+</Project>

@@ -3,7 +3,7 @@
 //#															#
 //###########################################################
 
-#include "CTxdStore.hpp"
+#include "CTxdStore.h"
 
 
 DWORD dwFunc_CTxdStore__PushCurrentTxd = 0x580AC0;

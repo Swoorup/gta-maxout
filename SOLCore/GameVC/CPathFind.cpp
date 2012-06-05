@@ -323,6 +323,329 @@ void CPathFind::CountFloodFillGroups(unsigned char iPathDataFor){
 	CDebug::DebugAddText("GraphType:%d. FloodFill groups:%d\n", iPathDataFor, j);
 }
 
+void CPathFind::AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement){
+	signed short iDisplacement = (short)iParamDisplacement & 511;
+	signed short iGridIndex01 = m_AttachedPaths[iDisplacement].wField0x02;
+	CPathNode* pGridNode1; // edx
+	if (iGridIndex01 >=0){
+		if (iGridIndex01 >= 512)
+            pGridNode1 = &m_AttachedPaths[iGridIndex01 - 512];
+		else
+			pGridNode1 = &m_UnknownNodeList[iGridIndex01];
+    }
+	else
+		pGridNode1 = NULL;
+	//loc_43739A
+	if (pGridNode1){
+		if ( pGridNode1 < &m_UnknownNodeList[0] || pGridNode1 >= &m_UnknownNodeList[512])
+			pTargetNode->wField0x02 = (pGridNode1 - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+		else
+			pTargetNode->wField0x02 = (pGridNode1 - &m_UnknownNodeList[0]) / sizeof(CPathNode);
+    }
+	else
+		pTargetNode->wField0x02 = -1;
+		
+	//Process for the First Field
+	CPathNode* pGridNode2 = &m_UnknownNodeList[iDisplacement]; // eax
+	if (pGridNode2){
+		if (pGridNode2 < &m_UnknownNodeList[0] || pGridNode2 >= &m_UnknownNodeList[512])
+			pTargetNode->wField0x00 = (pGridNode2 - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+		else
+			pTargetNode->wField0x00 = (&m_AttachedPaths[iDisplacement] - &m_AttachedPaths[0])/ sizeof(CPathNode);
+    }
+	else
+		pTargetNode->wField0x00 = -1;
+	
+	// Phase 2
+	signed short iGridIndex03 = m_UnknownNodeList[iDisplacement].wField0x02; //dx
+	CPathNode* pGridNode03; //eax
+	if (iGridIndex03 >= 0 ){
+		if (iGridIndex03 >= 512)
+			pGridNode03 = &m_AttachedPaths[iGridIndex03 - 512];
+		else
+			pGridNode03 = &m_UnknownNodeList[iGridIndex03];
+    }
+	else
+		pGridNode03 = NULL;
+	
+	if (pGridNode03){ // test eax, eax
+        CPathNode* pGridesi;
+        if (iGridIndex03 >= 0){ // test dx, dx
+            if (iGridIndex03 >= 512)
+                pGridesi = &m_AttachedPaths[iGridIndex03 - 512];
+            else
+                pGridesi = &m_UnknownNodeList[iGridIndex03];
+        }
+        else
+            pGridesi = NULL;
+    
+		if (pTargetNode){ // ebx
+			if (pTargetNode < &m_UnknownNodeList[0] || pTargetNode >= &m_UnknownNodeList[512])
+				pGridesi->wField0x00 = (pTargetNode - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+			else
+				pGridesi->wField0x00 = (pTargetNode - &m_UnknownNodeList[0])/ sizeof(CPathNode);
+        }
+		else
+			pGridesi->wField0x00 = -1;
+    }
+	if (pTargetNode){
+		if (pTargetNode < &m_UnknownNodeList[0] || pTargetNode >= &m_UnknownNodeList[512])
+			m_UnknownNodeList[iDisplacement].wField0x02 = (pTargetNode - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+		else 
+			m_UnknownNodeList[iDisplacement].wField0x02 = (pTargetNode - &m_UnknownNodeList[0])/ sizeof(CPathNode);
+    }
+	else
+		m_UnknownNodeList[iDisplacement].wField0x02 = -1;
+		
+	pTargetNode->wUnkDist0x0A = (short)iParamDisplacement;
+}
+
+void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode){
+	signed short iGridIndexTwo00 = pRemoveNode->wField0x02;
+	CPathNode* pGrid1; //edx
+	if (iGridIndexTwo00 >= 0){
+		if (iGridIndexTwo00 >= 512)
+			pGrid1 = &m_AttachedPaths[iGridIndexTwo00 - 512];
+		else
+			pGrid1 = &m_UnknownNodeList[iGridIndexTwo00];
+	}
+	else
+		pGrid1 = NULL;
+	
+	CPathNode* pGrid2; //ebp
+	signed short iGridIndexOne00 = pRemoveNode->wField0x00;
+	if (iGridIndexOne00 >= 0){
+		if (iGridIndexOne00 >= 512)
+			pGrid2 = &m_AttachedPaths[iGridIndexOne00 - 512];
+		else
+			pGrid2 = &m_UnknownNodeList[iGridIndexOne00];
+    }
+	else
+		pGrid2 = NULL;
+		
+    if (pGrid2){
+	if (pGrid1){
+		if (pGrid1 < &m_UnknownNodeList[0] || pGrid1 >= &m_UnknownNodeList[512])
+			pGrid2->wField0x02 = (pGrid1 - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+		else
+			pGrid2->wField0x02 = (pGrid1 - &m_UnknownNodeList[0])/sizeof(CPathNode);
+	}
+	else
+		pGrid2->wField0x02 = -1;
+    }
+	
+	signed short iGridIndexTwo01 = pRemoveNode->wField0x02;
+	CPathNode* pGrid3; //eax
+	if (iGridIndexTwo01 >= 0){
+		if (iGridIndexTwo01 >= 512)
+			pGrid3 = &m_AttachedPaths[iGridIndexTwo01-512];
+		else
+			pGrid3 = &m_UnknownNodeList[iGridIndexTwo01];
+	}
+	else
+		pGrid3 = NULL;
+	
+	if (pGrid3){ //branch saved for later
+		signed short iGridIndexOne01 = pRemoveNode->wField0x00;
+		CPathNode* pGrid4; //edx
+		if (iGridIndexOne01 >= 0){
+			if (iGridIndexOne01 >= 512)
+				pGrid4 = &m_AttachedPaths[iGridIndexOne01 - 512];
+			else
+				pGrid4 = &m_UnknownNodeList[iGridIndexOne01];
+		}
+		else
+			pGrid4 = NULL;
+			
+		CPathNode* pGrid5; //ebx
+		if (iGridIndexTwo01 >= 0){ //cx
+			if (iGridIndexTwo01 >= 512)
+				pGrid5 = &m_AttachedPaths[iGridIndexTwo01 - 512];
+			else
+				pGrid5 = &m_UnknownNodeList[iGridIndexTwo01];
+		}
+		else
+			pGrid5 = NULL;
+		
+        if (pGrid5){
+		if (pGrid4){
+			if (pGrid4 < &m_UnknownNodeList[0] || pGrid4 >= &m_UnknownNodeList[512])
+				pGrid5->wField0x00 = (pGrid4 - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+			else
+				pGrid5->wField0x00 = (pGrid4 - &m_UnknownNodeList[0])/ sizeof(CPathNode);
+		}
+		else
+			pGrid5->wField0x00 = -1;
+        }
+	}
+}
+
+int CPathFind::FindNodeClosestToCoors(float fX, float fY, float fZ, unsigned char iPathDataFor, float fRangeCoefficient, bool bCheckIgnored, bool bCheckRestrictedAccess, bool bCheckUnkFlagFor2, bool bIsVehicleBoat){
+	int iStartNodeIndex, iEndNodeIndex;
+	
+	switch (iPathDataFor){
+		case PATHDATAFOR_CAR:
+			iStartNodeIndex = 0;
+			iEndNodeIndex = m_nCarAttachedNodes;
+			break;
+		case PATHDATAFOR_PED:
+			iStartNodeIndex = m_nCarAttachedNodes;
+			iEndNodeIndex = m_nAttachedNodes;
+			break;
+	}
+	
+	float fPrevFoundRangeCoeff = 10000.0f;
+	int iPrevFoundRangedNode = 0;
+	CPathNode* pNode = &m_AttachedPaths[iStartNodeIndex];
+	for (int i = iStartNodeIndex; i < iEndNodeIndex; i++){
+		if ((bCheckIgnored == false || !(pNode->bitIgnoredNode)) &&
+		   (bCheckRestrictedAccess == false || !(pNode->bitRestrictedAccess)) &&
+		   (bCheckUnkFlagFor2 == false || !(pNode->bitUnkFlagFor2)) &&
+		   (bIsVehicleBoat == pNode->bitIsVehicleBoat))
+		{
+			float fXDiff = utl::abs<float>(((float)pNode->wX / 8.0f) - fX);
+			float fYDiff = utl::abs<float>(((float)pNode->wY / 8.0f) - fY);
+			float fZDiff = utl::abs<float>(((float)pNode->wZ / 8.0f) - fZ);
+			
+			float fCurrentCoeff = fXDiff + fYDiff + fZDiff * 3.0f;
+			if ( fCurrentCoeff < fPrevFoundRangeCoeff){
+				fPrevFoundRangeCoeff = fCurrentCoeff;
+				iPrevFoundRangedNode = i;
+			}
+		}
+		pNode++;
+	}
+	if ( fPrevFoundRangeCoeff < fRangeCoefficient)
+		return iPrevFoundRangedNode;
+	else 
+		return -1;
+}
+
+CPathNode* CPathFind::staticNodes[9650] = {NULL};
+void CPathFind::DoPathSearch(int iPathDataFor, 
+										float fOriginX, 
+										float fOriginY, 
+										float fOriginZ, 
+										int iFirstNode, 
+										float fDestX, 
+										float fDestY, 
+										float fDestZ, 
+										CPathNode **pIntermediateNodeList, 
+										short *pSteps, 
+										short sMaxSteps, 
+										void *pVehicle, //Unused
+										float *pfDistance, //Always 0
+										float fMaxRadius, 
+										int iLastNode) //Always -1 meaning not known
+{
+    CDebug::DebugAddText("%d %f %f %f %d %f %f %f 0x%X 0x%X %d 0x%X 0x%X %f %d" , iPathDataFor, 
+										 fOriginX, 
+										 fOriginY, 
+										 fOriginZ, 
+										 iFirstNode, 
+										 fDestX, 
+										 fDestY, 
+										 fDestZ, 
+										pIntermediateNodeList, 
+										pSteps, 
+										sMaxSteps, 
+										pVehicle, //Unused
+										pfDistance, //Always 0
+										fMaxRadius, 
+										iLastNode);
+	int iDestNodeIndex = iLastNode;
+	int iOriginNodeIndex = iFirstNode;
+	if (iDestNodeIndex == -1)
+		iDestNodeIndex = FindNodeClosestToCoors(fDestX, fDestY, fDestZ, iPathDataFor, fMaxRadius, 0, 0, 0, 0);
+	if (iOriginNodeIndex == -1)
+		iOriginNodeIndex = FindNodeClosestToCoors(fOriginX, fOriginY, fOriginZ, iPathDataFor, fMaxRadius, 0, 0, 0, 0);
+		
+	if ((iDestNodeIndex >= 0) && (iOriginNodeIndex >= 0)){
+		if (iOriginNodeIndex == iDestNodeIndex){
+			*pSteps = 0;
+			if ( pfDistance) *pfDistance = 0.0f;
+		}
+		else if (m_AttachedPaths[iDestNodeIndex].sbField0x0F == m_AttachedPaths[iOriginNodeIndex].sbField0x0F){
+			for (int i = 0; i < 512; i++) 
+                m_UnknownNodeList[i].wField0x02 = -1;
+            CPathNode* pDestinationNode = &m_AttachedPaths[iDestNodeIndex];
+		    AddNodeToList(pDestinationNode, 0);
+		    int nStaticNodeStored = 1;
+            staticNodes[0] = pDestinationNode;
+            short nCircleList = 0;
+            bool bFound = false;
+            // Phase 1
+            do {
+                short sField02 = m_UnknownNodeList[nCircleList].wField0x02;
+                CPathNode* pNodeForPhase1Check;
+                if ( sField02 >= 0){
+                    if (sField02 >= 512)
+                        pNodeForPhase1Check = &m_AttachedPaths[sField02 - 512];
+                    else
+                        pNodeForPhase1Check = &m_UnknownNodeList[sField02];
+                }
+                else 
+                    pNodeForPhase1Check = NULL;
+                while (pNodeForPhase1Check){
+                    if (pNodeForPhase1Check == &m_AttachedPaths[iOriginNodeIndex])
+                    bFound = true;
+                    for (int i = 0; i < (int)(pNodeForPhase1Check->bitUnkCount4To7); i++){
+                        int iConnectedRouteIndex = i + pNodeForPhase1Check->wRouteInfoIndex;
+                        int iNextNodeIndex = AttachedPointsInfo[iConnectedRouteIndex] & 0x3FFF;
+                        int iDispl = short(pNodeForPhase1Check->wUnkDist0x0A + m_InRangedDisplacement[iConnectedRouteIndex]);
+                        CDebug::DebugAddText("iDispl val %d", iDispl);
+                        if (iDispl < (int)m_AttachedPaths[iNextNodeIndex].wUnkDist0x0A){
+                            if (m_AttachedPaths[iNextNodeIndex].wUnkDist0x0A != 32766)
+                                RemoveNodeFromList(&m_AttachedPaths[iNextNodeIndex]);
+                            if (m_AttachedPaths[iNextNodeIndex].wUnkDist0x0A == 32766)
+                                staticNodes[nStaticNodeStored++] = &m_AttachedPaths[iNextNodeIndex];
+                            AddNodeToList(&m_AttachedPaths[iNextNodeIndex], iDispl);
+                        }
+                    }
+                    RemoveNodeFromList(pNodeForPhase1Check);
+                    sField02 = pNodeForPhase1Check->wField0x02;
+                    if (sField02 >= 0){
+                        if (sField02 >= 512)
+                            pNodeForPhase1Check = &m_AttachedPaths[sField02 - 512];
+                        else
+                            pNodeForPhase1Check = &m_UnknownNodeList[sField02];
+                    }
+                    else 
+                        pNodeForPhase1Check = NULL;
+                }
+                nCircleList = (nCircleList + 1) & 511;
+            } while (bFound == false);
+            // Phase 2
+            CPathNode* pNodeForPhase2Check = &m_AttachedPaths[iOriginNodeIndex];
+            *pSteps = 0;
+            if (pfDistance)
+                *pfDistance = m_AttachedPaths[iOriginNodeIndex].wUnkDist0x0A;
+            pIntermediateNodeList[(*pSteps)++] = &m_AttachedPaths[iOriginNodeIndex];
+            while (*pSteps < sMaxSteps && pNodeForPhase2Check != pDestinationNode){
+                for (int i = 0; (signed short)i < pNodeForPhase2Check->bitUnkCount4To7; i++){
+                    int iConnectedRouteIndex = i + pNodeForPhase2Check->wRouteInfoIndex;
+                    if (pNodeForPhase2Check->wUnkDist0x0A - m_InRangedDisplacement[iConnectedRouteIndex] == m_AttachedPaths[AttachedPointsInfo[iConnectedRouteIndex] & 0x3FFF].wUnkDist0x0A){
+                        pNodeForPhase2Check = &m_AttachedPaths[AttachedPointsInfo[iConnectedRouteIndex] & 0x3FFF];
+                        pIntermediateNodeList[(*pSteps)++] = pNodeForPhase2Check;
+                        i = 29030; // break out from loop?
+                    }
+                }
+            }
+            // Need to optimize the following function by breaking into 8 aligned boundaries
+            for (int i = 0; i < nStaticNodeStored; i++)
+            staticNodes[i]->wUnkDist0x0A = 32766;
+      }
+      else{
+        *pSteps = 0;
+        if ( pfDistance) *pfDistance = 100000.0f;
+      }
+    }
+    else{
+      *pSteps = 0;
+      if ( pfDistance) *pfDistance = 100000.0f;
+    }
+}
+
 void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor,
 												CTempNode* pTempNode,
 												CPathInfoForObject* pUnusedPathInfos,
@@ -732,7 +1055,7 @@ CPathNode::CPathNode(){
     wField0x00 = -1;
     wField0x02 = -1;
     sbField0x0F = 0;
-    bitPadFlags13 = 0;
+    bitUnkFlagFor2 = 0;
     bitPadFlags8To10 = 0;
     byteField0x013 = 0;
     bitUnkCount4To7 = 0;

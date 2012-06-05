@@ -22,7 +22,7 @@ HRESULT __stdcall IDirect3D8Hook::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceTy
 {
     static HANDLE IconHandle = 0;
     if ( IconHandle == 0) 
-        IconHandle = LoadImage((HINSTANCE)GetWindowLong(pPresentationParameters->hDeviceWindow,GWL_HINSTANCE), "Icons//SOL.ico",IMAGE_ICON, 0,0,LR_LOADFROMFILE|LR_DEFAULTSIZE);
+        IconHandle = LoadImageA((HINSTANCE)GetWindowLong(pPresentationParameters->hDeviceWindow,GWL_HINSTANCE), "Icons//SOL.ico",IMAGE_ICON, 0,0,LR_LOADFROMFILE|LR_DEFAULTSIZE);
     SetClassLong(pPresentationParameters->hDeviceWindow, GCL_HICON, (LONG)IconHandle);
 	if (bWindowedMode)
 	{

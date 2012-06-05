@@ -18,7 +18,32 @@ void (CPathFind::*p_mPreparePathDataForType)(uint8_t bytePathDataFor,
 void (CPathFind::*p_mInit)(void);
 void (CPathFind::*p_mAllocatePathFindInfoMem)(void);
 void (CPathFind::*p_mPreparePathData)(void);
-
+void (CPathFind::*p_mDoPathSearch)(int iPathDataFor, 
+										float fOriginX, 
+										float fOriginY, 
+										float fOriginZ, 
+										int iFirstNode, 
+										float fDestX, 
+										float fDestY, 
+										float fDestZ, 
+										CPathNode **pIntermediateNodeList, 
+										short *pSteps, 
+										short sMaxSteps, 
+										void *pVehicle, //Unused
+										float *pfDistance, //Always 0
+										float fMaxRadius, 
+										int iLastNode);
+int (CPathFind::*p_mFindNodeClosestToCoors)(float fX, 
+                             float fY, 
+                             float fZ, 
+                             unsigned char iPathDataFor, 
+                             float fRangeCoefficient, 
+                             bool bCheckIgnored, 
+                             bool bCheckRestrictedAccess, 
+                             bool bCheckUnkFlagFor2, 
+                             bool bIsVehicleBoat);
+void (CPathFind::*p_mRemoveNodeFromList)(CPathNode *pRemoveNode);
+void (CPathFind::*p_mAddNodeToList)(CPathNode *pTargetNode, int iParamDisplacement);
 
 //---------------------------------------------------------------------
 // List Of Functions Hooked
@@ -30,6 +55,10 @@ void (CPathFind::*p_mPreparePathData)(void);
 // vi.  CFileLoader::LoadScene
 // vii. CPathFind::PreparePathData
 // viii.CPathFind::AllocatePathFindInfoMem
+// ix.  CPathFind::AddNodeToList        - CULPRIT
+// x.   CPathFind::RemoveNodeFromList   - FINE
+// xi.  CPathFind::FindNodeToCoors      - SUSPECT
+// xii. CPathFind::DoPathSearch
 //---------------------------------------------------------------------
 
 void TEMPTESTPATCH(){
@@ -38,6 +67,11 @@ void TEMPTESTPATCH(){
 }
 
 void CPathFindHook::ApplyHook(){
+    p_mDoPathSearch = &CPathFind::DoPathSearch;
+    p_mFindNodeClosestToCoors = &CPathFind::FindNodeClosestToCoors;
+    p_mRemoveNodeFromList = &CPathFind::RemoveNodeFromList;
+    p_mAddNodeToList = &CPathFind::AddNodeToList;
+
     // Disable Unused CPathFind Treadables in CFileLoader::LoadObjectInstance
     CMemory::NoOperation(0x48AE30, 44);
 
@@ -51,6 +85,16 @@ void CPathFindHook::ApplyHook(){
 
     p_mPreparePathData = &CPathFind::PreparePathData;
     CMemory::InstallCallHook(0x4A4CE7, (DWORD)(void*&)p_mPreparePathData, ASM_CALL);
+
+    // Hooks for DoPathSearch
+    //CMemory::InstallCallHook(0x0439070, (DWORD)(void*&)p_mDoPathSearch, ASM_JMP);
+        
+    //Hooks for FindNodeClosesToCoors
+    //CMemory::InstallCallHook(0x437150, (DWORD)(void*&)p_mFindNodeClosestToCoors, ASM_JMP);
+
+    // Hook for p_mRemoveNodeFromList
+    CMemory::InstallCallHook(0x437330, (DWORD)(void*&)p_mAddNodeToList, ASM_JMP);
+    CMemory::InstallCallHook(0x4375C0, (DWORD)(void*&)p_mRemoveNodeFromList, ASM_JMP);
 
     // Install PreparePathDataHook
     p_mPreparePathDataForType = &CPathFind::PreparePathDataForType;

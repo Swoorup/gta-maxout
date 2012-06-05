@@ -31,8 +31,8 @@ struct CPathInfoForObject{
 
 class CPathNode{
 public:
-	short wField0x00;       // 0-2
-	short wField0x02;       // 0-4
+	signed short wField0x00;       // 0-2
+	signed short wField0x02;       // 0-4
 	short wX;               // 4-6
 	short wY;               // 6-8
 	short wZ;               // 8-10
@@ -141,7 +141,33 @@ public:
 						    CPathInfoForObject* pPathInfosForObject,
 						    int nGroupNodesForObject);
   void CountFloodFillGroups(unsigned char iPathDataFor);
-  //void AddNodeToList(CPathNode* pPathNode, 
+  void AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement);
+  void RemoveNodeFromList(CPathNode *pRemoveNode);
+  static CPathNode* staticNodes[9650];
+  void DoPathSearch(int iPathDataFor, 
+										float fOriginX, 
+										float fOriginY, 
+										float fOriginZ, 
+										int iFirstNode, 
+										float fDestX, 
+										float fDestY, 
+										float fDestZ, 
+										CPathNode **pIntermediateNodeList, 
+										short *pSteps, 
+										short sMaxSteps, 
+										void *pVehicle, //Unused
+										float *pfDistance, //Always 0
+										float fMaxRadius, 
+										int iLastNode); //Always -1 meaning not known
+  int FindNodeClosestToCoors(float fX, 
+                             float fY, 
+                             float fZ, 
+                             unsigned char iPathDataFor, 
+                             float fRangeCoefficient, 
+                             bool bCheckIgnored, 
+                             bool bCheckRestrictedAccess, 
+                             bool bCheckUnkFlagFor2, 
+                             bool bIsVehicleBoat);
 
   // Static Objects
   static int g_nCarGroupNodes;

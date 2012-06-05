@@ -134,7 +134,7 @@ void InstallFileLoaderHooks(void){
     FILE * fCheckDAT = fopen(szSOLScenePath, "rb");
 
 	if(!fCheckDAT){
-	    MessageBox(0,"You are missing the SOL scene.dat","GTA:State Of Liberty Error",MB_OK);
+	    MessageBoxA(0,"You are missing the SOL scene.dat","GTA:State Of Liberty Error",MB_OK);
         SetForegroundWindow(HWND_DESKTOP);
 		ExitProcess(1);			
     }

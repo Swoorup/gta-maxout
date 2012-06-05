@@ -7,7 +7,7 @@
 
 
 #include <Windows.h>
-#include "CSprite2d.hpp"
+#include "CSprite2d.h"
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -324,8 +324,8 @@ void CPathFind::CountFloodFillGroups(unsigned char iPathDataFor){
 }
 
 void CPathFind::AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement){
-	signed short iDisplacement = (short)iParamDisplacement & 511;
-	signed short iGridIndex01 = m_AttachedPaths[iDisplacement].wField0x02;
+	signed short iDisplacement = iParamDisplacement & 511;
+	signed short iGridIndex01 = m_UnknownNodeList[iDisplacement].wField0x02;
 	CPathNode* pGridNode1; // edx
 	if (iGridIndex01 >=0){
 		if (iGridIndex01 >= 512)
@@ -338,9 +338,9 @@ void CPathFind::AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement){
 	//loc_43739A
 	if (pGridNode1){
 		if ( pGridNode1 < &m_UnknownNodeList[0] || pGridNode1 >= &m_UnknownNodeList[512])
-			pTargetNode->wField0x02 = (pGridNode1 - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+			pTargetNode->wField0x02 = ((uint32_t)pGridNode1 - (uint32_t)&m_AttachedPaths[0])/sizeof(CPathNode) + 512;
 		else
-			pTargetNode->wField0x02 = (pGridNode1 - &m_UnknownNodeList[0]) / sizeof(CPathNode);
+			pTargetNode->wField0x02 = ((uint32_t)pGridNode1 - (uint32_t)&m_UnknownNodeList[0])/sizeof(CPathNode);
     }
 	else
 		pTargetNode->wField0x02 = -1;
@@ -349,9 +349,9 @@ void CPathFind::AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement){
 	CPathNode* pGridNode2 = &m_UnknownNodeList[iDisplacement]; // eax
 	if (pGridNode2){
 		if (pGridNode2 < &m_UnknownNodeList[0] || pGridNode2 >= &m_UnknownNodeList[512])
-			pTargetNode->wField0x00 = (pGridNode2 - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+			pTargetNode->wField0x00 = ((uint32_t)pGridNode2 - (uint32_t)&m_AttachedPaths[0])/sizeof(CPathNode) + 512;
 		else
-			pTargetNode->wField0x00 = (&m_AttachedPaths[iDisplacement] - &m_AttachedPaths[0])/ sizeof(CPathNode);
+			pTargetNode->wField0x00 = ((uint32_t)&m_AttachedPaths[iDisplacement] - (uint32_t)&m_AttachedPaths[0])/sizeof(CPathNode);
     }
 	else
 		pTargetNode->wField0x00 = -1;
@@ -381,23 +381,23 @@ void CPathFind::AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement){
     
 		if (pTargetNode){ // ebx
 			if (pTargetNode < &m_UnknownNodeList[0] || pTargetNode >= &m_UnknownNodeList[512])
-				pGridesi->wField0x00 = (pTargetNode - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+				pGridesi->wField0x00 = ((uint32_t)pTargetNode - (uint32_t)&m_AttachedPaths[0])/sizeof(CPathNode) + 512;
 			else
-				pGridesi->wField0x00 = (pTargetNode - &m_UnknownNodeList[0])/ sizeof(CPathNode);
+				pGridesi->wField0x00 = ((uint32_t)pTargetNode - (uint32_t)&m_UnknownNodeList[0])/sizeof(CPathNode);
         }
 		else
 			pGridesi->wField0x00 = -1;
     }
 	if (pTargetNode){
 		if (pTargetNode < &m_UnknownNodeList[0] || pTargetNode >= &m_UnknownNodeList[512])
-			m_UnknownNodeList[iDisplacement].wField0x02 = (pTargetNode - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+			m_UnknownNodeList[iDisplacement].wField0x02 = ((uint32_t)pTargetNode - (uint32_t)&m_AttachedPaths[0])/sizeof(CPathNode) + 512;
 		else 
-			m_UnknownNodeList[iDisplacement].wField0x02 = (pTargetNode - &m_UnknownNodeList[0])/ sizeof(CPathNode);
+			m_UnknownNodeList[iDisplacement].wField0x02 = ((uint32_t)pTargetNode - (uint32_t)&m_UnknownNodeList[0])/sizeof(CPathNode);
     }
 	else
 		m_UnknownNodeList[iDisplacement].wField0x02 = -1;
 		
-	pTargetNode->wUnkDist0x0A = (short)iParamDisplacement;
+	pTargetNode->wUnkDist0x0A = (signed short)iParamDisplacement;
 }
 
 void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode){
@@ -423,16 +423,16 @@ void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode){
 	else
 		pGrid2 = NULL;
 		
-    if (pGrid2){
+    //if (pGrid2){
 	if (pGrid1){
 		if (pGrid1 < &m_UnknownNodeList[0] || pGrid1 >= &m_UnknownNodeList[512])
-			pGrid2->wField0x02 = (pGrid1 - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+			pGrid2->wField0x02 = (pGrid1 - &m_AttachedPaths[0]) + 512;
 		else
-			pGrid2->wField0x02 = (pGrid1 - &m_UnknownNodeList[0])/sizeof(CPathNode);
+			pGrid2->wField0x02 = (pGrid1 - &m_UnknownNodeList[0]);
 	}
 	else
 		pGrid2->wField0x02 = -1;
-    }
+    //}
 	
 	signed short iGridIndexTwo01 = pRemoveNode->wField0x02;
 	CPathNode* pGrid3; //eax
@@ -467,16 +467,16 @@ void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode){
 		else
 			pGrid5 = NULL;
 		
-        if (pGrid5){
+        //if (pGrid5){
 		if (pGrid4){
 			if (pGrid4 < &m_UnknownNodeList[0] || pGrid4 >= &m_UnknownNodeList[512])
-				pGrid5->wField0x00 = (pGrid4 - &m_AttachedPaths[0])/ sizeof(CPathNode) + 512;
+				pGrid5->wField0x00 = (pGrid4 - &m_AttachedPaths[0])+ 512;
 			else
-				pGrid5->wField0x00 = (pGrid4 - &m_UnknownNodeList[0])/ sizeof(CPathNode);
+				pGrid5->wField0x00 = (pGrid4 - &m_UnknownNodeList[0]);
 		}
 		else
 			pGrid5->wField0x00 = -1;
-        }
+        //}
 	}
 }
 

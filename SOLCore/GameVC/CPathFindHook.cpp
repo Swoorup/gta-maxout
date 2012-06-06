@@ -93,7 +93,7 @@ void CPathFindHook::ApplyHook(){
     //CMemory::InstallCallHook(0x437150, (DWORD)(void*&)p_mFindNodeClosestToCoors, ASM_JMP);
 
     // Hook for p_mRemoveNodeFromList
-    CMemory::InstallCallHook(0x437330, (DWORD)(void*&)p_mAddNodeToList, ASM_JMP);
+    //CMemory::InstallCallHook(0x437330, (DWORD)(void*&)p_mAddNodeToList, ASM_JMP);
     CMemory::InstallCallHook(0x4375C0, (DWORD)(void*&)p_mRemoveNodeFromList, ASM_JMP);
 
     // Install PreparePathDataHook

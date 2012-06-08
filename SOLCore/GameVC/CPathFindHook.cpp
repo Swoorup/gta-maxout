@@ -44,21 +44,23 @@ int (CPathFind::*p_mFindNodeClosestToCoors)(float fX,
                              bool bIsVehicleBoat);
 void (CPathFind::*p_mRemoveNodeFromList)(CPathNode *pRemoveNode);
 void (CPathFind::*p_mAddNodeToList)(CPathNode *pTargetNode, int iParamDisplacement);
+void (CPathFind::*p_mRemoveBadStartNode)(float fX, float fY, float fZ, CPathNode **pIntermediateNodeList, short *pSteps);
 
 //---------------------------------------------------------------------
 // List Of Functions Hooked
-// i.   CPathFind::Init
-// ii.  CPathFind::PreparePathDataForType
-// iii. CPathFind::StoreNodeInfoPed
-// iv.  CPathFind::StoreNodeInfoCar
-// v.   CPathFind::ArrangeOneNodeList
-// vi.  CFileLoader::LoadScene
-// vii. CPathFind::PreparePathData
-// viii.CPathFind::AllocatePathFindInfoMem
-// ix.  CPathFind::AddNodeToList        - CULPRIT
-// x.   CPathFind::RemoveNodeFromList   - FINE
-// xi.  CPathFind::FindNodeToCoors      - SUSPECT
-// xii. CPathFind::DoPathSearch
+// i.   CPathFind::Init                 -FINE GRAINED
+// ii.  CPathFind::PreparePathDataForType-THOROUGH REVISION AND DUMP TEST NEEDED
+// iii. CPathFind::StoreNodeInfoPed     -FINE GRAINED
+// iv.  CPathFind::StoreNodeInfoCar     -FINE GRAINED
+// v.   CPathFind::ArrangeOneNodeList   -FINE GRAINED
+// vi.  CFileLoader::LoadScene          -FINE GRAINED
+// vii. CPathFind::PreparePathData      -FINE GRAINED
+// viii.CPathFind::AllocatePathFindInfoMem- FINE GRAINED
+// ix.  CPathFind::AddNodeToList        - FINE GRAINED
+// x.   CPathFind::RemoveNodeFromList   - FINE GRAINED
+// xi.  CPathFind::FindNodeToCoors      - REVISION NEEDED
+// xii. CPathFind::DoPathSearch         - REVISION NEEDED
+// xiii.CPathFind::RemoveBadStartNode   - REVISION NEEDED indepth used for long chases, police chase etc comparision sign
 //---------------------------------------------------------------------
 
 void TEMPTESTPATCH(){
@@ -71,6 +73,7 @@ void CPathFindHook::ApplyHook(){
     p_mFindNodeClosestToCoors = &CPathFind::FindNodeClosestToCoors;
     p_mRemoveNodeFromList = &CPathFind::RemoveNodeFromList;
     p_mAddNodeToList = &CPathFind::AddNodeToList;
+    p_mRemoveBadStartNode = &CPathFind::RemoveBadStartNode;
 
     // Disable Unused CPathFind Treadables in CFileLoader::LoadObjectInstance
     CMemory::NoOperation(0x48AE30, 44);
@@ -86,22 +89,17 @@ void CPathFindHook::ApplyHook(){
     p_mPreparePathData = &CPathFind::PreparePathData;
     CMemory::InstallCallHook(0x4A4CE7, (DWORD)(void*&)p_mPreparePathData, ASM_CALL);
 
-    // Hooks for DoPathSearch
-    //CMemory::InstallCallHook(0x0439070, (DWORD)(void*&)p_mDoPathSearch, ASM_JMP);
-        
-    //Hooks for FindNodeClosesToCoors
-    //CMemory::InstallCallHook(0x437150, (DWORD)(void*&)p_mFindNodeClosestToCoors, ASM_JMP);
-
-    // Hook for p_mRemoveNodeFromList
-    //CMemory::InstallCallHook(0x437330, (DWORD)(void*&)p_mAddNodeToList, ASM_JMP);
+    CMemory::InstallCallHook(0x439070, (DWORD)(void*&)p_mDoPathSearch, ASM_JMP);
+    CMemory::InstallCallHook(0x437150, (DWORD)(void*&)p_mFindNodeClosestToCoors, ASM_JMP);
+    CMemory::InstallCallHook(0x437330, (DWORD)(void*&)p_mAddNodeToList, ASM_JMP);
     CMemory::InstallCallHook(0x4375C0, (DWORD)(void*&)p_mRemoveNodeFromList, ASM_JMP);
+    CMemory::InstallCallHook(0x438F90, (DWORD)(void*&)p_mRemoveBadStartNode , ASM_JMP);
 
     // Install PreparePathDataHook
     p_mPreparePathDataForType = &CPathFind::PreparePathDataForType;
-    CMemory::InstallCallHook(0x43BF3C, (DWORD)(void*&)p_mPreparePathDataForType, ASM_CALL); // a very tricky cast
+    CMemory::InstallCallHook(0x43BF3C, (DWORD)(void*&)p_mPreparePathDataForType, ASM_CALL);
     CMemory::InstallCallHook(0x43BF74, (DWORD)(void*&)p_mPreparePathDataForType, ASM_CALL);
     TEMPTESTPATCH();
-    
 }
 
 void CPathFindHook::RemoveHook(){

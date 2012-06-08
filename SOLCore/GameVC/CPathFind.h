@@ -159,6 +159,7 @@ public:
 										float *pfDistance, //Always 0
 										float fMaxRadius, 
 										int iLastNode); //Always -1 meaning not known
+  void RemoveBadStartNode(float fX, float fY, float fZ, CPathNode **pIntermediateNodeList, short *pSteps);
   int FindNodeClosestToCoors(float fX, 
                              float fY, 
                              float fZ, 

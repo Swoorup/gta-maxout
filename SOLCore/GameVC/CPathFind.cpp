@@ -593,7 +593,6 @@ void CPathFind::DoPathSearch(int iPathDataFor,
                         int iConnectedRouteIndex = i + pNodeForPhase1Check->wRouteInfoIndex;
                         int iNextNodeIndex = AttachedPointsInfo[iConnectedRouteIndex] & 0x3FFF;
                         int iDispl = short(pNodeForPhase1Check->wUnkDist0x0A + m_InRangedDisplacement[iConnectedRouteIndex]);
-                        CDebug::DebugAddText("iDispl val %d", iDispl);
                         if (iDispl < (int)m_AttachedPaths[iNextNodeIndex].wUnkDist0x0A){
                             if (m_AttachedPaths[iNextNodeIndex].wUnkDist0x0A != 32766)
                                 RemoveNodeFromList(&m_AttachedPaths[iNextNodeIndex]);
@@ -643,6 +642,18 @@ void CPathFind::DoPathSearch(int iPathDataFor,
     else{
       *pSteps = 0;
       if ( pfDistance) *pfDistance = 100000.0f;
+    }
+}
+
+void CPathFind::RemoveBadStartNode(float fX, float fY, float fZ, CPathNode **pIntermediateNodeList, short *pSteps){
+    if (*pSteps >= 2){
+        if ((((float)(pIntermediateNodeList[1]->wY)/8.0f - fY) * ((float)(pIntermediateNodeList[0]->wY)/8.0f - fY)) + 
+            (((float)(pIntermediateNodeList[1]->wX)/8.0f - fX) * ((float)(pIntermediateNodeList[0]->wX)/8.0f - fX)) < 0.0f)
+        {
+            --(*pSteps);
+            for (int i = 0; i < *pSteps; i++)
+                pIntermediateNodeList[i] = pIntermediateNodeList[i + 1];
+        }
     }
 }
 

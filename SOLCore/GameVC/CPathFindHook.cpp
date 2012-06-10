@@ -45,6 +45,7 @@ int (CPathFind::*p_mFindNodeClosestToCoors)(float fX,
 void (CPathFind::*p_mRemoveNodeFromList)(CPathNode *pRemoveNode);
 void (CPathFind::*p_mAddNodeToList)(CPathNode *pTargetNode, int iParamDisplacement);
 void (CPathFind::*p_mRemoveBadStartNode)(float fX, float fY, float fZ, CPathNode **pIntermediateNodeList, short *pSteps);
+void (CPathFind::*p_mFindNextNodeWandering)(unsigned char iPathDataFor, float fX, float fY, float fZ, CPathNode** pCurrentNode, CPathNode** pNextNode, uint8_t bytePreviousDirection, uint8_t *byteNewDirection);
 
 //---------------------------------------------------------------------
 // List Of Functions Hooked
@@ -60,7 +61,8 @@ void (CPathFind::*p_mRemoveBadStartNode)(float fX, float fY, float fZ, CPathNode
 // x.   CPathFind::RemoveNodeFromList   - FINE GRAINED
 // xi.  CPathFind::FindNodeToCoors      - REVISION NEEDED
 // xii. CPathFind::DoPathSearch         - REVISION NEEDED
-// xiii.CPathFind::RemoveBadStartNode   - REVISION NEEDED indepth used for long chases, police chase etc comparision sign
+// xiii.CPathFind::RemoveBadStartNode   - REVISION DONE
+// xiv. CPathFind::FindNextNodeWandering -REVISION NEEDED
 //---------------------------------------------------------------------
 
 void TEMPTESTPATCH(){
@@ -74,6 +76,7 @@ void CPathFindHook::ApplyHook(){
     p_mRemoveNodeFromList = &CPathFind::RemoveNodeFromList;
     p_mAddNodeToList = &CPathFind::AddNodeToList;
     p_mRemoveBadStartNode = &CPathFind::RemoveBadStartNode;
+    p_mFindNextNodeWandering = &CPathFind::FindNextNodeWandering;
 
     // Disable Unused CPathFind Treadables in CFileLoader::LoadObjectInstance
     CMemory::NoOperation(0x48AE30, 44);
@@ -94,6 +97,7 @@ void CPathFindHook::ApplyHook(){
     CMemory::InstallCallHook(0x437330, (DWORD)(void*&)p_mAddNodeToList, ASM_JMP);
     CMemory::InstallCallHook(0x4375C0, (DWORD)(void*&)p_mRemoveNodeFromList, ASM_JMP);
     CMemory::InstallCallHook(0x438F90, (DWORD)(void*&)p_mRemoveBadStartNode , ASM_JMP);
+    CMemory::InstallCallHook(0x4386D0, (DWORD)(void*&)p_mFindNextNodeWandering, ASM_JMP);
 
     // Install PreparePathDataHook
     p_mPreparePathDataForType = &CPathFind::PreparePathDataForType;

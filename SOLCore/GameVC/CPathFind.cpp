@@ -480,47 +480,6 @@ void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode){
 	}
 }
 
-int CPathFind::FindNodeClosestToCoors(float fX, float fY, float fZ, unsigned char iPathDataFor, float fRangeCoefficient, bool bCheckIgnored, bool bCheckRestrictedAccess, bool bCheckUnkFlagFor2, bool bIsVehicleBoat){
-	int iStartNodeIndex, iEndNodeIndex;
-	
-	switch (iPathDataFor){
-		case PATHDATAFOR_CAR:
-			iStartNodeIndex = 0;
-			iEndNodeIndex = m_nCarAttachedNodes;
-			break;
-		case PATHDATAFOR_PED:
-			iStartNodeIndex = m_nCarAttachedNodes;
-			iEndNodeIndex = m_nAttachedNodes;
-			break;
-	}
-	
-	float fPrevFoundRangeCoeff = 10000.0f;
-	int iPrevFoundRangedNode = 0;
-	CPathNode* pNode = &m_AttachedPaths[iStartNodeIndex];
-	for (int i = iStartNodeIndex; i < iEndNodeIndex; i++){
-		if ((bCheckIgnored == false || !(pNode->bitIgnoredNode)) &&
-		   (bCheckRestrictedAccess == false || !(pNode->bitRestrictedAccess)) &&
-		   (bCheckUnkFlagFor2 == false || !(pNode->bitUnkFlagFor2)) &&
-		   (bIsVehicleBoat == pNode->bitIsVehicleBoat))
-		{
-			float fXDiff = utl::abs<float>(((float)pNode->wX / 8.0f) - fX);
-			float fYDiff = utl::abs<float>(((float)pNode->wY / 8.0f) - fY);
-			float fZDiff = utl::abs<float>(((float)pNode->wZ / 8.0f) - fZ);
-			
-			float fCurrentCoeff = fXDiff + fYDiff + fZDiff * 3.0f;
-			if ( fCurrentCoeff < fPrevFoundRangeCoeff){
-				fPrevFoundRangeCoeff = fCurrentCoeff;
-				iPrevFoundRangedNode = i;
-			}
-		}
-		pNode++;
-	}
-	if ( fPrevFoundRangeCoeff < fRangeCoefficient)
-		return iPrevFoundRangedNode;
-	else 
-		return -1;
-}
-
 CPathNode* CPathFind::staticNodes[9650] = {NULL};
 void CPathFind::DoPathSearch(int iPathDataFor, 
 										float fOriginX, 
@@ -654,6 +613,137 @@ void CPathFind::RemoveBadStartNode(float fX, float fY, float fZ, CPathNode **pIn
             for (int i = 0; i < *pSteps; i++)
                 pIntermediateNodeList[i] = pIntermediateNodeList[i + 1];
         }
+    }
+}
+
+int CPathFind::FindNodeClosestToCoors(float fX, float fY, float fZ, unsigned char iPathDataFor, float fRangeCoefficient, bool bCheckIgnored, bool bCheckRestrictedAccess, bool bCheckUnkFlagFor2, bool bIsVehicleBoat){
+	int iStartNodeIndex, iEndNodeIndex;
+	
+	switch (iPathDataFor){
+		case PATHDATAFOR_CAR:
+			iStartNodeIndex = 0;
+			iEndNodeIndex = m_nCarAttachedNodes;
+			break;
+		case PATHDATAFOR_PED:
+			iStartNodeIndex = m_nCarAttachedNodes;
+			iEndNodeIndex = m_nAttachedNodes;
+			break;
+	}
+	
+	float fPrevFoundRangeCoeff = 10000.0f;
+	int iPrevFoundRangedNode = 0;
+	CPathNode* pNode = &m_AttachedPaths[iStartNodeIndex];
+	for (int i = iStartNodeIndex; i < iEndNodeIndex; i++){
+		if ((bCheckIgnored == false || !(pNode->bitIgnoredNode)) &&
+		   (bCheckRestrictedAccess == false || !(pNode->bitRestrictedAccess)) &&
+		   (bCheckUnkFlagFor2 == false || !(pNode->bitUnkFlagFor2)) &&
+		   (bIsVehicleBoat == pNode->bitIsVehicleBoat))
+		{
+			float fXDiff = utl::abs<float>(((float)pNode->wX / 8.0f) - fX);
+			float fYDiff = utl::abs<float>(((float)pNode->wY / 8.0f) - fY);
+			float fZDiff = utl::abs<float>(((float)pNode->wZ / 8.0f) - fZ);
+			
+			float fCurrentCoeff = fXDiff + fYDiff + fZDiff * 3.0f;
+			if ( fCurrentCoeff < fPrevFoundRangeCoeff){
+				fPrevFoundRangeCoeff = fCurrentCoeff;
+				iPrevFoundRangedNode = i;
+			}
+		}
+		pNode++;
+	}
+	if ( fPrevFoundRangeCoeff < fRangeCoefficient)
+		return iPrevFoundRangedNode;
+	else 
+		return -1;
+}
+
+void CPathFind::FindNextNodeWandering(unsigned char iPathDataFor, float fX, float fY, float fZ, CPathNode** pCurrentNode, CPathNode** pNextNode, uint8_t bytePreviousDirection, uint8_t *byteNewDirection){
+    CVector VectorCurrentPos(fX, fY, fZ + 1.0f);
+    CPathNode* pCurrentActPedNode;
+    if (pCurrentNode == NULL || 
+        (*pCurrentNode) == NULL || 
+        ((fY - float((*pCurrentNode)->wY) / 8.0f) * (fY - float((*pCurrentNode)->wY) / 8.0f) + 
+         (fX - float((*pCurrentNode)->wX) / 8.0f) * (fX - float((*pCurrentNode)->wX) / 8.0f) + 
+         (fZ - float((*pCurrentNode)->wZ) / 8.0f) * (fZ - float((*pCurrentNode)->wZ) / 8.0f)) > 49.0f)
+    {
+        pCurrentActPedNode = &m_AttachedPaths[FindNodeClosestToCoors(fX, fY, fZ, iPathDataFor, 999999.88f, 0, 0, 0, 0)];
+    }
+    else
+        pCurrentActPedNode = *pCurrentNode;
+
+    // get normal vectors along with translation of bytePreviousDirection which is limited to maximum value of 8
+    // optimization is needed so as to directly use floating point assembly function
+    double dPrevNormalX = sin((double)bytePreviousDirection  * 2.0*M_PI/8.0);
+    double dPrevNormalY = cos((double)bytePreviousDirection  * 2.0*M_PI/8.0);
+
+    // initialize the next node with null
+    *pNextNode = NULL;
+
+    // initialize fPrevFoundRangeCoeff with the minimum value
+    float fPrevFoundRangeCoeff = -999999.0f;
+
+    // loop for current node's other segments
+    for (int i = 0; i < pCurrentActPedNode->bitUnkCount4To7; i++){
+        CPathNode* pDeltaNextNode = &m_AttachedPaths[AttachedPointsInfo[i+pCurrentActPedNode->wRouteInfoIndex] & 0x3FFF];
+        if ((pCurrentActPedNode->bitIgnoredNode) || 
+            !(pDeltaNextNode->bitIgnoredNode))
+        {
+            CVector VectorNextDeltaPos(float(pDeltaNextNode->wX)/8.0f, float(pDeltaNextNode->wY)/8.0f, float(pDeltaNextNode->wZ)/8.0f + 1.0f);
+            if (CWorld::GetIsLineOfSightClear(&VectorCurrentPos, &VectorNextDeltaPos, 1, 0, 0, 0, 0, 0, 0)){
+                double fDeltaNextNodeLength = sqrt(VectorNextDeltaPos.x*VectorNextDeltaPos.x + VectorNextDeltaPos.y*VectorNextDeltaPos.y);
+                double fDeltaNormalX = VectorNextDeltaPos.x / fDeltaNextNodeLength;
+                double fDeltaNormalY = VectorNextDeltaPos.y / fDeltaNextNodeLength;
+
+                double fDeltaCoefficient = fDeltaNormalX * dPrevNormalX + fDeltaNormalY * dPrevNormalY;
+                if (fDeltaCoefficient >= (double)fPrevFoundRangeCoeff){
+                    fPrevFoundRangeCoeff = fDeltaCoefficient;
+                    *pNextNode = pDeltaNextNode;
+                    if (fDeltaNormalX < 0.0f){
+                        double fabsDeltaNormalY = utl::abs<double>(fDeltaNormalY);
+                        double fabsDeltaNormalX = -fDeltaNormalX;
+                        if (2.0f * fabsDeltaNormalY >= fabsDeltaNormalX){
+                            if (2.0f * fabsDeltaNormalX >= fDeltaNormalY){
+                                if (2.0f * fDeltaNormalX <= fDeltaNormalY){
+                                    if (fDeltaNormalY <= 0.0f)
+                                        *byteNewDirection = 5;
+                                    else
+                                        *byteNewDirection = 7;
+                                }
+                                else
+                                    *byteNewDirection = 4;
+                            }
+                            else
+                                *byteNewDirection = 0;
+                        }
+                        else
+                            *byteNewDirection = 6;
+                    }
+                    else{
+                        double fabsDeltaNormalY = utl::abs<double>(fDeltaNormalY);
+                        if (2.0f * fabsDeltaNormalY >= fDeltaNormalX){
+                            if (2.0f * fDeltaNormalX >= fDeltaNormalY){
+                                if ( -2.0f * fDeltaNormalX <= fDeltaNormalY){
+                                    if (fDeltaNormalY <= 0.0f)
+                                        *byteNewDirection = 3;
+                                    else
+                                        *byteNewDirection = 1;
+                                }
+                                else
+                                    *byteNewDirection = 4;
+                            }
+                            else
+                                *byteNewDirection = 0;
+                        }
+                        else
+                            *byteNewDirection = 2;
+                    }
+                }
+            }
+        }
+    }
+    if (!(*pNextNode)){
+        *byteNewDirection = 0;
+        *pNextNode = pCurrentActPedNode;
     }
 }
 

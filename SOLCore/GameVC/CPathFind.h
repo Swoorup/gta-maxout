@@ -169,6 +169,7 @@ public:
                              bool bCheckRestrictedAccess, 
                              bool bCheckUnkFlagFor2, 
                              bool bIsVehicleBoat);
+  void FindNextNodeWandering(unsigned char iPathDataFor, float fX, float fY, float fZ, CPathNode** pCurrentNode, CPathNode** pNextNode, uint8_t bytePreviousDirection, uint8_t *byteNewDirection);
 
   // Static Objects
   static int g_nCarGroupNodes;

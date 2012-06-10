@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 
 #include "CSingleton.h"
 #include "CMemory.h"
@@ -19,6 +20,7 @@
 #include "GameVC\CPathFindHook.h"
 #include "GameVC\CGameHookManager.h"
 #include "GameVC\RenderWare.h"
+#include "GameVC\CWorld.h"
 #include "GameVC\GameVC.h"
 #include "GameVC\CFileMgr.h"
 #include "GameVC\CDebug.h"

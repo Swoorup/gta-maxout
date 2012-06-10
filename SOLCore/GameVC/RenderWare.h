@@ -89,7 +89,13 @@ struct RwV3d
     float x,y,z;
 };
 
-typedef RwV3d CVector;
+//typedef RwV3d CVector;
+class CVector{
+public:
+    float x, y, z;
+    CVector(){}
+    CVector(float x, float y, float z) : x(x), y(y), z(z) {}
+};
 
 struct RwRect
 {

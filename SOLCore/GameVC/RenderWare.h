@@ -1,7 +1,7 @@
 
 /*****************************************************************************
 *
-*  PROJECT:     Multi Theft Auto v1.0
+*  PROJECT:     State Of Liberty
 *  LICENSE:     See LICENSE in the top level directory
 *  FILE:        sdk/game/RenderWare.h
 *  PURPOSE:     RenderWare-compatible definitions for
@@ -57,22 +57,19 @@ typedef RpClump  *(*RpClumpCallback) (RpClump * clump, void *data);
 
 // RenderWare primitive types
 
-struct RwColorFloat
-{
-    float r,g,b,a;
+struct RwColorFloat {
+    float r, g, b, a;
 };
 
-struct RwRGBA
-{
-    unsigned char r,g,b,a;
+struct RwRGBA {
+    unsigned char r, g, b, a;
 };
 
 #define RWRGBALONG(r,g,b,a)                                             \
     ((__uint32_t) (((a) << 24) | ((r) << 16) | ((g) << 8) | (b)))
 
 //An efficient CRGBA class :)
-class CRGBA
-{
+class CRGBA {
 public:
 	unsigned char r,g,b,a;
 
@@ -80,12 +77,11 @@ public:
 	CRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a) : r(r), g(g), b(b), a(a){}
 };
 
-struct RwV2d
-{   
+struct RwV2d {   
     float x,y;
 };
-struct RwV3d
-{   
+
+struct RwV3d {   
     float x,y,z;
 };
 
@@ -97,14 +93,12 @@ public:
     CVector(float x, float y, float z) : x(x), y(y), z(z) {}
 };
 
-struct RwRect
-{
+struct RwRect {
 	float x, y, w, h;
 };
 
 //Very efficient Class :)
-class CRect
-{
+class CRect {
 public:
 	float left;
 	float bottom;
@@ -116,18 +110,17 @@ public:
 };
 //typedef struct RwRect CRect;
 
-struct RwPlane
-{
+struct RwPlane {
     RwV3d normal;
     float length;
 };
-struct RwBBox
-{
+
+struct RwBBox {
     RwV3d max;
     RwV3d min;
 };
-struct RwSphere
-{
+
+struct RwSphere {
     RwV3d position;
     float radius;
 };
@@ -686,12 +679,14 @@ struct RwObjectFrame
     RwListEntry  lFrame;
     void         *callback;
 };
+
 struct RwCameraFrustum
 {
     RwPlane       plane;
     unsigned char x,y,z;
     unsigned char unknown1;
 };
+
 struct RwCamera
 {
     RwObjectFrame        object;
@@ -713,6 +708,7 @@ struct RwCamera
     RwBBox               viewBBox;
     RwV3d                frustum3D[8];
 };
+
 struct RpInterpolation
 {
     unsigned int     unknown1;
@@ -721,6 +717,7 @@ struct RpInterpolation
     float            unknown4;
     float            unknown5;
 };
+
 struct RpAtomic
 {
     RwObjectFrame    object;
@@ -737,10 +734,12 @@ struct RpAtomic
     RwList           sectors;
     void             *render;
 };
+
 struct RpAtomicContainer {
     RpAtomic    *atomic;
     char        szName[17];
 };
+
 struct RpLight
 {
     RwObjectFrame   object;
@@ -859,6 +858,7 @@ union RwStreamTypeData
         void              *ptr_callback;
     };
 };
+
 struct RwStream
 {
     RwStreamType        type;
@@ -867,6 +867,7 @@ struct RwStream
     RwStreamTypeData    data;
     int                 id;
 };
+
 struct RwError
 {
     int err1,err2;
@@ -915,42 +916,37 @@ typedef unsigned __int16 RwImVertexIndex;
 typedef bool (__cdecl *RwRenderStateSet_t)(RwRenderState state, void* value);
 typedef bool (__cdecl *RwRenderStateGet_t)(RwRenderState state, void* value);
 typedef int (__cdecl *RwIm2DRenderPrimitive_t)(RwPrimitiveType primType,RwIm2DVertex *vertices,int numVertices);  
-
 typedef void *(*RwIm3DTransform_t)(RwIm3DVertex *pVerts, int numVerts, void *ltm, int flags);
 typedef bool (*RwIm3DRenderIndexedPrimitive_t)(int primType, RwImVertexIndex *indices, int numIndices);
-
 typedef RwRaster*(__cdecl *RwRasterUnlock_t)(RwRaster *raster);
 //Returns pointer to the raster's pixel data if successful or NULL if there is an error.
 typedef unsigned int*(__cdecl *RwRasterLock_t)(RwRaster *raster, unsigned __int8 level, int lockmode);
 typedef RwRaster*(__cdecl *RwRasterCreate_t)(int width, int height, int depth, int flags);
 typedef bool (__cdecl *RwRasterDestroy_t)(RwRaster *raster);
-
 typedef RwTexture* (__cdecl *RwTextureRead_t)(char* _name,char* _maskName);
 typedef int (__cdecl *RwTextureDestroy_t)(RwTexture*);
 typedef RwTexture* (__cdecl *RwTextureCreate_t)(RwRaster* raster);
 typedef bool (__cdecl *RwTextureRasterGenerateMipmaps_t)(RwRaster* raster,RwImage* image);
-
 typedef signed int (__cdecl *RwD3D8SetRenderState_t)(D3DRENDERSTATETYPE state, DWORD value);
 typedef signed int (__cdecl *RwD3D8SetTextureStageState_t)(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value);
+typedef RwV3d* (__cdecl *RwV3dTransformPoints_t)(RwV3d* pointOut, const RwV3d* pointIn, int numPoints, const RwMatrix* matrix);
+
 
 extern RwRenderStateSet_t RwRenderStateSet;
 extern RwRenderStateGet_t RwRenderStateGet;
-
 extern RwIm2DRenderPrimitive_t RwIm2DRenderPrimitive;
 extern RwIm3DTransform_t RwIm3DTransform;
 extern RwIm3DRenderIndexedPrimitive_t RwIm3DRenderIndexedPrimitive;
-
 extern RwRasterLock_t   RwRasterLock;
 extern RwRasterUnlock_t RwRasterUnlock;
 extern RwRasterCreate_t RwRasterCreate;
 extern RwRasterDestroy_t RwRasterDestroy;
-
 extern RwTextureRead_t RwTextureRead;
 extern RwTextureDestroy_t RwTextureDestroy;
 extern RwTextureCreate_t RwTextureCreate;
 extern RwTextureRasterGenerateMipmaps_t RwTextureRasterGenerateMipMaps;
-
 extern RwD3D8SetRenderState_t RwD3D8SetRenderState;
 extern RwD3D8SetTextureStageState_t RwD3D8SetTextureStageState;
+extern RwV3dTransformPoints_t RwV3dTransformPoints;
 
 #endif

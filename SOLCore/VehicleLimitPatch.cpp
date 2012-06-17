@@ -75,44 +75,41 @@ void PatchVehicleModelInfo(void) {
 
 #define ARRLEN(a) (sizeof(a)/sizeof(a[0]))
 
-DWORD dwHookRet55FFBD = 0x0055FFBD;
-void __declspec (naked) HookConstructVehicleModelInfoArray()
-{
-    __asm push MAX_VEHICLES
-    __asm push 0x174
-    __asm jmp dwHookRet55FFBD
+DWORD dwHookRet55FFBD = 0x55FFBD;
+void _declspec (naked) HookConstructVehicleModelInfoArray() {
+    _asm push MAX_VEHICLES
+    _asm push 0x174
+    _asm jmp dwHookRet55FFBD
 }
 
-DWORD dwHookRet56015D = 0x0056015D;
-void __declspec (naked) HookDestructVehicleModelInfoArray()
-{
-    __asm push MAX_VEHICLES
-    __asm push 0x174
-    __asm jmp dwHookRet56015D
+DWORD dwHookRet56015D = 0x56015D;
+void _declspec (naked) HookDestructVehicleModelInfoArray() {
+    _asm push MAX_VEHICLES
+    _asm push 0x174
+    _asm jmp dwHookRet56015D
 }
 
-DWORD sVehicles = 0x0068F904;
-DWORD dwHookRet4C02EB = 0x004C02EB;
-void __declspec (naked) HookConstructVehiclePool()
-{
-    __asm push sVehicles
-    __asm push MAX_VEHICLES
-    __asm jmp dwHookRet4C02EB
+DWORD sVehicles = 0x68F904;
+DWORD dwHookRet4C02EB = 0x4C02EB;
+void _declspec (naked) HookConstructVehiclePool() {
+    _asm push sVehicles
+    _asm push MAX_VEHICLES
+    _asm jmp dwHookRet4C02EB
 }
 
 unsigned int TotalNumOfCarsOfRating[11]; // VC has 11 vehicle AI classes distribution, -1 is used for ignore
 unsigned int CarArrays[11 * MAXCARS_IN_ONE_RATING];
 
-int __cdecl AddToCarArray(int modelID, int VehicleClass)
+int _cdecl AddToCarArray(int modelID, int VehicleClass)
 {
     int index = TotalNumOfCarsOfRating[VehicleClass]++ + MAXCARS_IN_ONE_RATING * VehicleClass;
     CarArrays[index] = modelID;
     return modelID;
 }
 
-int __cdecl ChooseCarModel(int VehicleClass)
+int _cdecl ChooseCarModel(int VehicleClass)
 {
-    int (__cdecl *Random)(void) = (int(*)(void))0x6499F0;
+    int (_cdecl *Random)(void) = (int(*)(void))0x6499F0;
     return CarArrays[(signed int)((double)TotalNumOfCarsOfRating[VehicleClass] /** (double)Random()*/ * 0.000030517578f) + MAXCARS_IN_ONE_RATING * VehicleClass];
 }
 
@@ -128,8 +125,7 @@ void PatchVehicleLimits()
     };
 
     pNewVehicleModelInfoBuffer = malloc(MAX_VEHICLES * 0x174 + 4 );
-    for (int i = 0; i < ARRLEN(dwVehicleModelInfoDataRefs); i++)
-    {
+    for(int i = 0; i < ARRLEN(dwVehicleModelInfoDataRefs); i++) {
         DWORD dwMod = *((uint32_t*)dwVehicleModelInfoDataRefs[i]);
         dwMod -= 0x752A88;
         dwMod += (uint32_t)pNewVehicleModelInfoBuffer;
@@ -139,20 +135,20 @@ void PatchVehicleLimits()
         CMemory::RestoreProtection(dwVehicleModelInfoDataRefs[i], 4, dwPrevProtect);
     }
 
-    CMemory::NoOperation(0x0055FFB6, 7);
-    CMemory::InstallCallHook(0x0055FFB6, (DWORD)&HookConstructVehicleModelInfoArray, ASM_JMP);
+    CMemory::NoOperation(0x55FFB6, 7);
+    CMemory::InstallCallHook(0x55FFB6, (DWORD)&HookConstructVehicleModelInfoArray, ASM_JMP);
 
-    CMemory::NoOperation(0x00560156, 7);
-    CMemory::InstallCallHook(0x00560156, (DWORD)&HookDestructVehicleModelInfoArray, ASM_JMP);
+    CMemory::NoOperation(0x560156, 7);
+    CMemory::InstallCallHook(0x560156, (DWORD)&HookDestructVehicleModelInfoArray, ASM_JMP);
 
-    CMemory::NoOperation(0x004C02E4, 7);
-    CMemory::InstallCallHook(0x004C02E4, (DWORD)&HookConstructVehiclePool, ASM_JMP);
+    CMemory::NoOperation(0x4C02E4, 7);
+    CMemory::InstallCallHook(0x4C02E4, (DWORD)&HookConstructVehiclePool, ASM_JMP);
     
     // Patches in CCarCtrl Car Arrays and Car Ratings
     memset(&TotalNumOfCarsOfRating, NULL, sizeof(TotalNumOfCarsOfRating));
     memset(&CarArrays, NULL, sizeof(CarArrays));
 
-    CMemory::InstallPatch<void*>(0x004294C6, &TotalNumOfCarsOfRating);
+    CMemory::InstallPatch<void*>(0x4294C6, &TotalNumOfCarsOfRating);
     CMemory::InstallCallHook( 0x426A30, (DWORD)&ChooseCarModel, ASM_JMP);
     CMemory::InstallCallHook( 0x426820, (DWORD)&AddToCarArray, ASM_JMP);
 }

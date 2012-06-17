@@ -123,6 +123,9 @@
     <ClCompile Include="GameVC\CSprite2D.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
+    <ClCompile Include="GameVC\CWorld.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameVC\RenderWare.h">
@@ -205,6 +208,9 @@
     </ClInclude>
     <ClInclude Include="Utilities.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CWorld.h">
+      <Filter>Header Files\GameVC</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

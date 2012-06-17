@@ -93,6 +93,7 @@
     <ClCompile Include="GameVC\CTheCarGenerators.cpp" />
     <ClCompile Include="GameVC\CTheZones.cpp" />
     <ClCompile Include="GameVC\CTxdStore.cpp" />
+    <ClCompile Include="GameVC\CWorld.cpp" />
     <ClCompile Include="GameVC\GameVC.cpp" />
     <ClCompile Include="GameVC\RenderWare.cpp" />
     <ClCompile Include="FileLoaderAddIns.cpp" />
@@ -125,6 +126,7 @@
     <ClInclude Include="GameVC\CTheCarGenerators.h" />
     <ClInclude Include="GameVC\CTheZones.h" />
     <ClInclude Include="GameVC\CTxdStore.h" />
+    <ClInclude Include="GameVC\CWorld.h" />
     <ClInclude Include="GameVC\GameVC.h" />
     <ClInclude Include="GameVC\RenderWare.h" />
     <ClInclude Include="IDirect3D8Hook.h" />

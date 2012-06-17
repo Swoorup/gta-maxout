@@ -11,8 +11,8 @@ void nextChange(){
     CMemory::InstallPatch<byte>(0x48D95F, 0xDB);
 }
 
-void __declspec (naked) Hook_CGameInitialize(){
-    __asm{
+void _declspec (naked) Hook_CGameInitialize(){
+    _asm{
         push ebx
         call CFileLoader::LoadLevel
         pop ecx
@@ -89,21 +89,12 @@ void LoadCarGenerators(char* currentLine){
     int maxDelay;
     
     sscanf(currentLine, "%f %f %f %f %d %d %d %d %d %d %d %d", &fX, &fY, &fZ, &fangle, &iModelID, &primaryCol, &secondaryCol, &forceSpawn, &alarmProbability, &doorLockProbability, &minDelay, &maxDelay);
-    int currentIndex = CTheCarGenerators__CreateCarGenerator(fX, fY, fZ, 
-                                                                fangle, 
-                                                                iModelID, 
-                                                                primaryCol, 
-                                                                secondaryCol, 
-                                                                forceSpawn, 
-                                                                alarmProbability, 
-                                                                doorLockProbability, 
-                                                                minDelay, 
-                                                                maxDelay);
+    int currentIndex = CTheCarGenerators__CreateCarGenerator(fX, fY, fZ, fangle, iModelID, primaryCol, secondaryCol, forceSpawn, alarmProbability, doorLockProbability, minDelay, maxDelay);
     CCarGenerator__SwitchOn(currentIndex);
 }
 
-void __declspec (naked) HookReadLineCARS(){
-    __asm{
+void _declspec (naked) HookReadLineCARS(){
+    _asm {
         push esi
         call LoadCarGenerators
         pop esi

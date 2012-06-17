@@ -14,7 +14,7 @@ char* loadingStageText;
 
 DWORD dwHookJmp4A6A88 = 0x4A6A88;
 void _declspec (naked) GetLoadingScreenMsg(){
-    __asm{
+    _asm{
         mov eax, dword ptr [esp + 0x70]
         mov GameStateText, eax
         mov eax, dword ptr [esp + 0x74]
@@ -46,8 +46,8 @@ void DisplayLoadingScreenMsg(){
         CFont::SetScale(ResolutionX / 640.0f * 0.2f, ResolutionY / 448.0f * 0.8f);
     }
 
-    __asm   mov eax, 0x550250
-    __asm   call eax
+    _asm mov eax, 0x550250
+    _asm call eax
 }
 
 
@@ -61,7 +61,7 @@ void PatchLoadingBarDisplayOnly()
 
    //Background color
 
-  CMemory::InstallPatch<byte>(0x4A6B7C,113); //B
+  CMemory::InstallPatch<byte>(0x4A6B7C, 113); //B
   CMemory::InstallPatch<byte>(0x4A6B7E, 68); //G
   CMemory::InstallPatch<byte>(0x4A6B80, 11); //R
   
@@ -98,8 +98,8 @@ CCarGenerator* pNewCarGeneratorBuffer = NULL;
 int CTheCarGenerators__ProcessCounter; 
 
 DWORD dwHookJmp5A6CB4 = 0x005A6CB4;
-void __declspec (naked) HookCTheCarGenerators4bCounter(){
-    __asm{
+void _declspec (naked) HookCTheCarGenerators4bCounter() {
+    _asm{
         inc CTheCarGenerators__ProcessCounter
         cmp CTheCarGenerators__ProcessCounter, 4
         jnz Label_if_not_4
@@ -111,8 +111,7 @@ Label_if_not_4:
 }
 
 
-void PatchCarGeneratorLimit()
-{
+void PatchCarGeneratorLimit() {
     static uint32_t dwCarGeneratorDataRefs[] = 
     {	
         0x4537A9, 0x5A69DB, 0x5A69E6, 0x5A69F1, 0x5A69FC, 0x5A6A07, 0x5A6A14, 0x5A6A21, 
@@ -127,7 +126,7 @@ void PatchCarGeneratorLimit()
   
     for (int i = 0; i<ARRLEN(dwCarGeneratorDataRefs); i++){
         DWORD dwPrevProt = CMemory::UnProtect(dwCarGeneratorDataRefs[i], 4);
-        *((uint32_t*)dwCarGeneratorDataRefs[i]) -= 0x00A0DC94;
+        *((uint32_t*)dwCarGeneratorDataRefs[i]) -= 0xA0DC94;
         *((uint32_t*)dwCarGeneratorDataRefs[i]) += (uint32_t)pNewCarGeneratorBuffer;
         CMemory::RestoreProtection(dwCarGeneratorDataRefs[i], 4, dwPrevProt);
     }
@@ -136,8 +135,7 @@ void PatchCarGeneratorLimit()
     CMemory::InstallPatch<uint32_t>(0x5A6C16, MAXPARKEDCARS); 
   
     // Create a byte array of assembly instruction
-    uint8_t HookCCarGeneratorsInitBuffer[] = 
-    {
+    uint8_t HookCCarGeneratorsInitBuffer[] = {
         0xC7, 0x05, 0x90, 0x90, 0x90, 0x90, 0x00, 0x00, 0x00, 0x00,
         0xC7, 0x05, 0xA8, 0xF2, 0x97, 0x00, 0x00, 0x00, 0x00, 0x00,
         0xC3,

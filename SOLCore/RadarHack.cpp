@@ -28,42 +28,36 @@ XREFS
 We have to patch all this addresses to our custom allocated location ignoring the default location for TXD index storage
 */
 void Patch_RadarTXDindexes_address(void) {
-	UnProtect((DWORD)&RadarTXDStore, RADAR_TXD_LIMIT * 4);
     memset(&RadarTXDStore, 0, RADAR_TXD_LIMIT * 4);
-	UnProtect(0x4C1E3D, 4);
-	UnProtect(0x4C28B9, 4);
-	UnProtect(0x4C2900, 4);
-	UnProtect(0x4C2955, 4);
-	UnProtect(0x4C61D9, 4);
-	UnProtect(0x4C62D0, 4);
-	*(PDWORD)0x4C1E3D = (DWORD)&RadarTXDStore;
-	*(PDWORD)0x4C28B9 = (DWORD)&RadarTXDStore;
-	*(PDWORD)0x4C2900 = (DWORD)&RadarTXDStore;
-	*(PDWORD)0x4C2955 = (DWORD)&RadarTXDStore;
-	*(PDWORD)0x4C61D9 = (DWORD)&RadarTXDStore;
-	*(PDWORD)0x4C62D0 = (DWORD)&RadarTXDStore;
+    CMemory::InstallPatch<DWORD>(0x4C1E3D, (DWORD)&RadarTXDStore);
+    CMemory::InstallPatch<DWORD>(0x4C28B9, (DWORD)&RadarTXDStore);
+    CMemory::InstallPatch<DWORD>(0x4C2900, (DWORD)&RadarTXDStore);
+    CMemory::InstallPatch<DWORD>(0x4C2955, (DWORD)&RadarTXDStore);
+    CMemory::InstallPatch<DWORD>(0x4C61D9, (DWORD)&RadarTXDStore);
+    CMemory::InstallPatch<DWORD>(0x4C62D0, (DWORD)&RadarTXDStore);
 }
 
-void Patch_RadarGrid(void)
-{
+void Patch_RadarGrid(void) {
     // Install the patches to increase the size of the radar grid.
     float MapWidth = 18000.0f;
 
-    UnProtect(0x68FD00, 0xC);
-    /* SOL is 40,000 units wide from east to west and 40,000 units long from north to side
-    68FD00 should contain half of the wide of the map, 
-    but the SOLOteam had already adjusted their radar textures to be compatible with 18,000 wide map.
-    This might need extending in the future if more radar or map sections are to be added. 
-    So to hence to make it compatible with the current provide radar textures I am adjusting it to 9,000 (half of 18000).*/
+    //---------------------------------------------------------------------------------------
+    // SOL is 40,000 units wide from east to west and 40,000 units long from north to side.
+    // 68FD00 should contain half of the wide of the map, 
+    // but the SOLOteam had already adjusted their radar textures to be compatible with 18,000 wide map.
+    // This might need extending in the future if more radar or map sections are to be added. 
+    // So to hence to make it compatible with the current provide radar textures I am adjusting it to 9,000 (half of 18000).
+    //---------------------------------------------------------------------------------------
     
-    *(float*)0x68FD00 = MapWidth/2;
+    CMemory::InstallPatch<float>(0x68FD00, MapWidth/2.0f);
 
-    /* 68FD04 contains the multiplier to calculate current Radar Row and Columns.
-    This number is equal to 1/(map_width/numOfRadarTexIn_Arow) */
+    // 68FD04 contains the multiplier to calculate current Radar Row and Columns.
+    //This number is equal to 1/(map_width/numOfRadarTexIn_Arow)
 
-	*(float*)0x68FD04 = 1.0f/(MapWidth/(float)RadarTXDLimit);
-
-    *(float*)0x68FD08 = (float)RadarTXDLimit - 1.f;                // Adjustment for calculation of Radar Y coords (Rows)
+    CMemory::InstallPatch<float>(0x68FD04, 1.0f/(MapWidth/(float)RadarTXDLimit));
+    
+    // Adjustment for calculation of Radar Y coords (Rows)   
+    CMemory::InstallPatch<float>(0x68FD08, (float)RadarTXDLimit - 1.0f);
     
     // Patches for Relating World Cordinates to Radar Cordinates. Not needed as Map Width and TXD has been adjusted according to the original value
     //.text:004C1D82 178 69 D2 F4 01 00 00                          imul    edx, 500        ; Signed Multiply
@@ -111,8 +105,7 @@ void Patch_RadarGrid(void)
     // CRadar::StreamRadarSection Patches
 
     //.text:004C28DA 010 83 FA 07                                   cmp     edx, 7          ; Compare Two Operands
-    UnProtect(0x4C28DC, 1);
-    *(PBYTE)0x4C28DC = RadarTXDLimit- 1;
+    CMemory::InstallPatch <BYTE> (0x4C28DC, RadarTXDLimit - 1);
     //.text:004C28DF 010 BA 07 00 00 00                             mov     edx, 7
 	UnProtect(0x4C28E0, 1);
     *(PBYTE)0x4C28E0 = RadarTXDLimit - 1;
@@ -191,7 +184,7 @@ void _declspec(naked) Hook_ChangeRadarTileFormula(void) {
 		mov DW_TempTileID_Y, ebp //ebp is Y
 		pushad
 	}
-	DW_TempTileID_ID = RadarTXDStore[DW_TempTileID_X + RadarTXDLimit*DW_TempTileID_Y];
+	DW_TempTileID_ID = RadarTXDStore[DW_TempTileID_X + RadarTXDLimit * DW_TempTileID_Y];
 	_asm {
 		popad
 		mov edi, DW_TempTileID_ID
@@ -206,11 +199,11 @@ void _declspec(naked) Hook_ChangeRadarStreamTile(void) {
 	_asm {
 		mov DW_TempTileID_X, edx
 		mov DW_TempTileID_Y, ecx 
-		pushad          //Pushes general registers onto the stack
+		pushad
 	}
 	DW_TempTileID_ID = RadarTXDStore[DW_TempTileID_X + RadarTXDLimit*DW_TempTileID_Y] + 32760; //TXDLIMIT HERE
 	_asm {
-		popad           //Pops general registers from the stack, Cool eh?
+		popad 
 		push 5
 		push DW_TempTileID_ID
 		call Func_CStreaming_RequestModel
@@ -220,11 +213,8 @@ void _declspec(naked) Hook_ChangeRadarStreamTile(void) {
 }
 
 //============================================================================
-void __cdecl DEBUGHook_CRadar__DrawRadarMap(int radarX, int radarY)
-{
-              
+void _cdecl DEBUGHook_CRadar__DrawRadarMap(int radarX, int radarY) {
     wchar_t buff[90];
-               
                
     wsprintfW(buff,L"CurrentRadar: Radar%04d.txd",radarX + RadarTXDLimit * radarY);
     CFont::SetPropOff();
@@ -236,12 +226,10 @@ void __cdecl DEBUGHook_CRadar__DrawRadarMap(int radarX, int radarY)
 	CFont::SetBackGroundOnlyTextOff();
 	CFont::SetFontStyle(2);
 	CFont::SetPropOff();
-
 	CFont::SetColor(&CRGBA(194,192,192,255));
     CFont::PrintString(ResolutionX/ 640.0f * 150.0f, ResolutionY / 448.0f * 43.0f, buff);
 
-    __asm
-    {
+    _asm {
         push radarY
         push radarX
         mov ebx, 0x4C2870
@@ -263,14 +251,12 @@ void PatchRadar(bool bdebugMsg) {
 
 	// Install the hook to Stream the radar textures. Function is hooked at CRadar::StreamRadarSections
 	InstallHook(0x4C28F4, (DWORD)Hook_ChangeRadarStreamTile, 0x4C2611, RadarStreamTile_HookJmpCode, sizeof(RadarStreamTile_HookJmpCode));
-    
+
     // Install the hooks to change the dimensional calls to the size of the radar grid. Function is hooked at CRadar::DrawRadarSection
     CMemory::NoOperation(0x4C1E3A, 0x07);
 	CMemory::InstallCallHook(0x4C1E3A, (DWORD)Hook_ChangeRadarTileFormula, ASM_CALL);
-
     // Debugging Message for Radar(Optional)
-    if (bdebugMsg == TRUE)
-    {
+    if(bdebugMsg == true) {
         CMemory::UnProtect(0x4C186F, 5);
         CMemory::InstallCallHook(0x4C186F,(DWORD)&DEBUGHook_CRadar__DrawRadarMap, ASM_CALL);
     }

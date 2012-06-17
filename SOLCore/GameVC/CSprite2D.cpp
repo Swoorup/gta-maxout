@@ -1,17 +1,4 @@
-//###########################################################
-//#	CSprite2d.cpp:											#
-//#															#
-//#		Proxy between this DLL and VC's CSprite2d class.	#
-//#															#
-//###########################################################
-
-
-#include <Windows.h>
-#include "CSprite2d.h"
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~	Proxies to VC functions.								~
+#include "../StdInc.h"
 
 DWORD   dwFunc_CSprite2d__SetTexture1Param      = 0x005789E0;
 DWORD   dwFunc_CSprite2d__SetTexture2Param    = 0x005789B0;
@@ -19,25 +6,20 @@ DWORD   dwFunc_CSprite2d__DrawRect      = 0x00577B00;
 DWORD   dwFunc_CSprite2d__Draw1         = 0x005786A0;
 DWORD   dwFunc_CSprite2d__SetAddressing = 0x00578970;
 DWORD   dwFunc_CSprite2d__DrawTextureRect2Param = 0x00578710;
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-__declspec(naked) void CSprite2d::DrawRect(CRect& rect, CRGBA& colour)
-{
-	__asm jmp dwFunc_CSprite2d__DrawRect
+_declspec(naked) void CSprite2d::DrawRect(CRect& rect, CRGBA& colour) {
+	_asm jmp dwFunc_CSprite2d__DrawRect
 }
 
-__declspec(naked) void CSprite2d::Draw(CRect *rect, CRGBA *colour, float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
-{
-	__asm jmp dwFunc_CSprite2d__Draw1
+_declspec(naked) void CSprite2d::Draw(CRect *rect, CRGBA *colour, float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
+	_asm jmp dwFunc_CSprite2d__Draw1
 }
 
-__declspec(naked) void CSprite2d::DrawTextureRect(CRect&, CRGBA&)
-{
-    __asm jmp dwFunc_CSprite2d__DrawTextureRect2Param
+_declspec(naked) void CSprite2d::DrawTextureRect(CRect&, CRGBA&) {
+    _asm jmp dwFunc_CSprite2d__DrawTextureRect2Param
 }
 
-void CSprite2d::Draw3D(CRect& rect, CRGBA& colour, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4)
-{
+void CSprite2d::Draw3D(CRect& rect, CRGBA& colour, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4) {
 	typedef void (*pSetVertices)(CRect&,CRGBA&,CRGBA&,CRGBA&,CRGBA&,float,float,float,float,float,float,float,float);
 	pSetVertices SetVertices = (pSetVertices)0x00578010;
 
@@ -93,17 +75,14 @@ void CSprite2d::Draw3D(CRect& rect, CRGBA& colour, float x1, float y1, float z1,
 	RwIm3DRenderIndexedPrimitive(3, indices, 6);
 }
 
-__declspec(naked) void CSprite2d::SetTexture(char *name, char *maskName)
-{
-	__asm jmp dwFunc_CSprite2d__SetTexture2Param
+_declspec(naked) void CSprite2d::SetTexture(char *name, char *maskName) {
+	_asm jmp dwFunc_CSprite2d__SetTexture2Param
 }
 
-__declspec(naked) void CSprite2d::SetTexture(char* name)
-{
-    __asm jmp dwFunc_CSprite2d__SetTexture1Param
+_declspec(naked) void CSprite2d::SetTexture(char* name) {
+    _asm jmp dwFunc_CSprite2d__SetTexture1Param
 }
 
-__declspec(naked) void CSprite2d::SetAddressing(RwTextureAddressMode _RwTextureAddressMode)
-{
-    __asm jmp dwFunc_CSprite2d__SetAddressing
+_declspec(naked) void CSprite2d::SetAddressing(RwTextureAddressMode _RwTextureAddressMode) {
+    _asm jmp dwFunc_CSprite2d__SetAddressing
 }

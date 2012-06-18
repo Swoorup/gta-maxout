@@ -20,6 +20,7 @@
 #include "GamePatches.h"
 
 // game definations and new patches includes
+#include "GameVC\CGameVariables.h"
 #include "GameVC\CPathFindHook.h"
 #include "GameVC\CGameHookManager.h"
 #include "GameVC\RenderWare.h"

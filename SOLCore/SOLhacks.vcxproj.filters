@@ -126,6 +126,9 @@
     <ClCompile Include="GameVC\CWorld.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
+    <ClCompile Include="GameVC\CGameVariables.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameVC\RenderWare.h">
@@ -212,8 +215,14 @@
     <ClInclude Include="GameVC\CWorld.h">
       <Filter>Header Files\GameVC</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ToDos.txt" />
+    <ClInclude Include="GameVC\CCamera.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CMatrix.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CGameVariables.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -620,8 +620,7 @@ void CPathFind::FindNextNodeWandering(unsigned char iPathDataFor, float fX, floa
     // loop for current node's other segments
     for (int i = 0; i < pCurrentActPedNode->bitUnkCount4To7; i++){
         CPathNode* pDeltaNextNode = &m_AttachedPaths[AttachedPointsInfo[i+pCurrentActPedNode->wRouteInfoIndex] & 0x3FFF];
-        if ((pCurrentActPedNode->bitIsIgnoredNode) || 
-            !(pDeltaNextNode->bitIsIgnoredNode))
+        if ((pCurrentActPedNode->bitIsIgnoredNode) || !(pDeltaNextNode->bitIsIgnoredNode))
         {
             CVector vecNextDeltaPos(float(pDeltaNextNode->wX)/8.0f, float(pDeltaNextNode->wY)/8.0f, float(pDeltaNextNode->wZ)/8.0f + 1.0f);
             if (CWorld::GetIsLineOfSightClear(&vecCurrentPos, &vecNextDeltaPos, 1, 0, 0, 0, 0, 0, 0)){
@@ -770,103 +769,6 @@ bool CPathFind::NewGenerateCarCreationCoors(float fX, float fY, float fDirection
 // immediately.
 //----------------------------------------------------------------------------
 
-/*bool CPathFind::GeneratePedCreationCoors(float fX, float fY, float fRangeForRand, float fRange, float fRange1, float fRange2, CVector *pvecSpawnPosition, int *aStartNodeIndex, int *aFollowNodeIndex, float *frand, RwMatrix *rwMatrix) {
-    static int staticPedNodesCount = 0;
-
-    if(m_nPedAttachedNodes) {
-        float fReqRange = fRange + 30.0f;
-        for(int i = 0; i < 230; i++) {
-            staticPedNodesCount++;
-            if(staticPedNodesCount >= m_nPedAttachedNodes) {
-                staticPedNodesCount = 0;
-            }
-
-            int nStartNodeIndex = staticPedNodesCount + m_nCarAttachedNodes;
-            float fstartNodeX = (float)(m_AttachedPaths[nStartNodeIndex].wX) / 8.0f;
-            float fstartNodeY = (float)(m_AttachedPaths[nStartNodeIndex].wY) / 8.0f;
-            float fstartNodeDisplacement = sqrt((fstartNodeX - fX) * (fstartNodeX - fX) + (fstartNodeY - fY) * (fstartNodeY - fY));
-            if(fstartNodeDisplacement < fReqRange) {
-                for(int j = 0; j < m_AttachedPaths[nStartNodeIndex].bitUnkCount4To7; j++) {
-                    if(!(AttachedPointsInfo[j + m_AttachedPaths[nStartNodeIndex].wRouteInfoIndex] & 0x8000)) {
-                        int nNextNodeIndex = AttachedPointsInfo[j + m_AttachedPaths[nStartNodeIndex].wRouteInfoIndex] & 0x3FFF;
-
-                        // this can be put inside the i loop
-                        if(!(m_AttachedPaths[nStartNodeIndex].bitIsIgnoredNode)) {
-                            if(!(m_AttachedPaths[nNextNodeIndex].bitIsIgnoredNode)) {
-                                float fNextNodeX = (float)(m_AttachedPaths[nNextNodeIndex].wX) / 8.0f;
-                                float fNextNodeY = (float)(m_AttachedPaths[nNextNodeIndex].wY) / 8.0f;
-                                float fNextNodeDisplacement = sqrt((fNextNodeX - fX) * (fNextNodeX - fX) + (fNextNodeY - fY) * (fNextNodeY - fY));
-                                if(fstartNodeDisplacement < fRange || fNextNodeDisplacement < fRange) { // MaxRange
-                                    if(fstartNodeDisplacement > fRange1 || fNextNodeDisplacement > fRange1) { //MinRange
-                                        for(int k = 0; k < 5; k++) {
-                                            *frand = (float)(rand() % 256)/ 256.0f;
-                                            CVector vecOutPosition;
-                                            vecOutPosition.x = (float)(m_AttachedPaths[nNextNodeIndex].wX) / 8.0f * (*frand) + (float)(m_AttachedPaths[nStartNodeIndex].wX) / 8.0f * (1.0f - (*frand));
-                                            vecOutPosition.y = (float)(m_AttachedPaths[nNextNodeIndex].wY) / 8.0f * (*frand) + (float)(m_AttachedPaths[nStartNodeIndex].wY) / 8.0f * (1.0f - (*frand));
-                                            vecOutPosition.z = (float)(m_AttachedPaths[nNextNodeIndex].wZ) / 8.0f * (*frand) + (float)(m_AttachedPaths[nStartNodeIndex].wZ) / 8.0f * (1.0f - (*frand));
-                                            float fRandNodeDisplacement = sqrt((vecOutPosition.x - fX) * (vecOutPosition.x - fX) + (vecOutPosition.y - fY) * (vecOutPosition.y - fY));
-                                            RwV3d vPointOut;
-                                            vPointOut.x = vecOutPosition.x;
-                                            vPointOut.y = vecOutPosition.y;
-                                            vPointOut.z = vecOutPosition.z;
-                                            if(rwMatrix) {
-                                                RwV3dTransformPoints(&vPointOut, &vPointOut, 1, rwMatrix);
-                                            }
-                                            else{
-                                                RwV3dTransformPoints(&vPointOut, &vPointOut, 1, &TheCamera.field_820.rwMatrix);
-                                            }
-                                            bool bIsNewNodeQualified = false;
-                                            if((vPointOut.y + 2.0f) >= CGameVariables::GetNearClipZ()) {
-                                                if((vPointOut.y - 2.0f) <= CGameVariables::GetFarClipZ()) {
-                                                    if((vPointOut.y * TheCamera.field_8B8.y + vPointOut.x * TheCamera.field_8B8.x) <= 2.0f) {
-                                                        if((vPointOut.y * TheCamera.field_8C4.y + vPointOut.x * TheCamera.field_8C4.x) <= 2.0f) {
-                                                            if((vPointOut.z * TheCamera.field_8D0.z + vPointOut.y * TheCamera.field_8D0.y) <= 2.0f) {
-                                                                if((vPointOut.z * TheCamera.field_8DC.z + vPointOut.y * TheCamera.field_8DC.y) <= 2.0f) {
-                                                                    bIsNewNodeQualified = true;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            if((bIsNewNodeQualified == true && fRandNodeDisplacement > fRangeForRand && fRandNodeDisplacement < fRange) ||
-                                               (bIsNewNodeQualified == false && fRandNodeDisplacement > fRange1 && fRandNodeDisplacement < fRange2))
-                                            {
-                                                *aStartNodeIndex = nStartNodeIndex;
-                                                *aFollowNodeIndex = nNextNodeIndex;
-                                                *pvecSpawnPosition = vecOutPosition;
-
-                                                bool bDoesGroundExist = false;
-                                                // Get the actual collision ground, excuse current z by 2.0f
-                                                float fActualGround = CWorld::FindGroundZFor3DCoord(vecOutPosition.x, vecOutPosition.y, vecOutPosition.z + 2.0f, &bDoesGroundExist);
-                                                if (bDoesGroundExist == true) {
-                                                    float fGroundDifference = fActualGround - vecOutPosition.z;
-                                                    fGroundDifference = utl::abs<float>(fGroundDifference);
-                                                    if(fGroundDifference <= 3.0f) {
-                                                        pvecSpawnPosition->z = fActualGround;
-                                                        return true;
-                                                    }
-                                                    // the node is not proper for spawning the peds
-                                                    else {
-                                                        return false;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    else {
-        return false;
-    }
-}*/
 bool CPathFind::GeneratePedCreationCoors(float fX, float fY, float fMinRange, float fMaxRange, float fSecMinRange, float fSecMaxRange, CVector *pvecSpawnPos, int *pStartNodeIndex, int *pNextNodeIndex, float *fRandomByte, RwMatrix *rwTransformationMatrix) {
     static bool staticPedNodeCheck = false;
     static int staticPedNodesCount;

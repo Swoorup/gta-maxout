@@ -117,7 +117,7 @@ public:
     _pad(__fxpad00, 1); // 11-12
 
     CDetachedNode();
-    double CalculateLaneDistance();
+    float CalculateLaneDistance();
 };
 
 class CPathFind{

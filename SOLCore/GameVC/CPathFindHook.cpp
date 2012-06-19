@@ -53,7 +53,7 @@ int (CPathFind::*p_mFindNodeClosestToCoorsFavourDirection)(float fX, float fY, f
 //          -can be optimized using a grid system
 //-------------------------------------------------------------------------------
 
-double (CDetachedNode::*p_mCalculateLaneDistance)();
+float (CDetachedNode::*p_mCalculateLaneDistance)();
 // CDetachedNode::CalculateLaneDistance - REVISION NEEDED
 void TemporaryTest(){
 }

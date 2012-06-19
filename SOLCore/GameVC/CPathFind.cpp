@@ -1417,20 +1417,20 @@ CDetachedNode::CDetachedNode(){
     memset(this, 0, sizeof(CDetachedNode));
 }
 
-double CDetachedNode::CalculateLaneDistance() {
+float CDetachedNode::CalculateLaneDistance() {
 	double distance;
 	
 	if (this->bitLeftLanes) {
 		if (this->bitRightLanes) {
-			distance = (double)(this->sbMedianWidth) / 8.0 + 1.0/2.0;
+			distance = (float)(this->sbMedianWidth) / 80.0f + 1.0f/2.0f;
 		}
 		else {
-			distance = 1.0/2.0 - (double)(this->bitLeftLanes) * 1.0/2.0;
+			distance = 1.0f/2.0f - (float)(this->bitLeftLanes) * 1.0f/2.0f;
 		}
     }
 	else {
-		distance = 1.0/2.0 - (double)(this->bitRightLanes) * 1.0/2.0;
+		distance = 1.0f/2.0f - (float)(this->bitRightLanes) * 1.0f/2.0f;
 	}
-	return distance;
+	return (float)distance;
 }
 #endif

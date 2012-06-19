@@ -31,21 +31,21 @@ struct CPathInfoForObject{
 };
 
 struct CTempNode{
-	float fX;
-    float fY;
-    float fZ;
-    signed char byteNormalX;
+	float fX; // 0-4
+    float fY; // 4-8
+    float fZ; // 8-12
+    signed char byteNormalX; // 12-13
     //unit vector component-X
-    signed char byteNormalY;
+    signed char byteNormalY; // 13-14
     //unit vector component-Y
-    unsigned short PrevDetachedIndex;
-    unsigned short NextDetachedIndex;
-    unsigned char byteLeftLanes;
-	unsigned char byteRightLanes;
-	signed char sbMedianWidth;
-	bool bIsCrossRoad;
-    unsigned char processState;
-	_pad(__fxpad00, 1);
+    unsigned short PrevDetachedIndex; // 14-16
+    unsigned short NextDetachedIndex; // 16-18
+    unsigned char byteLeftLanes; // 18-19
+	unsigned char byteRightLanes; // 19-20
+	signed char sbMedianWidth; // 20-21
+	bool bIsCrossRoad; // 21-22
+    unsigned char processState; //22-23
+	_pad(__fxpad00, 1); // 23-24
 };
 
 struct CTempDetachedNode{
@@ -99,7 +99,6 @@ public:
     
 	unsigned char byteSpawnRate; // 18-19
 	unsigned char byteField0x013; // 19-20
-
     CPathNode();
 };
 
@@ -163,6 +162,7 @@ public:
     bool NewGenerateCarCreationCoors(float fX, float fY, float fDirectionVecX, float fDirectionVecY, float fRange, float fZlookUp, bool bShouldSpawnPositiveDirection, CVector *pVecPosition, int *aMainNodeIndex, int *aSubNodeIndex, float *aNodeRangeDiffCoeff, char bDontCheckIgnored);
     bool GeneratePedCreationCoors(float fX, float fY, float fRangeForRand, float fRange, float fRange1, float fRange2, CVector *pVecOutPosition, int *aStartNodeIndex, int *aFollowNodeIndex, float *frand, RwMatrix *rwMatrix);
     bool TestCoorsCloseness(float fDestinationX, float fDestinationY, float fDestinationZ, uint8_t uiPathDataFor, float fOriginX, float fOriginY, float fOriginZ);
+    float CalcRoadDensity(float fX, float fY);
 
     // Static Objects
     static int g_nCarGroupNodes;

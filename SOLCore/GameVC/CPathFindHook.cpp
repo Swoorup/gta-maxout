@@ -21,6 +21,7 @@ void (CPathFind::*p_mFindNextNodeWandering)(unsigned char iPathDataFor, float fX
 bool (CPathFind::*p_mNewGenerateCarCreationCoors)(float fX, float fY, float fDirectionVecX, float fDirectionVecY, float fRange, float fZlookUp, bool bShouldSpawnPositiveDirection, CVector *pVecPosition, int *aMainNodeIndex, int *aSubNodeIndex, float *aNodeRangeDiffCoeff, char bDontCheckIgnored);
 bool (CPathFind::*p_mGeneratePedCreationCoors)(float fX, float fY, float fRangeForRand, float fRange, float fRange1, float fRange2, CVector *pVecOutPosition, int *aStartNodeIndex, int *aFollowNodeIndex, float *frand, RwMatrix *rwMatrix);
 bool (CPathFind::*p_mTestCoorsCloseness)(float fDestinationX, float fDestinationY, float fDestinationZ, uint8_t uiPathDataFor, float fOriginX, float fOriginY, float fOriginZ);
+float (CPathFind::*p_mCalcRoadDensity)(float fX, float fY);
 //-----------------------------------------------------------------------------
 // List Of Functions Hooked
 // 1.  CPathFind::Init                 -FINE GRAINED
@@ -31,15 +32,20 @@ bool (CPathFind::*p_mTestCoorsCloseness)(float fDestinationX, float fDestination
 // 6.  CFileLoader::LoadScene          -FINE GRAINED
 // 7.  CPathFind::PreparePathData      -FINE GRAINED
 // 8.  CPathFind::AllocatePathFindInfoMem- FINE GRAINED
-// 9.  CPathFind::AddNodeToList        - FINE GRAINED
-// 10. CPathFind::RemoveNodeFromList   - FINE GRAINED
-// 11. CPathFind::FindNodeToCoors      - REVISION NEEDED
-// 12. CPathFind::DoPathSearch         - REVISION NEEDED
+// 9.  CPathFind::AddNodeToList - FINE GRAINED
+// 10. CPathFind::RemoveNodeFromList - FINE GRAINED
+// 11. CPathFind::FindNodeClosestToCoors - REVISION NEEDED
+//          -can be optimized by setting up a grid system.
+//          -work is needed in improving generation per calls
+// 12. CPathFind::DoPathSearch - REVISION NEEDED
 // 13. CPathFind::RemoveBadStartNode   - REVISION DONE
 // 14. CPathFind::FindNextNodeWandering -REVISION NEEDED
-// 15. CPathFind::NewGenerateCarCreationCoors - Optimization needed, finding new nodes 
-// 16. CPathFind::GeneratePedCreationCoors - FINE GRAINED
+// 15. CPathFind::NewGenerateCarCreationCoors - Optimization needed, finding new nodes - work is needed in improving generation per calls
+// 16. CPathFind::GeneratePedCreationCoors - FINE GRAINED - work is needed in improving generation per calls
 // 17. CPathFind::TestCoorsCloseness - FINE GRAINED
+// 18. CPathFind::CalcRoadDensity - FINE GRAINED
+//          This functions calculates the sum of displacement between car nodes inside an area.
+//          The number is the divided by the area of the game (2500.0) to get the actual density
 //-------------------------------------------------------------------------------
 
 void TemporaryTest(){
@@ -60,6 +66,7 @@ void CPathFindHook::ApplyHook(){
     p_mNewGenerateCarCreationCoors = &CPathFind::NewGenerateCarCreationCoors;
     p_mGeneratePedCreationCoors = &CPathFind::GeneratePedCreationCoors;
     p_mTestCoorsCloseness = &CPathFind::TestCoorsCloseness;
+    p_mCalcRoadDensity = &CPathFind::CalcRoadDensity;
 
     // Disable Unused CPathFind Treadables in CFileLoader::LoadObjectInstance
     CMemory::NoOperation(0x48AE30, 44);
@@ -82,6 +89,7 @@ void CPathFindHook::ApplyHook(){
     CMemory::InstallCallHook(0x4382B0, (DWORD)(void*&)p_mNewGenerateCarCreationCoors, ASM_JMP);
     CMemory::InstallCallHook(0x437B10, (DWORD)(void*&)p_mGeneratePedCreationCoors, ASM_JMP);
     CMemory::InstallCallHook(0x437A40, (DWORD)(void*&)p_mTestCoorsCloseness, ASM_JMP);
+    CMemory::InstallCallHook(0x4377F0, (DWORD)(void*&)p_mCalcRoadDensity, ASM_JMP);
     TemporaryTest();
 }
 

@@ -594,7 +594,7 @@ int CPathFind::FindNodeClosestToCoors(float fX, float fY, float fZ, unsigned cha
 		return -1;
 }
 
-void CPathFind::FindNextNodeWandering(unsigned char iPathDataFor, float fX, float fY, float fZ, CPathNode** pCurrentNode, CPathNode** pNextNode, uint8_t bytePreviousDirection, uint8_t *byteNewDirection){
+void CPathFind::FindNextNodeWandering(uint8_t iPathDataFor, float fX, float fY, float fZ, CPathNode** pCurrentNode, CPathNode** pNextNode, uint8_t bytePreviousDirection, uint8_t *byteNewDirection){
     CVector vecCurrentPos(fX, fY, fZ + 1.0f);
     CPathNode* pCurrentActPedNode;
 
@@ -882,6 +882,36 @@ bool CPathFind::GeneratePedCreationCoors(float fX, float fY, float fMinRange, fl
     	}
     }
     return false;
+}
+
+float CPathFind::CalcRoadDensity(float fX, float fY) {
+	float fDeltaDensity = 0.0f;
+	for (int i = 0; i < m_nCarAttachedNodes; i++) {
+		float fStartNodeX = (float)(m_AttachedPaths[i].wX) / 8.0f;
+		float fStartNodeY = (float)(m_AttachedPaths[i].wY) / 8.0f;
+		
+        // ignore nodes that are over 80 units range
+		if (utl::abs<float>(fStartNodeX - fX) >= 80.0f) {
+			continue;
+		}
+		if (utl::abs<float>(fStartNodeX - fY) >= 80.0f) {
+			continue;
+		}
+		
+		for (int j = 0; j < m_AttachedPaths[i].bitUnkCount4To7; j++) {
+			int nNextNodeIndex = AttachedPointsInfo[j+ m_AttachedPaths[i].wRouteInfoIndex] & 0x3FFF;
+			int nDetachedNodeIndex = DetachedPointsInfo[j+ m_AttachedPaths[i].wRouteInfoIndex];
+			float fnextNodeX = (float)(m_AttachedPaths[nNextNodeIndex].wX) / 8.0f;
+			float fnextNodeY = (float)(m_AttachedPaths[nNextNodeIndex].wY) / 8.0f;
+			float fDisplacement = sqrt((fStartNodeX - fnextNodeX) * (fStartNodeX - fnextNodeX) + (fStartNodeY - fnextNodeY) * (fStartNodeY - fnextNodeY));
+			fDeltaDensity += (float)(m_DetachedNodes[nDetachedNodeIndex].bitLeftLanes) * fDisplacement + (float)(m_DetachedNodes[nDetachedNodeIndex].bitRightLanes) * fDisplacement;
+		}
+	}
+	
+	// sum of displacements between ranged nodes is divided by the area of game to get the density
+	float fViceCityRoadDensity = fDeltaDensity / 2500.0f;
+    CDebug::DebugAddText("Road Density: %f", fViceCityRoadDensity);
+	return fViceCityRoadDensity;
 }
 
 bool CPathFind::TestCoorsCloseness(float fDestinationX, float fDestinationY, float fDestinationZ, uint8_t uiPathDataFor, float fOriginX, float fOriginY, float fOriginZ) {
@@ -1317,7 +1347,6 @@ CPathNode::CPathNode(){
     sbField0x0F = 0;
     bitUnkFlagFor2 = 0;
     bitPadFlags8To10 = 0;
-    byteField0x013 = 0;
     bitUnkCount4To7 = 0;
 }
 

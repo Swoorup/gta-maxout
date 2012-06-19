@@ -1422,14 +1422,14 @@ double CDetachedNode::CalculateLaneDistance() {
 	
 	if (this->bitLeftLanes) {
 		if (this->bitRightLanes) {
-			distance = (double)(this->sbMedianWidth) / 8.0 + 1.0 / 2.0;
+			distance = (double)(this->sbMedianWidth) / 8.0 + 1.0/2.0;
 		}
 		else {
-			distance = (double)(this->bitLeftLanes) * 1.0 / 2.0;
+			distance = 1.0/2.0 - (double)(this->bitLeftLanes) * 1.0/2.0;
 		}
     }
 	else {
-		distance = (double)(this->bitRightLanes) * 1.0 / 2.0;
+		distance = 1.0/2.0 - (double)(this->bitRightLanes) * 1.0/2.0;
 	}
 	return distance;
 }

@@ -976,6 +976,7 @@ int CPathFind::FindNodeClosestToCoorsFavourDirection(float fX, float fY, float f
 	return ifoundNode;
 }
 
+
 bool CPathFind::TestCoorsCloseness(float fDestinationX, float fDestinationY, float fDestinationZ, uint8_t uiPathDataFor, float fOriginX, float fOriginY, float fOriginZ) {
     static CPathNode *pIntermediateCarRouteInfos[32] = {0};
     static short sCarSteps = 0;
@@ -1414,5 +1415,22 @@ CPathNode::CPathNode(){
 
 CDetachedNode::CDetachedNode(){
     memset(this, 0, sizeof(CDetachedNode));
+}
+
+double CDetachedNode::CalculateLaneDistance() {
+	double distance;
+	
+	if (this->bitLeftLanes) {
+		if (this->bitRightLanes) {
+			distance = (double)(this->sbMedianWidth) / 8.0 + 1.0 / 2.0;
+		}
+		else {
+			distance = (double)(this->bitLeftLanes) * 1.0 / 2.0;
+		}
+    }
+	else {
+		distance = (double)(this->bitRightLanes) * 1.0 / 2.0;
+	}
+	return distance;
 }
 #endif

@@ -53,6 +53,8 @@ int (CPathFind::*p_mFindNodeClosestToCoorsFavourDirection)(float fX, float fY, f
 //          -can be optimized using a grid system
 //-------------------------------------------------------------------------------
 
+double (CDetachedNode::*p_mCalculateLaneDistance)();
+// CDetachedNode::CalculateLaneDistance - REVISION NEEDED
 void TemporaryTest(){
 }
 
@@ -74,6 +76,7 @@ void CPathFindHook::ApplyHook(){
     p_mCalcRoadDensity = &CPathFind::CalcRoadDensity;
     p_mFindNodeClosestToCoorsFavourDirection = &CPathFind::FindNodeClosestToCoorsFavourDirection;
 
+    p_mCalculateLaneDistance = &CDetachedNode::CalculateLaneDistance;
     // Disable Unused CPathFind Treadables in CFileLoader::LoadObjectInstance
     CMemory::NoOperation(0x48AE30, 44);
     // Hooks in CGame::Init
@@ -97,6 +100,8 @@ void CPathFindHook::ApplyHook(){
     CMemory::InstallCallHook(0x437A40, (DWORD)(void*&)p_mTestCoorsCloseness, ASM_JMP);
     CMemory::InstallCallHook(0x4377F0, (DWORD)(void*&)p_mCalcRoadDensity, ASM_JMP);
     CMemory::InstallCallHook(0x436E40, (DWORD)(void*&)p_mFindNodeClosestToCoorsFavourDirection, ASM_JMP);
+
+    CMemory::InstallCallHook(0x434EB0, (DWORD)(void*&)p_mCalculateLaneDistance, ASM_JMP);
     TemporaryTest();
 }
 

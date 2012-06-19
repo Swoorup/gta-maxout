@@ -22,6 +22,7 @@ bool (CPathFind::*p_mNewGenerateCarCreationCoors)(float fX, float fY, float fDir
 bool (CPathFind::*p_mGeneratePedCreationCoors)(float fX, float fY, float fRangeForRand, float fRange, float fRange1, float fRange2, CVector *pVecOutPosition, int *aStartNodeIndex, int *aFollowNodeIndex, float *frand, RwMatrix *rwMatrix);
 bool (CPathFind::*p_mTestCoorsCloseness)(float fDestinationX, float fDestinationY, float fDestinationZ, uint8_t uiPathDataFor, float fOriginX, float fOriginY, float fOriginZ);
 float (CPathFind::*p_mCalcRoadDensity)(float fX, float fY);
+int (CPathFind::*p_mFindNodeClosestToCoorsFavourDirection)(float fX, float fY, float fZ, uint8_t uiPathDataFor, float fLookAtX, float fLookAtY);
 //-----------------------------------------------------------------------------
 // List Of Functions Hooked
 // 1.  CPathFind::Init                 -FINE GRAINED
@@ -46,6 +47,10 @@ float (CPathFind::*p_mCalcRoadDensity)(float fX, float fY);
 // 18. CPathFind::CalcRoadDensity - FINE GRAINED
 //          This functions calculates the sum of displacement between car nodes inside an area.
 //          The number is the divided by the area of the game (2500.0) to get the actual density
+// 19. CPathFind::FindNodeClosestToCoorsFavourDirection - REVISION NEEEDED
+//          This function calculates the nearest node favouring the direction an entity is heading
+//          or if not specified the x/straight direction of the entity
+//          -can be optimized using a grid system
 //-------------------------------------------------------------------------------
 
 void TemporaryTest(){
@@ -67,6 +72,7 @@ void CPathFindHook::ApplyHook(){
     p_mGeneratePedCreationCoors = &CPathFind::GeneratePedCreationCoors;
     p_mTestCoorsCloseness = &CPathFind::TestCoorsCloseness;
     p_mCalcRoadDensity = &CPathFind::CalcRoadDensity;
+    p_mFindNodeClosestToCoorsFavourDirection = &CPathFind::FindNodeClosestToCoorsFavourDirection;
 
     // Disable Unused CPathFind Treadables in CFileLoader::LoadObjectInstance
     CMemory::NoOperation(0x48AE30, 44);
@@ -90,6 +96,7 @@ void CPathFindHook::ApplyHook(){
     CMemory::InstallCallHook(0x437B10, (DWORD)(void*&)p_mGeneratePedCreationCoors, ASM_JMP);
     CMemory::InstallCallHook(0x437A40, (DWORD)(void*&)p_mTestCoorsCloseness, ASM_JMP);
     CMemory::InstallCallHook(0x4377F0, (DWORD)(void*&)p_mCalcRoadDensity, ASM_JMP);
+    CMemory::InstallCallHook(0x436E40, (DWORD)(void*&)p_mFindNodeClosestToCoorsFavourDirection, ASM_JMP);
     TemporaryTest();
 }
 

@@ -914,6 +914,68 @@ float CPathFind::CalcRoadDensity(float fX, float fY) {
 	return fViceCityRoadDensity;
 }
 
+int CPathFind::FindNodeClosestToCoorsFavourDirection(float fX, float fY, float fZ, uint8_t uiPathDataFor, float fLookAtX, float fLookAtY) {
+	// normalize the LookAt vector
+	float fLookAtLength = sqrt(fLookAtX * fLookAtX + fLookAtY * fLookAtY);
+	if (fLookAtLength == 0.0f) {
+		// maybe the LookAt vector components was set to 0.0
+		fLookAtX = 1.0f;
+	}
+	else {
+		fLookAtX = fLookAtX / fLookAtLength;
+		fLookAtY = fLookAtY / fLookAtLength;
+	}
+	int ifoundNode = 0;
+	float fprevRangedCoefficient = 10000.0f;
+	int iStartNodeIndex, iEndNodeIndex;
+	
+	switch (uiPathDataFor) {
+		case PATHDATAFOR_CAR:
+			iStartNodeIndex = 0;
+			iEndNodeIndex = m_nCarAttachedNodes;
+			break;
+		case PATHDATAFOR_PED:
+			iStartNodeIndex = m_nCarAttachedNodes;
+			iEndNodeIndex = m_nAttachedNodes;
+			break;
+	}
+	
+	// if some PathFind member function tricked us
+	if (iStartNodeIndex >= iEndNodeIndex) {
+		return 0;
+	}
+	
+	for (int i = iStartNodeIndex; i < iEndNodeIndex; i++) {
+		float fnodeDiffX = (float)(m_AttachedPaths[i].wX) / 8.0f - fX;
+		float fnodeDiffY = (float)(m_AttachedPaths[i].wY) / 8.0f - fY;
+		float fnodeDiffZ = (float)(m_AttachedPaths[i].wZ) / 8.0f - fZ;
+		
+		float fcurDistCoefficient = utl::abs<float>(fnodeDiffX) + utl::abs<float>(fnodeDiffY) + 3.0f* utl::abs<float>(fnodeDiffZ); 
+		if (fcurDistCoefficient < fprevRangedCoefficient) {
+			float fdirectionVecX, fdirectionVecY;
+			float flengthBetweenNodes = sqrt(fnodeDiffX * fnodeDiffX + fnodeDiffY * fnodeDiffY);
+
+			// may be there was no distance between caller's position and paths node
+			if (flengthBetweenNodes == 0.0f) {
+				fdirectionVecX = 1.0f;
+				fdirectionVecY = 0.0f;
+			}
+			else {
+				fdirectionVecX = fnodeDiffX / flengthBetweenNodes;
+				fdirectionVecY = fnodeDiffY / flengthBetweenNodes;
+			}
+			
+			float fimmCoefficientWithDirection = fcurDistCoefficient + (fdirectionVecY * fLookAtY + fdirectionVecX * fLookAtX - 1.0f) * -20.0f;
+			if (fimmCoefficientWithDirection < fprevRangedCoefficient) {
+				fprevRangedCoefficient = fimmCoefficientWithDirection;
+				ifoundNode = i;
+			}
+		}
+	}
+    CDebug::DebugAddText("ifoundNode %d", ifoundNode);
+	return ifoundNode;
+}
+
 bool CPathFind::TestCoorsCloseness(float fDestinationX, float fDestinationY, float fDestinationZ, uint8_t uiPathDataFor, float fOriginX, float fOriginY, float fOriginZ) {
     static CPathNode *pIntermediateCarRouteInfos[32] = {0};
     static short sCarSteps = 0;

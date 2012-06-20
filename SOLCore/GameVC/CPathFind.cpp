@@ -1418,19 +1418,38 @@ CDetachedNode::CDetachedNode(){
 }
 
 float CDetachedNode::CalculateLaneDistance() {
-	double distance;
+	float fdistance;
 	
 	if (this->bitLeftLanes) {
 		if (this->bitRightLanes) {
-			distance = (float)(this->sbMedianWidth) / 80.0f + 1.0f/2.0f;
+			fdistance = (float)(this->sbMedianWidth) / 80.0f + 1.0f/2.0f;
 		}
 		else {
-			distance = 1.0f/2.0f - (float)(this->bitLeftLanes) * 1.0f/2.0f;
+			fdistance = 1.0f/2.0f - (float)(this->bitLeftLanes) * 1.0f/2.0f;
 		}
     }
 	else {
-		distance = 1.0f/2.0f - (float)(this->bitRightLanes) * 1.0f/2.0f;
+		fdistance = 1.0f/2.0f - (float)(this->bitRightLanes) * 1.0f/2.0f;
 	}
-	return (float)distance;
+	return fdistance;
 }
+
+void _cdecl CPedPath::CalculateBestRandomCoors(CPathNode* pPathNodeA, CPathNode* pPathNodeB, short sRand, float* fX, float* fY) {
+    char uiMedian = pPathNodeA->sbMedianWidth;
+
+    if (uiMedian > pPathNodeB->sbMedianWidth) {
+        uiMedian = pPathNodeB->sbMedianWidth;
+    }
+    *fX = (float)(((sRand & 15) - 7) * uiMedian) * 0.0077499999f + *fX;
+    *fY = (float)((((sRand >> 4) & 15) - 7) * uiMedian) * 0.0077499999f + *fY;
+}
+
+CVector* _cdecl CPedPath::CalculateRandomCoordinates(CVector* pvecPosition, CPathNode* pPathNode, short sRand) {
+    pvecPosition->x = (float)(pPathNode->sbMedianWidth * ((sRand & 15) - 7)) * 0.0077499999f + (float)(pPathNode->wX) / 8.0f;
+    pvecPosition->y = (float)(pPathNode->sbMedianWidth * (((sRand >> 4) & 15) - 7)) * 0.0077499999f + (float)(pPathNode->wY) / 8.0f;
+    pvecPosition->z = (float)(pPathNode->wZ) / 8.0f;
+
+    return pvecPosition;
+}
+
 #endif

@@ -23,6 +23,8 @@ bool (CPathFind::*p_mGeneratePedCreationCoors)(float fX, float fY, float fRangeF
 bool (CPathFind::*p_mTestCoorsCloseness)(float fDestinationX, float fDestinationY, float fDestinationZ, uint8_t uiPathDataFor, float fOriginX, float fOriginY, float fOriginZ);
 float (CPathFind::*p_mCalcRoadDensity)(float fX, float fY);
 int (CPathFind::*p_mFindNodeClosestToCoorsFavourDirection)(float fX, float fY, float fZ, uint8_t uiPathDataFor, float fLookAtX, float fLookAtY);
+bool (CPathFind::*p_mTestCrossesRoad)(CPathNode* pStartNode, CPathNode* pConnectedNode);
+bool (CPathFind::*p_mTestForPedTrafficLight)(CPathNode* pStartNode, CPathNode* pConnectedNode);
 //-----------------------------------------------------------------------------
 // List Of Functions Hooked
 // 1.  CPathFind::Init                 -FINE GRAINED
@@ -51,6 +53,8 @@ int (CPathFind::*p_mFindNodeClosestToCoorsFavourDirection)(float fX, float fY, f
 //          This function calculates the nearest node favouring the direction an entity is heading
 //          or if not specified the x/straight direction of the entity
 //          -can be optimized using a grid system
+// 20. CPathFind::TestCrossesRoad
+// 21. CPathFind::TestForPedTrafficLight
 //-------------------------------------------------------------------------------
 
 float (CDetachedNode::*p_mCalculateLaneDistance)();
@@ -75,6 +79,8 @@ void CPathFindHook::ApplyHook(){
     p_mTestCoorsCloseness = &CPathFind::TestCoorsCloseness;
     p_mCalcRoadDensity = &CPathFind::CalcRoadDensity;
     p_mFindNodeClosestToCoorsFavourDirection = &CPathFind::FindNodeClosestToCoorsFavourDirection;
+    p_mTestCrossesRoad = &CPathFind::TestCrossesRoad;
+    p_mTestForPedTrafficLight = &CPathFind::TestForPedTrafficLight;
 
     p_mCalculateLaneDistance = &CDetachedNode::CalculateLaneDistance;
     // Disable Unused CPathFind Treadables in CFileLoader::LoadObjectInstance
@@ -100,6 +106,8 @@ void CPathFindHook::ApplyHook(){
     CMemory::InstallCallHook(0x437A40, (DWORD)(void*&)p_mTestCoorsCloseness, ASM_JMP);
     CMemory::InstallCallHook(0x4377F0, (DWORD)(void*&)p_mCalcRoadDensity, ASM_JMP);
     CMemory::InstallCallHook(0x436E40, (DWORD)(void*&)p_mFindNodeClosestToCoorsFavourDirection, ASM_JMP);
+    CMemory::InstallCallHook(0x4354E0, (DWORD)(void*&)p_mTestCrossesRoad, ASM_JMP);
+    CMemory::InstallCallHook(0x4356B0, (DWORD)(void*&)p_mTestForPedTrafficLight, ASM_JMP);
 
     CMemory::InstallCallHook(0x434EB0, (DWORD)(void*&)p_mCalculateLaneDistance, ASM_JMP);
     CMemory::InstallCallHook(0x435140, (DWORD)&CPedPath::CalculateBestRandomCoors, ASM_JMP);

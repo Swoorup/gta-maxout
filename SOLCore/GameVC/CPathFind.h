@@ -165,6 +165,8 @@ public:
     bool TestCoorsCloseness(float fDestinationX, float fDestinationY, float fDestinationZ, uint8_t uiPathDataFor, float fOriginX, float fOriginY, float fOriginZ);
     float CalcRoadDensity(float fX, float fY);
     int FindNodeClosestToCoorsFavourDirection(float fX, float fY, float fZ, uint8_t uiPathDataFor, float fLookAtX, float fLookAtY);
+    bool TestCrossesRoad(CPathNode* pStartNode, CPathNode* pConnectedNode);
+    bool TestForPedTrafficLight(CPathNode* pStartNode, CPathNode* pConnectedNode);
 
     // Static Objects
     static int g_nCarGroupNodes;

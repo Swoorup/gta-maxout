@@ -192,6 +192,403 @@ void CPathFind::PreparePathData(void){
     CDebug::DebugAddText("Done with PreparePathData\n");
 }
 
+void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode* pTempNode, CPathInfoForObject* pUnusedPathInfos, float fUnkRange, CPathInfoForObject* pPathInfosForObject, int nGroupNodesForObject) {
+    signed short *ptempIndices = new signed short[9650];
+	int32_t nTmpDetachedNodes = 0;
+	int32_t nPrevObjectAttachedNodes = m_nAttachedNodes;
+	int32_t nPrevObjectAttachedPoints = m_nAttachedPoints;
+
+	if (nGroupNodesForObject > 0){
+		for (int i = 0; i < nGroupNodesForObject; i++){
+			int nAttachedPathsForCurrentGroup = m_nAttachedNodes;
+			for (int j = i*12; j < (i*12 + 12); j++){
+				if ( pPathInfosForObject[j].byteNodeType == NODEINFOTYPE_INTERNAL){
+					m_AttachedPaths[m_nAttachedNodes].wX = (signed int)(8.0f * pPathInfosForObject[j].fX);
+					m_AttachedPaths[m_nAttachedNodes].wY = (signed int)(8.0f * pPathInfosForObject[j].fY);
+					m_AttachedPaths[m_nAttachedNodes].wZ = (signed int)(8.0f * pPathInfosForObject[j].fZ);
+
+					ptempIndices[m_nAttachedNodes] = -(1  + i);
+					m_AttachedPaths[m_nAttachedNodes].sbMedianWidth = pPathInfosForObject[j].sbMedianWidth;
+					m_AttachedPaths[m_nAttachedNodes].byteSpawnRate = pPathInfosForObject[j].byteSpawnRate;
+
+					m_AttachedPaths[m_nAttachedNodes].bitSpeedLimit = pPathInfosForObject[j].byteSpeedLimit;
+					m_AttachedPaths[m_nAttachedNodes].bitCopsRoadBlock = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_POLICEROADBLOCK) >> 2;
+					m_AttachedPaths[m_nAttachedNodes].bitIsIgnoredNode = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_IGNORENODEAREA) >> 3;
+					m_AttachedPaths[m_nAttachedNodes].bitIsVehicleBoat = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_VEHICLETYPEBOAT) >> 4;
+					m_AttachedPaths[m_nAttachedNodes].bitHaveUnrandomizedVehClass = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_HAVEUNRANDOMIZEDVEHCLASS) >> 1;
+					m_AttachedPaths[m_nAttachedNodes].bitRestrictedAccess = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_RESTRICTEDACCESS) >> 5;
+					m_nAttachedNodes++;
+				}
+				else if ( pPathInfosForObject[j].byteNodeType == NODEINFOTYPE_EXTERNAL){
+					g_pTempDetachedNodes[nTmpDetachedNodes].fX = pPathInfosForObject[j].fX;
+					g_pTempDetachedNodes[nTmpDetachedNodes].fY = pPathInfosForObject[j].fY;
+					g_pTempDetachedNodes[nTmpDetachedNodes].fZ = pPathInfosForObject[j].fZ;
+					g_pTempDetachedNodes[nTmpDetachedNodes].sNextNodeIndex = pPathInfosForObject[j].sbNextNode + nAttachedPathsForCurrentGroup;
+					g_pTempDetachedNodes[nTmpDetachedNodes].byteLeftLanes = pPathInfosForObject[j].byteLeftLanes;
+					g_pTempDetachedNodes[nTmpDetachedNodes].byteRightLanes = pPathInfosForObject[j].byteRightLanes;
+					g_pTempDetachedNodes[nTmpDetachedNodes].sbMedianWidth = pPathInfosForObject[j].sbMedianWidth;
+					if (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_ISCROSSROAD)
+						g_pTempDetachedNodes[nTmpDetachedNodes++].bIsCrossRoad = true;
+					else
+						g_pTempDetachedNodes[nTmpDetachedNodes++].bIsCrossRoad = false;
+				}
+			}
+		}
+	}
+	// Phase 1 ended. Now close and prepare files{
+
+	//Phase 2 Started{
+	//int& DWORDunk = *(int*)0x6F99F8;
+	int DWORDunk = 0;
+    for (int i= 0; i < nTmpDetachedNodes; i++){
+		float fRange = fUnkRange;
+		int iInRangeNode = -1;
+		for (int j = 0; j < DWORDunk; j++){
+			if ( pTempNode[j].processState == 1){
+				float fDetachedCoorsXDiff = pTempNode[j].fX - g_pTempDetachedNodes[i].fX;
+				float fDetachedCoorsYDiff = pTempNode[j].fY - g_pTempDetachedNodes[i].fY;
+				fDetachedCoorsXDiff = fDetachedCoorsXDiff < 0.0f ? -fDetachedCoorsXDiff : fDetachedCoorsXDiff;
+				fDetachedCoorsYDiff = fDetachedCoorsYDiff < 0.0f ? -fDetachedCoorsYDiff : fDetachedCoorsYDiff;
+				if (fDetachedCoorsXDiff <= fRange &&
+                    fDetachedCoorsYDiff <= fRange)
+                {
+					if (fDetachedCoorsXDiff <= fDetachedCoorsYDiff)
+                        fRange = fDetachedCoorsYDiff;
+                    else
+                        fRange = fDetachedCoorsXDiff;
+                    iInRangeNode = j;
+				}
+			}
+		}
+		if (iInRangeNode == -1){
+			pTempNode[DWORDunk].fX = g_pTempDetachedNodes[i].fX;
+			pTempNode[DWORDunk].fY = g_pTempDetachedNodes[i].fY;
+			pTempNode[DWORDunk].fZ = g_pTempDetachedNodes[i].fZ;
+			pTempNode[DWORDunk].PrevDetachedIndex = g_pTempDetachedNodes[i].sNextNodeIndex;
+			if (bytePathDataFor == PATHDATAFOR_CAR){
+				pTempNode[DWORDunk].byteLeftLanes = g_pTempDetachedNodes[i].byteLeftLanes;
+				pTempNode[DWORDunk].byteRightLanes = g_pTempDetachedNodes[i].byteRightLanes;
+			}
+			pTempNode[DWORDunk].sbMedianWidth = g_pTempDetachedNodes[i].sbMedianWidth;
+			pTempNode[DWORDunk].bIsCrossRoad = g_pTempDetachedNodes[i].bIsCrossRoad;
+			pTempNode[DWORDunk++].processState = 1;
+		}
+		else {
+			pTempNode[iInRangeNode].NextDetachedIndex = g_pTempDetachedNodes[i].sNextNodeIndex;
+			pTempNode[iInRangeNode].processState = 2;
+			float fVecX = float(m_AttachedPaths[pTempNode[iInRangeNode].PrevDetachedIndex].wX
+							   -m_AttachedPaths[pTempNode[iInRangeNode].NextDetachedIndex].wX)/8.0f;
+			float fVecY = float(m_AttachedPaths[pTempNode[iInRangeNode].PrevDetachedIndex].wY
+                               -m_AttachedPaths[pTempNode[iInRangeNode].NextDetachedIndex].wY)/8.0f;
+            float fLength = sqrt(fVecX * fVecX + fVecY * fVecY);
+            pTempNode[iInRangeNode].byteNormalX = (signed char)(fVecX/ fLength * 100.0f);
+			pTempNode[iInRangeNode].byteNormalY = (signed char)(fVecY/ fLength * 100.0f);
+            pTempNode[iInRangeNode].fX += g_pTempDetachedNodes[i].fX;
+            pTempNode[iInRangeNode].fX *= 1.0f/2.0f;
+			pTempNode[iInRangeNode].fY += g_pTempDetachedNodes[i].fY;
+            pTempNode[iInRangeNode].fY *= 1.0f/2.0f;
+			pTempNode[iInRangeNode].fZ += g_pTempDetachedNodes[i].fZ;
+            pTempNode[iInRangeNode].fZ *= 1.0f/2.0f;
+
+			if (pTempNode[iInRangeNode].sbMedianWidth <= g_pTempDetachedNodes[i].sbMedianWidth)
+				pTempNode[iInRangeNode].sbMedianWidth = g_pTempDetachedNodes[i].sbMedianWidth;
+			pTempNode[iInRangeNode].bIsCrossRoad = g_pTempDetachedNodes[i].bIsCrossRoad;
+			if (bytePathDataFor == PATHDATAFOR_CAR &&
+                pTempNode[iInRangeNode].byteLeftLanes &&
+                pTempNode[iInRangeNode].byteRightLanes &&
+                (!g_pTempDetachedNodes[i].byteLeftLanes || !g_pTempDetachedNodes[i].byteRightLanes))
+			{
+				pTempNode[iInRangeNode].byteLeftLanes = g_pTempDetachedNodes[i].byteRightLanes;
+				pTempNode[iInRangeNode].byteRightLanes = g_pTempDetachedNodes[i].byteLeftLanes;
+			}
+		}
+    }
+	//Phase 2 Ended{
+    //Phase 3 Started Error exist here
+	for (int i = nPrevObjectAttachedNodes; i < m_nAttachedNodes; i++){
+		m_AttachedPaths[i].bitUnkCount4To7 = 0;
+		m_AttachedPaths[i].wRouteInfoIndex =  m_nAttachedPoints;
+		for (int j = 0; j < DWORDunk; j++){
+			if (pTempNode[j].processState == 2){
+				if (i == pTempNode[j].PrevDetachedIndex || i == pTempNode[j].NextDetachedIndex){
+					if ( i == pTempNode[j].PrevDetachedIndex )
+						AttachedPointsInfo[m_nAttachedPoints] = pTempNode[j].NextDetachedIndex;
+					else
+						AttachedPointsInfo[m_nAttachedPoints] = pTempNode[j].PrevDetachedIndex;
+					CPathNode* pCurrentNode = &m_AttachedPaths[AttachedPointsInfo[m_nAttachedPoints] & 0x3FFF];
+					float fDistance = sqrt((float(m_AttachedPaths[i].wX - pCurrentNode->wX)/8.0f * float(m_AttachedPaths[i].wX - pCurrentNode->wX)/8.0f) +
+										   (float(m_AttachedPaths[i].wY - pCurrentNode->wY)/8.0f * float(m_AttachedPaths[i].wY - pCurrentNode->wY)/8.0f) +
+										   (float(m_AttachedPaths[i].wZ - pCurrentNode->wZ)/8.0f * float(m_AttachedPaths[i].wZ - pCurrentNode->wZ)/8.0f));
+					if (fDistance > 255.0f) fDistance = 255.0f;
+					m_InRangedDisplacement[m_nAttachedPoints] = (signed char)fDistance;
+					if (pTempNode[j].bIsCrossRoad) AttachedPointsInfo[m_nAttachedPoints] |= 0x8000;
+					if (bytePathDataFor == PATHDATAFOR_CAR){
+						int k = 0;
+                        for (k=0;;++k){
+                            if ( k >= m_nDetachedPoints) 
+                                break;
+							if (m_DetachedNodes[k].NormalVecX == (signed char)pTempNode[j].byteNormalX &&
+								m_DetachedNodes[k].NormalVecY == (signed char)pTempNode[j].byteNormalY &&
+								m_DetachedNodes[k].wX == (signed short)(8.0f * pTempNode[j].fX) &&
+								m_DetachedNodes[k].wY == (signed short)(8.0f * pTempNode[j].fY) )
+							{
+								DetachedPointsInfo[m_nAttachedPoints] = k;
+								k = m_nDetachedPoints;
+							}
+                        }
+						if (k == m_nDetachedPoints){
+							m_DetachedNodes[m_nDetachedPoints].NormalVecX = pTempNode[j].byteNormalX;
+							m_DetachedNodes[m_nDetachedPoints].NormalVecY = pTempNode[j].byteNormalY;
+							m_DetachedNodes[m_nDetachedPoints].wX = (signed short)(8.0f * pTempNode[j].fX);
+							m_DetachedNodes[m_nDetachedPoints].wY = (signed short)(8.0f * pTempNode[j].fY);
+							m_DetachedNodes[m_nDetachedPoints].wPathsIndex = i;
+							m_DetachedNodes[m_nDetachedPoints].bitLeftLanes = pTempNode[j].byteLeftLanes;
+							m_DetachedNodes[m_nDetachedPoints].bitRightLanes = pTempNode[j].byteRightLanes;
+							m_DetachedNodes[m_nDetachedPoints].byteTrafficFlags &= 0xFC;
+							m_DetachedNodes[m_nDetachedPoints].sbMedianWidth = pTempNode[j].sbMedianWidth;
+							DetachedPointsInfo[m_nAttachedPoints] = m_nDetachedPoints;
+							m_nDetachedPoints++;
+                        }
+					}
+					m_AttachedPaths[i].bitUnkCount4To7 = m_AttachedPaths[i].bitUnkCount4To7 + 1;
+					m_nAttachedPoints++;
+				}
+			}
+		}
+
+		CPathInfoForObject *pPathInfoGroup = &pPathInfosForObject[12 * (-1 - ptempIndices[i])];
+        int iGroupNodeIndex = 0;
+		int nAdjustedPrevNodes = 0;
+		if (nPrevObjectAttachedNodes <=( i -12))
+			nAdjustedPrevNodes = i - 12;
+		else
+			nAdjustedPrevNodes = nPrevObjectAttachedNodes;
+		
+		for (int k = nAdjustedPrevNodes; k<i;++k)
+			if (ptempIndices[i] == ptempIndices[k]) iGroupNodeIndex++;
+        int n = nAdjustedPrevNodes;
+		
+		while (true){
+			int nNodesCheck = m_nAttachedNodes;
+			if (nNodesCheck >= (i + 12)) nNodesCheck = i+ 12;
+			if (n >= nNodesCheck) break;
+			if (ptempIndices[i] == ptempIndices[n]){
+				if (n != i){
+					int iActualNodeInfo = iGroupNodeIndex + n - i; //I had  written 1 instead of i
+					if (iActualNodeInfo == pPathInfoGroup[iGroupNodeIndex].sbNextNode ||
+						iGroupNodeIndex == pPathInfoGroup[iActualNodeInfo].sbNextNode)
+						{
+							AttachedPointsInfo[m_nAttachedPoints] = n;
+							float fDist = sqrt((float(m_AttachedPaths[i].wX - m_AttachedPaths[n].wX)/8.0f * float(m_AttachedPaths[i].wX - m_AttachedPaths[n].wX)/8.0f) +
+										   (float(m_AttachedPaths[i].wY - m_AttachedPaths[n].wY)/8.0f * float(m_AttachedPaths[i].wY - m_AttachedPaths[n].wY)/8.0f) +
+										   (float(m_AttachedPaths[i].wZ - m_AttachedPaths[n].wZ)/8.0f * float(m_AttachedPaths[i].wZ - m_AttachedPaths[n].wZ)/8.0f));
+							if (fDist > 255.0f) fDist = 255.0f;
+							m_InRangedDisplacement[m_nAttachedPoints] = (signed char)fDist;
+							if (bytePathDataFor == PATHDATAFOR_PED){
+								if (iActualNodeInfo == pPathInfoGroup[iGroupNodeIndex].sbNextNode && //NOT FEELING WELL HERE
+									pPathInfoGroup[iGroupNodeIndex].byteFlags & 0x01 ||
+								    iGroupNodeIndex == pPathInfoGroup[iActualNodeInfo].sbNextNode &&
+								    pPathInfoGroup[iActualNodeInfo].byteFlags & 0x01)
+								    {
+								    	AttachedPointsInfo[m_nAttachedPoints] |= 0x8000;
+								    }
+							}
+							else {
+								float fiCoorX = (float)(m_AttachedPaths[i].wX)/8.0f;
+								float fiCoorY = (float)(m_AttachedPaths[i].wY)/8.0f;
+
+								float fjCoorX = (float)(m_AttachedPaths[n].wX)/8.0f;
+								float fjCoorY = (float)(m_AttachedPaths[n].wY)/8.0f;
+
+								float fijCoorAvgX = (fjCoorX + fiCoorX)/2.0f;
+								float fijCoorAvgY = (fjCoorY + fiCoorY)/2.0f;
+
+								float fijXDiff = fjCoorX - fiCoorX;
+								float fijYDiff = fjCoorY - fiCoorY;
+
+								float fLength = sqrt(fijXDiff * fijXDiff + fijYDiff * fijYDiff);
+								float VecijNormalX = fijXDiff / fLength;
+								float VecijNormalY = fijYDiff / fLength;
+								if (i < n ){
+									VecijNormalX = -VecijNormalX;
+									VecijNormalY = -VecijNormalY;
+								}
+								int k = 0;
+								for (k=0;;++k){
+                                    if ( k >= m_nDetachedPoints) break;
+									if (m_DetachedNodes[k].NormalVecX == (signed char)(100.0f * VecijNormalX) &&
+										m_DetachedNodes[k].NormalVecY == (signed char)(100.0f * VecijNormalY) &&
+										m_DetachedNodes[k].wX == (signed short)(8.0f * fijCoorAvgX) &&
+										m_DetachedNodes[k].wY == (signed short)(8.0f * fijCoorAvgY))
+										{
+											DetachedPointsInfo[m_nAttachedPoints] = k;
+											k = m_nDetachedPoints;
+										}
+                                }
+								if ( k == m_nDetachedPoints){
+									m_DetachedNodes[m_nDetachedPoints].NormalVecX = (signed char)(100.0f * VecijNormalX);
+									m_DetachedNodes[m_nDetachedPoints].NormalVecY = (signed char)(100.0f * VecijNormalY);
+									m_DetachedNodes[m_nDetachedPoints].wX = (signed short)(8.0f * fijCoorAvgX);
+									m_DetachedNodes[m_nDetachedPoints].wY = (signed short)(8.0f * fijCoorAvgY);
+									m_DetachedNodes[m_nDetachedPoints].wPathsIndex = i;
+									m_DetachedNodes[m_nDetachedPoints].bitLeftLanes = 7; //Max value
+									m_DetachedNodes[m_nDetachedPoints].bitRightLanes = 7;
+									m_DetachedNodes[m_nDetachedPoints].byteTrafficFlags &= 0xFC;
+									if ((unsigned __int8)m_AttachedPaths[n].sbMedianWidth <= m_AttachedPaths[i].sbMedianWidth)
+										m_DetachedNodes[m_nDetachedPoints].sbMedianWidth = m_AttachedPaths[i].sbMedianWidth;
+									else
+										m_DetachedNodes[m_nDetachedPoints].sbMedianWidth = m_AttachedPaths[n].sbMedianWidth;
+									DetachedPointsInfo[m_nAttachedPoints] = m_nDetachedPoints;
+									++m_nDetachedPoints;
+                                }
+							}
+							m_AttachedPaths[i].bitUnkCount4To7 = m_AttachedPaths[i].bitUnkCount4To7+1;
+							++m_nAttachedPoints;
+						}
+				}
+			}
+            ++n;
+		}
+	}
+	//BIG BOY Is now close wooohooo
+
+    //Phase 4
+    if (bytePathDataFor == PATHDATAFOR_CAR){
+        DWORD dwNodeCountBound = 0;
+        bool bShouldLoopExit = false;
+        while ( bShouldLoopExit == false && dwNodeCountBound < 12){
+            ++dwNodeCountBound;
+            bShouldLoopExit = true;
+            for (int j= 0; j < m_nAttachedNodes; j++){
+                if (m_AttachedPaths[j].bitUnkCount4To7 == 2){
+                    int iCurrentDetachedIndex = DetachedPointsInfo[m_AttachedPaths[j].wRouteInfoIndex];
+                    int iForwardDetachedIndex = DetachedPointsInfo[m_AttachedPaths[j].wRouteInfoIndex + 1];
+
+                    int iCurrentDetachedLeftLane = m_DetachedNodes[iCurrentDetachedIndex].bitLeftLanes;
+                    int iCurrentDetachedRightLane = m_DetachedNodes[iCurrentDetachedIndex].bitRightLanes;
+                    int iForwardDetachedLeftLane = m_DetachedNodes[iForwardDetachedIndex].bitLeftLanes;
+                    int iForwardDetachedRightLane = m_DetachedNodes[iForwardDetachedIndex].bitRightLanes;
+                    
+                    int *iCurrentLane1, *iCurrentLane2, *iForwardLane1, *iForwardLane2;
+                    if (m_DetachedNodes[iCurrentDetachedIndex].wPathsIndex == j){
+                        iCurrentLane1 = &iCurrentDetachedLeftLane;
+                        iCurrentLane2 = &iCurrentDetachedRightLane;
+                    }
+                    else{
+                        iCurrentLane1 = &iCurrentDetachedRightLane;
+                        iCurrentLane2 = &iCurrentDetachedLeftLane;
+                    }
+                    if (m_DetachedNodes[iForwardDetachedIndex].wPathsIndex == j){
+                        iForwardLane1 = &iForwardDetachedRightLane;
+                        iForwardLane2 = &iForwardDetachedLeftLane;
+                    }
+                    else{
+                        iForwardLane1 = &iForwardDetachedLeftLane;
+                        iForwardLane2 = &iForwardDetachedRightLane;
+                    }
+
+                    if (*iCurrentLane1 == 7 && *iForwardLane1 != 7){
+                        *iCurrentLane1 = *iForwardLane1;
+                        bShouldLoopExit = false;
+                    }
+                    if (*iCurrentLane2 == 7 && *iForwardLane2 != 7){
+                        *iCurrentLane2 = *iForwardLane2;
+                        bShouldLoopExit = false;
+                    }
+
+                    if (*iForwardLane2 == 7 && *iCurrentLane2 != 7){
+                        *iForwardLane2 = *iCurrentLane2;
+                        bShouldLoopExit = false;
+                    }
+                    if (*iForwardLane1 == 7 && *iCurrentLane1 != 7){
+                        *iForwardLane1 = *iCurrentLane1;
+                        bShouldLoopExit = false;
+                    }
+
+                    if (*iCurrentLane1 == 7 && *iForwardLane1 == 7)
+                        bShouldLoopExit = false;
+                    if (*iForwardLane2 == 7 && *iForwardLane2 == 7)
+                        bShouldLoopExit = false;
+
+                    m_DetachedNodes[iCurrentDetachedIndex].bitLeftLanes = iCurrentDetachedLeftLane;
+                    m_DetachedNodes[iCurrentDetachedIndex].bitRightLanes = iCurrentDetachedRightLane;
+                    m_DetachedNodes[iForwardDetachedIndex].bitLeftLanes = iForwardDetachedLeftLane;
+                    m_DetachedNodes[iForwardDetachedIndex].bitRightLanes = iForwardDetachedRightLane;
+                }
+            }
+        }
+
+        for (int j = 0; j < m_nAttachedNodes; j++){
+            for (int k = 0; k < m_AttachedPaths[j].bitUnkCount4To7; k++){
+                if (m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitLeftLanes == 7)
+                    m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitLeftLanes = 0;
+                if (m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitRightLanes == 7)
+                    m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitRightLanes = 0;
+            }
+        }
+    }
+
+        //Phase 5
+    if ( bytePathDataFor == PATHDATAFOR_CAR){
+        bool bKeepLoop;
+        do{
+            bKeepLoop= false;
+            for (int i=0; i<m_nAttachedNodes; i++){
+                if (!m_AttachedPaths[i].bitUnknownFlag3){
+                    int nUnknownFlag3 = 0;
+                    for (int j=0; j<m_AttachedPaths[i].bitUnkCount4To7; j++){
+                        if (!m_AttachedPaths[AttachedPointsInfo[j + m_AttachedPaths[i].wRouteInfoIndex] & 0x3FFF].bitUnknownFlag3)
+                            nUnknownFlag3++;
+                    }
+                    if (nUnknownFlag3 < 2){
+                        m_AttachedPaths[i].bitUnknownFlag3 = 1;
+                        bKeepLoop = true;
+                    }
+                }
+            }
+        } while (bKeepLoop == true);
+    }
+
+    if (bytePathDataFor == PATHDATAFOR_PED){
+        while (nPrevObjectAttachedNodes < m_nAttachedNodes){
+            if (!m_AttachedPaths[nPrevObjectAttachedNodes].bitUnkCount4To7){
+                for (int m = nPrevObjectAttachedNodes; m < (m_nAttachedNodes - 1); m++){
+                    m_AttachedPaths[m].wField0x00 = m_AttachedPaths[m+1].wField0x00;
+                    m_AttachedPaths[m].wField0x02 = m_AttachedPaths[m+1].wField0x02;
+                    m_AttachedPaths[m].wX = m_AttachedPaths[m+1].wX;
+                    m_AttachedPaths[m].wY = m_AttachedPaths[m+1].wY;
+                    m_AttachedPaths[m].wZ = m_AttachedPaths[m+1].wZ;
+                    m_AttachedPaths[m].wUnkDist0x0A = m_AttachedPaths[m+1].wUnkDist0x0A;
+                    m_AttachedPaths[m].wRouteInfoIndex = m_AttachedPaths[m+1].wRouteInfoIndex;
+                    m_AttachedPaths[m].sbMedianWidth = m_AttachedPaths[m+1].sbMedianWidth;
+                    m_AttachedPaths[m].sbField0x0F = m_AttachedPaths[m+1].sbField0x0F;
+                    m_AttachedPaths[m].sbMedianWidth = m_AttachedPaths[m+1].sbMedianWidth;
+                    m_AttachedPaths[m].bitUnkCount4To7 = m_AttachedPaths[m+1].bitUnkCount4To7;
+                    m_AttachedPaths[m].bitUnknownFlag3 = m_AttachedPaths[m+1].bitUnknownFlag3;
+                    m_AttachedPaths[m].bitIsIgnoredNode = m_AttachedPaths[m+1].bitIsIgnoredNode;
+                    m_AttachedPaths[m].bitRestrictedAccess = m_AttachedPaths[m+1].bitRestrictedAccess;
+                    m_AttachedPaths[m].bitCopsRoadBlock = m_AttachedPaths[m+1].bitCopsRoadBlock;
+
+	                m_AttachedPaths[m].bitIsVehicleBoat = m_AttachedPaths[m+1].bitIsVehicleBoat;
+	                m_AttachedPaths[m].bitHaveUnrandomizedVehClass = m_AttachedPaths[m+1].bitHaveUnrandomizedVehClass;
+	                m_AttachedPaths[m].bitUnkFlagFor2 = m_AttachedPaths[m+1].bitUnkFlagFor2;
+                    m_AttachedPaths[m].bitSpeedLimit = m_AttachedPaths[m+1].bitSpeedLimit;
+                    m_AttachedPaths[m].bitPadFlags8To10 = m_AttachedPaths[m+1].bitPadFlags8To10;
+                    m_AttachedPaths[m].byteSpawnRate = m_AttachedPaths[m +1].byteSpawnRate;
+                }
+                for (int n = nPrevObjectAttachedPoints; n < m_nAttachedPoints;n++){
+                    if ((AttachedPointsInfo[n] & 0x3FFF) >= nPrevObjectAttachedNodes)
+                        AttachedPointsInfo[n] = (AttachedPointsInfo[n] & 0x3FFF) - 1;
+                }
+                --nPrevObjectAttachedNodes;
+                --m_nAttachedNodes;
+            }
+            ++nPrevObjectAttachedNodes;
+        }
+    }
+    delete [] ptempIndices;
+}
+
 void CPathFind::CountFloodFillGroups(unsigned char iPathDataFor){
 	int iStartNodeIndex, iEndNodeIndex;
 	
@@ -442,7 +839,6 @@ void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode) {
 
 CPathNode* CPathFind::staticNodes[9650] = {NULL};
 void CPathFind::DoPathSearch(int iPathDataFor, float fOriginX, float fOriginY, float fOriginZ, int iFirstNode, float fDestX, float fDestY, float fDestZ, CPathNode **pIntermediateNodeList, short *pSteps, short sMaxSteps, void *pVehicle, float *pfDistance, float fMaxRadius, int iLastNode) {
-    CDebug::DebugAddText("Assigning Intermediate Nodes Origin: %f, %f, %f Dest: %f %f %f" , fOriginX, fOriginY, fOriginZ, fDestX, fDestY, fDestZ);
 	int iDestNodeIndex = iLastNode;
 	int iOriginNodeIndex = iFirstNode;
 
@@ -1005,403 +1401,29 @@ bool CPathFind::TestCoorsCloseness(float fDestinationX, float fDestinationY, flo
     }
 }
 
-void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode* pTempNode, CPathInfoForObject* pUnusedPathInfos, float fUnkRange, CPathInfoForObject* pPathInfosForObject, int nGroupNodesForObject) {
-    signed short *ptempIndices = new signed short[9650];
-	int32_t nTmpDetachedNodes = 0;
-	int32_t nPrevObjectAttachedNodes = m_nAttachedNodes;
-	int32_t nPrevObjectAttachedPoints = m_nAttachedPoints;
-
-	if (nGroupNodesForObject > 0){
-		for (int i = 0; i < nGroupNodesForObject; i++){
-			int nAttachedPathsForCurrentGroup = m_nAttachedNodes;
-			for (int j = i*12; j < (i*12 + 12); j++){
-				if ( pPathInfosForObject[j].byteNodeType == NODEINFOTYPE_INTERNAL){
-					m_AttachedPaths[m_nAttachedNodes].wX = (signed int)(8.0f * pPathInfosForObject[j].fX);
-					m_AttachedPaths[m_nAttachedNodes].wY = (signed int)(8.0f * pPathInfosForObject[j].fY);
-					m_AttachedPaths[m_nAttachedNodes].wZ = (signed int)(8.0f * pPathInfosForObject[j].fZ);
-
-					ptempIndices[m_nAttachedNodes] = -(1  + i);
-					m_AttachedPaths[m_nAttachedNodes].sbMedianWidth = pPathInfosForObject[j].sbMedianWidth;
-					m_AttachedPaths[m_nAttachedNodes].byteSpawnRate = pPathInfosForObject[j].byteSpawnRate;
-
-					m_AttachedPaths[m_nAttachedNodes].bitSpeedLimit = pPathInfosForObject[j].byteSpeedLimit;
-					m_AttachedPaths[m_nAttachedNodes].bitCopsRoadBlock = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_POLICEROADBLOCK) >> 2;
-					m_AttachedPaths[m_nAttachedNodes].bitIsIgnoredNode = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_IGNORENODEAREA) >> 3;
-					m_AttachedPaths[m_nAttachedNodes].bitIsVehicleBoat = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_VEHICLETYPEBOAT) >> 4;
-					m_AttachedPaths[m_nAttachedNodes].bitHaveUnrandomizedVehClass = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_HAVEUNRANDOMIZEDVEHCLASS) >> 1;
-					m_AttachedPaths[m_nAttachedNodes].bitRestrictedAccess = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_RESTRICTEDACCESS) >> 5;
-					m_nAttachedNodes++;
-				}
-				else if ( pPathInfosForObject[j].byteNodeType == NODEINFOTYPE_EXTERNAL){
-					g_pTempDetachedNodes[nTmpDetachedNodes].fX = pPathInfosForObject[j].fX;
-					g_pTempDetachedNodes[nTmpDetachedNodes].fY = pPathInfosForObject[j].fY;
-					g_pTempDetachedNodes[nTmpDetachedNodes].fZ = pPathInfosForObject[j].fZ;
-					g_pTempDetachedNodes[nTmpDetachedNodes].sNextNodeIndex = pPathInfosForObject[j].sbNextNode + nAttachedPathsForCurrentGroup;
-					g_pTempDetachedNodes[nTmpDetachedNodes].byteLeftLanes = pPathInfosForObject[j].byteLeftLanes;
-					g_pTempDetachedNodes[nTmpDetachedNodes].byteRightLanes = pPathInfosForObject[j].byteRightLanes;
-					g_pTempDetachedNodes[nTmpDetachedNodes].sbMedianWidth = pPathInfosForObject[j].sbMedianWidth;
-					if (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_ISCROSSROAD)
-						g_pTempDetachedNodes[nTmpDetachedNodes++].bIsCrossRoad = true;
-					else
-						g_pTempDetachedNodes[nTmpDetachedNodes++].bIsCrossRoad = false;
-				}
-			}
-		}
-	}
-	// Phase 1 ended. Now close and prepare files{
-
-	//Phase 2 Started{
-	//int& DWORDunk = *(int*)0x6F99F8;
-	int DWORDunk = 0;
-    for (int i= 0; i < nTmpDetachedNodes; i++){
-		float fRange = fUnkRange;
-		int iInRangeNode = -1;
-		for (int j = 0; j < DWORDunk; j++){
-			if ( pTempNode[j].processState == 1){
-				float fDetachedCoorsXDiff = pTempNode[j].fX - g_pTempDetachedNodes[i].fX;
-				float fDetachedCoorsYDiff = pTempNode[j].fY - g_pTempDetachedNodes[i].fY;
-				fDetachedCoorsXDiff = fDetachedCoorsXDiff < 0.0f ? -fDetachedCoorsXDiff : fDetachedCoorsXDiff;
-				fDetachedCoorsYDiff = fDetachedCoorsYDiff < 0.0f ? -fDetachedCoorsYDiff : fDetachedCoorsYDiff;
-				if (fDetachedCoorsXDiff <= fRange &&
-                    fDetachedCoorsYDiff <= fRange)
-                {
-					if (fDetachedCoorsXDiff <= fDetachedCoorsYDiff)
-                        fRange = fDetachedCoorsYDiff;
-                    else
-                        fRange = fDetachedCoorsXDiff;
-                    iInRangeNode = j;
-				}
-			}
-		}
-		if (iInRangeNode == -1){
-			pTempNode[DWORDunk].fX = g_pTempDetachedNodes[i].fX;
-			pTempNode[DWORDunk].fY = g_pTempDetachedNodes[i].fY;
-			pTempNode[DWORDunk].fZ = g_pTempDetachedNodes[i].fZ;
-			pTempNode[DWORDunk].PrevDetachedIndex = g_pTempDetachedNodes[i].sNextNodeIndex;
-			if (bytePathDataFor == PATHDATAFOR_CAR){
-				pTempNode[DWORDunk].byteLeftLanes = g_pTempDetachedNodes[i].byteLeftLanes;
-				pTempNode[DWORDunk].byteRightLanes = g_pTempDetachedNodes[i].byteRightLanes;
-			}
-			pTempNode[DWORDunk].sbMedianWidth = g_pTempDetachedNodes[i].sbMedianWidth;
-			pTempNode[DWORDunk].bIsCrossRoad = g_pTempDetachedNodes[i].bIsCrossRoad;
-			pTempNode[DWORDunk++].processState = 1;
-		}
-		else {
-			pTempNode[iInRangeNode].NextDetachedIndex = g_pTempDetachedNodes[i].sNextNodeIndex;
-			pTempNode[iInRangeNode].processState = 2;
-			float fVecX = float(m_AttachedPaths[pTempNode[iInRangeNode].PrevDetachedIndex].wX
-							   -m_AttachedPaths[pTempNode[iInRangeNode].NextDetachedIndex].wX)/8.0f;
-			float fVecY = float(m_AttachedPaths[pTempNode[iInRangeNode].PrevDetachedIndex].wY
-                               -m_AttachedPaths[pTempNode[iInRangeNode].NextDetachedIndex].wY)/8.0f;
-            float fLength = sqrt(fVecX * fVecX + fVecY * fVecY);
-            pTempNode[iInRangeNode].byteNormalX = (signed char)(fVecX/ fLength * 100.0f);
-			pTempNode[iInRangeNode].byteNormalY = (signed char)(fVecY/ fLength * 100.0f);
-            pTempNode[iInRangeNode].fX += g_pTempDetachedNodes[i].fX;
-            pTempNode[iInRangeNode].fX *= 1.0f/2.0f;
-			pTempNode[iInRangeNode].fY += g_pTempDetachedNodes[i].fY;
-            pTempNode[iInRangeNode].fY *= 1.0f/2.0f;
-			pTempNode[iInRangeNode].fZ += g_pTempDetachedNodes[i].fZ;
-            pTempNode[iInRangeNode].fZ *= 1.0f/2.0f;
-
-			if (pTempNode[iInRangeNode].sbMedianWidth <= g_pTempDetachedNodes[i].sbMedianWidth)
-				pTempNode[iInRangeNode].sbMedianWidth = g_pTempDetachedNodes[i].sbMedianWidth;
-			pTempNode[iInRangeNode].bIsCrossRoad = g_pTempDetachedNodes[i].bIsCrossRoad;
-			if (bytePathDataFor == PATHDATAFOR_CAR &&
-                pTempNode[iInRangeNode].byteLeftLanes &&
-                pTempNode[iInRangeNode].byteRightLanes &&
-                (!g_pTempDetachedNodes[i].byteLeftLanes || !g_pTempDetachedNodes[i].byteRightLanes))
-			{
-				pTempNode[iInRangeNode].byteLeftLanes = g_pTempDetachedNodes[i].byteRightLanes;
-				pTempNode[iInRangeNode].byteRightLanes = g_pTempDetachedNodes[i].byteLeftLanes;
-			}
-		}
-    }
-	//Phase 2 Ended{
-    //Phase 3 Started Error exist here
-	for (int i = nPrevObjectAttachedNodes; i < m_nAttachedNodes; i++){
-		m_AttachedPaths[i].bitUnkCount4To7 = 0;
-		m_AttachedPaths[i].wRouteInfoIndex =  m_nAttachedPoints;
-		for (int j = 0; j < DWORDunk; j++){
-			if (pTempNode[j].processState == 2){
-				if (i == pTempNode[j].PrevDetachedIndex || i == pTempNode[j].NextDetachedIndex){
-					if ( i == pTempNode[j].PrevDetachedIndex )
-						AttachedPointsInfo[m_nAttachedPoints] = pTempNode[j].NextDetachedIndex;
-					else
-						AttachedPointsInfo[m_nAttachedPoints] = pTempNode[j].PrevDetachedIndex;
-					CPathNode* pCurrentNode = &m_AttachedPaths[AttachedPointsInfo[m_nAttachedPoints] & 0x3FFF];
-					float fDistance = sqrt((float(m_AttachedPaths[i].wX - pCurrentNode->wX)/8.0f * float(m_AttachedPaths[i].wX - pCurrentNode->wX)/8.0f) +
-										   (float(m_AttachedPaths[i].wY - pCurrentNode->wY)/8.0f * float(m_AttachedPaths[i].wY - pCurrentNode->wY)/8.0f) +
-										   (float(m_AttachedPaths[i].wZ - pCurrentNode->wZ)/8.0f * float(m_AttachedPaths[i].wZ - pCurrentNode->wZ)/8.0f));
-					if (fDistance > 255.0f) fDistance = 255.0f;
-					m_InRangedDisplacement[m_nAttachedPoints] = (signed char)fDistance;
-					if (pTempNode[j].bIsCrossRoad) AttachedPointsInfo[m_nAttachedPoints] |= 0x8000;
-					if (bytePathDataFor == PATHDATAFOR_CAR){
-						int k = 0;
-                        for (k=0;;++k){
-                            if ( k >= m_nDetachedPoints) 
-                                break;
-							if (m_DetachedNodes[k].NormalVecX == (signed char)pTempNode[j].byteNormalX &&
-								m_DetachedNodes[k].NormalVecY == (signed char)pTempNode[j].byteNormalY &&
-								m_DetachedNodes[k].wX == (signed short)(8.0f * pTempNode[j].fX) &&
-								m_DetachedNodes[k].wY == (signed short)(8.0f * pTempNode[j].fY) )
-							{
-								DetachedPointsInfo[m_nAttachedPoints] = k;
-								k = m_nDetachedPoints;
-							}
-                        }
-						if (k == m_nDetachedPoints){
-							m_DetachedNodes[m_nDetachedPoints].NormalVecX = pTempNode[j].byteNormalX;
-							m_DetachedNodes[m_nDetachedPoints].NormalVecY = pTempNode[j].byteNormalY;
-							m_DetachedNodes[m_nDetachedPoints].wX = (signed short)(8.0f * pTempNode[j].fX);
-							m_DetachedNodes[m_nDetachedPoints].wY = (signed short)(8.0f * pTempNode[j].fY);
-							m_DetachedNodes[m_nDetachedPoints].wPathsIndex = i;
-							m_DetachedNodes[m_nDetachedPoints].bitLeftLanes = pTempNode[j].byteLeftLanes;
-							m_DetachedNodes[m_nDetachedPoints].bitRightLanes = pTempNode[j].byteRightLanes;
-							m_DetachedNodes[m_nDetachedPoints].byteTrafficFlags &= 0xFC;
-							m_DetachedNodes[m_nDetachedPoints].sbMedianWidth = pTempNode[j].sbMedianWidth;
-							DetachedPointsInfo[m_nAttachedPoints] = m_nDetachedPoints;
-							m_nDetachedPoints++;
-                        }
-					}
-					m_AttachedPaths[i].bitUnkCount4To7 = m_AttachedPaths[i].bitUnkCount4To7 + 1;
-					m_nAttachedPoints++;
-				}
-			}
-		}
-
-		CPathInfoForObject *pPathInfoGroup = &pPathInfosForObject[12 * (-1 - ptempIndices[i])];
-        int iGroupNodeIndex = 0;
-		int nAdjustedPrevNodes = 0;
-		if (nPrevObjectAttachedNodes <=( i -12))
-			nAdjustedPrevNodes = i - 12;
-		else
-			nAdjustedPrevNodes = nPrevObjectAttachedNodes;
-		
-		for (int k = nAdjustedPrevNodes; k<i;++k)
-			if (ptempIndices[i] == ptempIndices[k]) iGroupNodeIndex++;
-        int n = nAdjustedPrevNodes;
-		
-		while (true){
-			int nNodesCheck = m_nAttachedNodes;
-			if (nNodesCheck >= (i + 12)) nNodesCheck = i+ 12;
-			if (n >= nNodesCheck) break;
-			if (ptempIndices[i] == ptempIndices[n]){
-				if (n != i){
-					int iActualNodeInfo = iGroupNodeIndex + n - i; //I had  written 1 instead of i
-					if (iActualNodeInfo == pPathInfoGroup[iGroupNodeIndex].sbNextNode ||
-						iGroupNodeIndex == pPathInfoGroup[iActualNodeInfo].sbNextNode)
-						{
-							AttachedPointsInfo[m_nAttachedPoints] = n;
-							float fDist = sqrt((float(m_AttachedPaths[i].wX - m_AttachedPaths[n].wX)/8.0f * float(m_AttachedPaths[i].wX - m_AttachedPaths[n].wX)/8.0f) +
-										   (float(m_AttachedPaths[i].wY - m_AttachedPaths[n].wY)/8.0f * float(m_AttachedPaths[i].wY - m_AttachedPaths[n].wY)/8.0f) +
-										   (float(m_AttachedPaths[i].wZ - m_AttachedPaths[n].wZ)/8.0f * float(m_AttachedPaths[i].wZ - m_AttachedPaths[n].wZ)/8.0f));
-							if (fDist > 255.0f) fDist = 255.0f;
-							m_InRangedDisplacement[m_nAttachedPoints] = (signed char)fDist;
-							if (bytePathDataFor == PATHDATAFOR_PED){
-								if (iActualNodeInfo == pPathInfoGroup[iGroupNodeIndex].sbNextNode && //NOT FEELING WELL HERE
-									pPathInfoGroup[iGroupNodeIndex].byteFlags & 0x01 ||
-								    iGroupNodeIndex == pPathInfoGroup[iActualNodeInfo].sbNextNode &&
-								    pPathInfoGroup[iActualNodeInfo].byteFlags & 0x01)
-								    {
-								    	AttachedPointsInfo[m_nAttachedPoints] |= 0x8000;
-								    }
-							}
-							else {
-								float fiCoorX = (float)(m_AttachedPaths[i].wX)/8.0f;
-								float fiCoorY = (float)(m_AttachedPaths[i].wY)/8.0f;
-
-								float fjCoorX = (float)(m_AttachedPaths[n].wX)/8.0f;
-								float fjCoorY = (float)(m_AttachedPaths[n].wY)/8.0f;
-
-								float fijCoorAvgX = (fjCoorX + fiCoorX)/2.0f;
-								float fijCoorAvgY = (fjCoorY + fiCoorY)/2.0f;
-
-								float fijXDiff = fjCoorX - fiCoorX;
-								float fijYDiff = fjCoorY - fiCoorY;
-
-								float fLength = sqrt(fijXDiff * fijXDiff + fijYDiff * fijYDiff);
-								float VecijNormalX = fijXDiff / fLength;
-								float VecijNormalY = fijYDiff / fLength;
-								if (i < n ){
-									VecijNormalX = -VecijNormalX;
-									VecijNormalY = -VecijNormalY;
-								}
-								int k = 0;
-								for (k=0;;++k){
-                                    if ( k >= m_nDetachedPoints) break;
-									if (m_DetachedNodes[k].NormalVecX == (signed char)(100.0f * VecijNormalX) &&
-										m_DetachedNodes[k].NormalVecY == (signed char)(100.0f * VecijNormalY) &&
-										m_DetachedNodes[k].wX == (signed short)(8.0f * fijCoorAvgX) &&
-										m_DetachedNodes[k].wY == (signed short)(8.0f * fijCoorAvgY))
-										{
-											DetachedPointsInfo[m_nAttachedPoints] = k;
-											k = m_nDetachedPoints;
-										}
-                                }
-								if ( k == m_nDetachedPoints){
-									m_DetachedNodes[m_nDetachedPoints].NormalVecX = (signed char)(100.0f * VecijNormalX);
-									m_DetachedNodes[m_nDetachedPoints].NormalVecY = (signed char)(100.0f * VecijNormalY);
-									m_DetachedNodes[m_nDetachedPoints].wX = (signed short)(8.0f * fijCoorAvgX);
-									m_DetachedNodes[m_nDetachedPoints].wY = (signed short)(8.0f * fijCoorAvgY);
-									m_DetachedNodes[m_nDetachedPoints].wPathsIndex = i;
-									m_DetachedNodes[m_nDetachedPoints].bitLeftLanes = 7; //Max value
-									m_DetachedNodes[m_nDetachedPoints].bitRightLanes = 7;
-									m_DetachedNodes[m_nDetachedPoints].byteTrafficFlags &= 0xFC;
-									if ((unsigned __int8)m_AttachedPaths[n].sbMedianWidth <= m_AttachedPaths[i].sbMedianWidth)
-										m_DetachedNodes[m_nDetachedPoints].sbMedianWidth = m_AttachedPaths[i].sbMedianWidth;
-									else
-										m_DetachedNodes[m_nDetachedPoints].sbMedianWidth = m_AttachedPaths[n].sbMedianWidth;
-									DetachedPointsInfo[m_nAttachedPoints] = m_nDetachedPoints;
-									++m_nDetachedPoints;
-                                }
-							}
-							m_AttachedPaths[i].bitUnkCount4To7 = m_AttachedPaths[i].bitUnkCount4To7+1;
-							++m_nAttachedPoints;
-						}
-				}
-			}
-            ++n;
-		}
-	}
-	//BIG BOY Is now close wooohooo
-
-    //Phase 4
-    if (bytePathDataFor == PATHDATAFOR_CAR){
-        DWORD dwNodeCountBound = 0;
-        bool bShouldLoopExit = false;
-        while ( bShouldLoopExit == false && dwNodeCountBound < 12){
-            ++dwNodeCountBound;
-            bShouldLoopExit = true;
-            for (int j= 0; j < m_nAttachedNodes; j++){
-                if (m_AttachedPaths[j].bitUnkCount4To7 == 2){
-                    int iCurrentDetachedIndex = DetachedPointsInfo[m_AttachedPaths[j].wRouteInfoIndex];
-                    int iForwardDetachedIndex = DetachedPointsInfo[m_AttachedPaths[j].wRouteInfoIndex + 1];
-
-                    int iCurrentDetachedLeftLane = m_DetachedNodes[iCurrentDetachedIndex].bitLeftLanes;
-                    int iCurrentDetachedRightLane = m_DetachedNodes[iCurrentDetachedIndex].bitRightLanes;
-                    int iForwardDetachedLeftLane = m_DetachedNodes[iForwardDetachedIndex].bitLeftLanes;
-                    int iForwardDetachedRightLane = m_DetachedNodes[iForwardDetachedIndex].bitRightLanes;
-                    
-                    int *iCurrentLane1, *iCurrentLane2, *iForwardLane1, *iForwardLane2;
-                    if (m_DetachedNodes[iCurrentDetachedIndex].wPathsIndex == j){
-                        iCurrentLane1 = &iCurrentDetachedLeftLane;
-                        iCurrentLane2 = &iCurrentDetachedRightLane;
-                    }
-                    else{
-                        iCurrentLane1 = &iCurrentDetachedRightLane;
-                        iCurrentLane2 = &iCurrentDetachedLeftLane;
-                    }
-                    if (m_DetachedNodes[iForwardDetachedIndex].wPathsIndex == j){
-                        iForwardLane1 = &iForwardDetachedRightLane;
-                        iForwardLane2 = &iForwardDetachedLeftLane;
-                    }
-                    else{
-                        iForwardLane1 = &iForwardDetachedLeftLane;
-                        iForwardLane2 = &iForwardDetachedRightLane;
-                    }
-
-                    if (*iCurrentLane1 == 7 && *iForwardLane1 != 7){
-                        *iCurrentLane1 = *iForwardLane1;
-                        bShouldLoopExit = false;
-                    }
-                    if (*iCurrentLane2 == 7 && *iForwardLane2 != 7){
-                        *iCurrentLane2 = *iForwardLane2;
-                        bShouldLoopExit = false;
-                    }
-
-                    if (*iForwardLane2 == 7 && *iCurrentLane2 != 7){
-                        *iForwardLane2 = *iCurrentLane2;
-                        bShouldLoopExit = false;
-                    }
-                    if (*iForwardLane1 == 7 && *iCurrentLane1 != 7){
-                        *iForwardLane1 = *iCurrentLane1;
-                        bShouldLoopExit = false;
-                    }
-
-                    if (*iCurrentLane1 == 7 && *iForwardLane1 == 7)
-                        bShouldLoopExit = false;
-                    if (*iForwardLane2 == 7 && *iForwardLane2 == 7)
-                        bShouldLoopExit = false;
-
-                    m_DetachedNodes[iCurrentDetachedIndex].bitLeftLanes = iCurrentDetachedLeftLane;
-                    m_DetachedNodes[iCurrentDetachedIndex].bitRightLanes = iCurrentDetachedRightLane;
-                    m_DetachedNodes[iForwardDetachedIndex].bitLeftLanes = iForwardDetachedLeftLane;
-                    m_DetachedNodes[iForwardDetachedIndex].bitRightLanes = iForwardDetachedRightLane;
-                }
-            }
-        }
-
-        for (int j = 0; j < m_nAttachedNodes; j++){
-            for (int k = 0; k < m_AttachedPaths[j].bitUnkCount4To7; k++){
-                if (m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitLeftLanes == 7)
-                    m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitLeftLanes = 0;
-                if (m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitRightLanes == 7)
-                    m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitRightLanes = 0;
+bool CPathFind::TestCrossesRoad(CPathNode* pStartNode, CPathNode* pConnectedNode) {
+    CDebug::DebugAddText("TestCrossesRoad");
+    for(int i = 0; i < pStartNode->bitUnkCount4To7; i++) {
+        if(&m_AttachedPaths[AttachedPointsInfo[i + pStartNode->wRouteInfoIndex] & 0x3FFF] == pConnectedNode) {
+            if(AttachedPointsInfo[i + pStartNode->wRouteInfoIndex] & 0x8000) {
+                return true;
             }
         }
     }
-
-        //Phase 5
-    if ( bytePathDataFor == PATHDATAFOR_CAR){
-        bool bKeepLoop;
-        do{
-            bKeepLoop= false;
-            for (int i=0; i<m_nAttachedNodes; i++){
-                if (!m_AttachedPaths[i].bitUnknownFlag3){
-                    int nUnknownFlag3 = 0;
-                    for (int j=0; j<m_AttachedPaths[i].bitUnkCount4To7; j++){
-                        if (!m_AttachedPaths[AttachedPointsInfo[j + m_AttachedPaths[i].wRouteInfoIndex] & 0x3FFF].bitUnknownFlag3)
-                            nUnknownFlag3++;
-                    }
-                    if (nUnknownFlag3 < 2){
-                        m_AttachedPaths[i].bitUnknownFlag3 = 1;
-                        bKeepLoop = true;
-                    }
-                }
-            }
-        } while (bKeepLoop == true);
-    }
-
-    if (bytePathDataFor == PATHDATAFOR_PED){
-        while (nPrevObjectAttachedNodes < m_nAttachedNodes){
-            if (!m_AttachedPaths[nPrevObjectAttachedNodes].bitUnkCount4To7){
-                for (int m = nPrevObjectAttachedNodes; m < (m_nAttachedNodes - 1); m++){
-                    m_AttachedPaths[m].wField0x00 = m_AttachedPaths[m+1].wField0x00;
-                    m_AttachedPaths[m].wField0x02 = m_AttachedPaths[m+1].wField0x02;
-                    m_AttachedPaths[m].wX = m_AttachedPaths[m+1].wX;
-                    m_AttachedPaths[m].wY = m_AttachedPaths[m+1].wY;
-                    m_AttachedPaths[m].wZ = m_AttachedPaths[m+1].wZ;
-                    m_AttachedPaths[m].wUnkDist0x0A = m_AttachedPaths[m+1].wUnkDist0x0A;
-                    m_AttachedPaths[m].wRouteInfoIndex = m_AttachedPaths[m+1].wRouteInfoIndex;
-                    m_AttachedPaths[m].sbMedianWidth = m_AttachedPaths[m+1].sbMedianWidth;
-                    m_AttachedPaths[m].sbField0x0F = m_AttachedPaths[m+1].sbField0x0F;
-                    m_AttachedPaths[m].sbMedianWidth = m_AttachedPaths[m+1].sbMedianWidth;
-                    m_AttachedPaths[m].bitUnkCount4To7 = m_AttachedPaths[m+1].bitUnkCount4To7;
-                    m_AttachedPaths[m].bitUnknownFlag3 = m_AttachedPaths[m+1].bitUnknownFlag3;
-                    m_AttachedPaths[m].bitIsIgnoredNode = m_AttachedPaths[m+1].bitIsIgnoredNode;
-                    m_AttachedPaths[m].bitRestrictedAccess = m_AttachedPaths[m+1].bitRestrictedAccess;
-                    m_AttachedPaths[m].bitCopsRoadBlock = m_AttachedPaths[m+1].bitCopsRoadBlock;
-
-	                m_AttachedPaths[m].bitIsVehicleBoat = m_AttachedPaths[m+1].bitIsVehicleBoat;
-	                m_AttachedPaths[m].bitHaveUnrandomizedVehClass = m_AttachedPaths[m+1].bitHaveUnrandomizedVehClass;
-	                m_AttachedPaths[m].bitUnkFlagFor2 = m_AttachedPaths[m+1].bitUnkFlagFor2;
-                    m_AttachedPaths[m].bitSpeedLimit = m_AttachedPaths[m+1].bitSpeedLimit;
-                    m_AttachedPaths[m].bitPadFlags8To10 = m_AttachedPaths[m+1].bitPadFlags8To10;
-                    m_AttachedPaths[m].byteSpawnRate = m_AttachedPaths[m +1].byteSpawnRate;
-                }
-                for (int n = nPrevObjectAttachedPoints; n < m_nAttachedPoints;n++){
-                    if ((AttachedPointsInfo[n] & 0x3FFF) >= nPrevObjectAttachedNodes)
-                        AttachedPointsInfo[n] = (AttachedPointsInfo[n] & 0x3FFF) - 1;
-                }
-                --nPrevObjectAttachedNodes;
-                --m_nAttachedNodes;
-            }
-            ++nPrevObjectAttachedNodes;
-        }
-    }
-    delete [] ptempIndices;
+    return false;
 }
-            
+
+bool CPathFind::TestForPedTrafficLight(CPathNode* pStartNode, CPathNode* pConnectedNode) {
+    CDebug::DebugAddText("TestForPedTrafficLight");
+    for(int i = 0; i < pStartNode->bitUnkCount4To7; i++) {
+        if(&m_AttachedPaths[AttachedPointsInfo[i + pStartNode->wRouteInfoIndex] & 0x3FFF] == pConnectedNode) {
+            if(AttachedPointsInfo[i + pStartNode->wRouteInfoIndex] & 0x4000) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 CPathNode::CPathNode(){
     memset(this, 0, sizeof(CPathNode));

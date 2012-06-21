@@ -23,17 +23,17 @@ DWORD dwFunc_CFileLoader__LoadScene = 0x0048B050;
 DWORD dwFunc_CFileLoader__LoadObjectInstance = 0x0048ABB0;
 DWORD dwFunc_CFileLoader__AddOcclusions = 0x00636960;
 
-__declspec(naked) void CFileLoader::LoadLevel(const char* szDatFile){
-	__asm jmp dwFunc_CFileLoader__LoadLevel
+_declspec(naked) void CFileLoader::LoadLevel(const char* szDatFile){
+	_asm jmp dwFunc_CFileLoader__LoadLevel
 }
 
-__declspec(naked) void CFileLoader::LoadObjectInstance(const char* szInstLine){
-    __asm jmp dwFunc_CFileLoader__LoadObjectInstance
+_declspec(naked) void CFileLoader::LoadObjectInstance(const char* szInstLine){
+    _asm jmp dwFunc_CFileLoader__LoadObjectInstance
 }
 
 #ifdef GAMEUSEORIGINALS
-__declspec(naked) void CFileLoader::LoadScene(const char* szSceneFile){
-	__asm jmp dwFunc_CFileLoader__LoadScene
+_declspec(naked) void CFileLoader::LoadScene(const char* szSceneFile){
+	_asm jmp dwFunc_CFileLoader__LoadScene
 }
 
 #else

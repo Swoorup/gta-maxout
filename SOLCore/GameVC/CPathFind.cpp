@@ -380,8 +380,8 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
 						{
 							AttachedPointsInfo[m_nAttachedPoints] = n;
 							float fDist = sqrt((float(m_AttachedPaths[i].wX - m_AttachedPaths[n].wX)/8.0f * float(m_AttachedPaths[i].wX - m_AttachedPaths[n].wX)/8.0f) +
-										   (float(m_AttachedPaths[i].wY - m_AttachedPaths[n].wY)/8.0f * float(m_AttachedPaths[i].wY - m_AttachedPaths[n].wY)/8.0f) +
-										   (float(m_AttachedPaths[i].wZ - m_AttachedPaths[n].wZ)/8.0f * float(m_AttachedPaths[i].wZ - m_AttachedPaths[n].wZ)/8.0f));
+										       (float(m_AttachedPaths[i].wY - m_AttachedPaths[n].wY)/8.0f * float(m_AttachedPaths[i].wY - m_AttachedPaths[n].wY)/8.0f) +
+										       (float(m_AttachedPaths[i].wZ - m_AttachedPaths[n].wZ)/8.0f * float(m_AttachedPaths[i].wZ - m_AttachedPaths[n].wZ)/8.0f));
 							if (fDist > 255.0f) fDist = 255.0f;
 							m_InRangedDisplacement[m_nAttachedPoints] = (signed char)fDist;
 							if (bytePathDataFor == PATHDATAFOR_PED){

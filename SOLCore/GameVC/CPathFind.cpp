@@ -26,6 +26,12 @@ CPathInfoForObject* CPathFind::g_pCarPathInfos = NULL;
 CPathInfoForObject* CPathFind::g_pPedPathInfos = NULL;
 CTempDetachedNode* CPathFind::g_pTempDetachedNodes = NULL;
 
+CPathFind::CPathFind() {
+    ZeroMemory(this->AttachedPointsInfo, sizeof(this->AttachedPointsInfo));
+    ZeroMemory(this->DetachedPointsInfo, sizeof(this->DetachedPointsInfo));
+    ZeroMemory(this->m_InRangedDisplacement, sizeof(this->m_InRangedDisplacement));
+}
+
 #ifdef PATHFINDUSEORIGINAL
 __declspec (naked) void CPathFind::StoreNodeInfoCar(int iNodeInfo_InternalNodesCount, uint8_t iNode_NodeType, int8_t iNode_NextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, uint8_t nLeftLanes, uint8_t nRightLanes, bool bIsIgnoredNode, bool bIsRestrictedAccess, uint8_t bSpeedLimit, bool bIsPoliceRoadBlock, uint8_t nVehicleType, uint32_t dwSpawnRate, uint8_t bUnknown) {
     __asm jmp dwFunc_CPathFind__StoreNodeInfoCar

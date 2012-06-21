@@ -38,8 +38,8 @@ struct CTempNode{
     //unit vector component-X
     signed char byteNormalY; // 13-14
     //unit vector component-Y
-    unsigned short PrevDetachedIndex; // 14-16
-    unsigned short NextDetachedIndex; // 16-18
+    unsigned int PrevDetachedIndex; // 14-16
+    unsigned int NextDetachedIndex; // 16-18
     unsigned char byteLeftLanes; // 18-19
 	unsigned char byteRightLanes; // 19-20
 	signed char sbMedianWidth; // 20-21
@@ -52,7 +52,7 @@ struct CTempDetachedNode{
 	float fX; // 0-4
 	float fY; // 4-8
 	float fZ; // 8-12
-	unsigned short sNextNodeIndex; // 12-14
+	unsigned int sNextNodeIndex; // 12-14
 	unsigned char byteLeftLanes; // 14-15
 	unsigned char byteRightLanes; // 15-16
 	signed char sbMedianWidth; // 16-17
@@ -146,6 +146,12 @@ public:
     CPathNode m_UnknownNodeList[512]; // 5380Ah-5600Ah
 
     CPathFind();
+
+    enum {
+        eATTACHEDPOINTSINFOCROSSROAD = 0x8000,
+        eATTACHEDPOINTSINFOTRAFFICLIGHT = 0x4000,
+        eATTACHEDPOINTSINFONODEINDEXONLY = 0x3FFF,
+    };
 
     void Init(void);
     void AllocatePathFindInfoMem(void);

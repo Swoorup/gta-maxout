@@ -16,6 +16,7 @@ CPathFindHook::~CPathFindHook() {
 }
 
 int _nHookDetachedNodeIndex;
+int _nHookAttachedNodeIndex;
 CPathNode* _pHookPathNode;
 wchar_t* _pwszHookString;
 int* _pHookEditValue;
@@ -36,7 +37,7 @@ int _nHookReturn;
 //-----------------------------------------------------------
 
 //418D48
-void _declspec(naked) HookGetDetachedNormalComponentXOne(void) {
+void _declspec(naked) HookModSpeedGetDetachedNormalXOne(void) {
     _asm mov _nHookDetachedNodeIndex, eax
     _asm pushad
     
@@ -50,7 +51,7 @@ void _declspec(naked) HookGetDetachedNormalComponentXOne(void) {
 }
 
 //418D68
-void _declspec(naked) HookGetDetachedYCoorOne(void) {
+void _declspec(naked) HookModSpeedGetDetachedYCoorOne(void) {
     _asm mov _nHookDetachedNodeIndex, eax
     _asm pushad
 
@@ -66,7 +67,7 @@ void _declspec(naked) HookGetDetachedYCoorOne(void) {
 }
 
 //418DAA
-void _declspec(naked) HookGetDetachedNormalComponentXTwo(void) {
+void _declspec(naked) HookModSpeedGetDetachedNormalXTwo(void) {
     _asm mov _dwIndexWithSize, ebp
     _asm pushad
     
@@ -78,7 +79,7 @@ void _declspec(naked) HookGetDetachedNormalComponentXTwo(void) {
 }
 
 //418DCB
-void _declspec(naked) HookGetDetachedXCoorOne(void) {
+void _declspec(naked) HookModSpeedGetDetachedXCoorOne(void) {
     _asm mov _dwIndexWithSize, ebp
     _asm pushad
 
@@ -90,7 +91,7 @@ void _declspec(naked) HookGetDetachedXCoorOne(void) {
 }
 
 //418DEF
-void _declspec(naked) HookGetDetachedNormalYOne(void) {
+void _declspec(naked) HookModSpeedGetDetachedNormalYOne(void) {
     _asm mov _dwIndexWithSize, ebp
     _asm pushad
 
@@ -102,7 +103,7 @@ void _declspec(naked) HookGetDetachedNormalYOne(void) {
 }
 
 //418E21
-void _declspec(naked) HookGetDetachedYCoorTwo(void) {
+void _declspec(naked) HookModSpeedGetDetachedYCoorTwo(void) {
     _asm mov _nHookDetachedNodeIndex, eax
     _asm pushad
 
@@ -116,7 +117,7 @@ void _declspec(naked) HookGetDetachedYCoorTwo(void) {
 }
 
 //418E48
-void _declspec(naked) HookGetDetachedXCoorTwo(void) {
+void _declspec(naked) HookModSpeedGetDetachedXCoorTwo(void) {
     _asm mov _dwIndexWithSize, edx
     _asm pushad
 
@@ -128,7 +129,7 @@ void _declspec(naked) HookGetDetachedXCoorTwo(void) {
 }
 
 //418E7C
-void _declspec(naked) HookGetDetachedNormalYTwo(void) {
+void _declspec(naked) HookModSpeedGetDetachedNormalYTwo(void) {
     _asm mov _dwIndexWithSize, ecx
     _asm pushad
 
@@ -140,7 +141,7 @@ void _declspec(naked) HookGetDetachedNormalYTwo(void) {
 }
 
 //418EB8
-void _declspec(naked) HookGetDetachedNormalYThree(void) {
+void _declspec(naked) HookModSpeedGetDetachedNormalYThree(void) {
     _asm mov _nHookDetachedNodeIndex, eax
     _asm pushad
 
@@ -154,7 +155,7 @@ void _declspec(naked) HookGetDetachedNormalYThree(void) {
 }
 
 //418EE9
-void _declspec(naked) HookGetDetachedNormalXThree(void) {
+void _declspec(naked) HookModSpeedGetDetachedNormalXThree(void) {
     _asm mov _dwIndexWithSize, ebp
     _asm pushad
 
@@ -166,7 +167,7 @@ void _declspec(naked) HookGetDetachedNormalXThree(void) {
 }
 
 //418F15
-void _declspec(naked) HookGetDetachedNormalYFour(void) {
+void _declspec(naked) HookModSpeedGetDetachedNormalYFour(void) {
     _asm mov _nHookDetachedNodeIndex, eax
     _asm pushad
 
@@ -180,7 +181,7 @@ void _declspec(naked) HookGetDetachedNormalYFour(void) {
 }
 
 //418F45
-void _declspec(naked) HookGetDetachedNormalXFour(void) {
+void _declspec(naked) HookModSpeedGetDetachedNormalXFour(void) {
     _asm mov _dwIndexWithSize, edx
     _asm pushad
 
@@ -189,6 +190,53 @@ void _declspec(naked) HookGetDetachedNormalXFour(void) {
     _asm popad
     _asm mov eax, _nHookReturn
     ASMJMP(418F4Ch)
+}
+
+// ---------------------------------------------------------------------
+// These hooks are inside CCarCtrl::GenerateOneEmergencyServicesCar.
+// They make sure coordinates of Pathfind member are attached properly
+//----------------------------------------------------------------------
+
+//41C4F1
+void _declspec(naked) HookGenEmerCarCheckVehicleType(void) {
+    _asm mov _nHookAttachedNodeIndex, ecx
+    _asm pushad
+
+    if(pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].bitIsVehicleBoat) {
+        _asm popad
+        ASMJMP(41C531h)
+    }
+
+    _asm popad
+    ASMJMP(41C4FFh)
+}
+
+//41C6A5
+void _declspec(naked) HookGenEmerCarGetAttachedZCoorsOne(void) {
+    _asm mov esi, [esp+68h]
+    _asm mov ecx, [esp+64h]
+    _asm lea edx, [esp+28h]
+    _asm mov _dwHookArgOne, esi
+    _asm mov _dwHookArgTwo, ecx
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_AttachedPaths[_dwHookArgOne].wZ;
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    _asm push 0
+    _asm push 0
+    _asm mov [esp+28h], eax
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _nHookReturn = pThePaths->m_AttachedPaths[_dwHookArgTwo].wZ;
+
+    _asm popad
+    _asm fild dword ptr [esp+28h]
+    _asm fmul _fHookFloatOne
+    _asm mov eax, _nHookReturn
+    ASMJMP(41C6EBh)
 }
 
 //-----------------------------------------------------------------------------
@@ -223,7 +271,7 @@ void _declspec(naked) HookGetDetachedNormalXFour(void) {
 // 21. CPathFind::TestForPedTrafficLight
 //-------------------------------------------------------------------------------
 
-void CPathFindHook::ApplyHook(){
+void CPathFindHook::ApplyHook() {
     void (CPathFind::*p_mPreparePathDataForType)(uint8_t bytePathDataFor, CTempNode* pTempNode, CPathInfoForObject* pUnusedPathInfos, float fUnkRange, CPathInfoForObject* pPathInfosForObject, int nGroupNodesForObject);
     void (CPathFind::*p_mInit)(void);
     void (CPathFind::*p_mAllocatePathFindInfoMem)(void);
@@ -295,19 +343,26 @@ void CPathFindHook::ApplyHook(){
     CMemory::InstallCallHook(0x435140, (DWORD)&CPedPath::CalculateBestRandomCoors, ASM_JMP);
     CMemory::InstallCallHook(0x4351C0, (DWORD)&CPedPath::CalculateRandomCoordinates, ASM_JMP);
     
-    // Hooks inside CAutopilot::ModifySpeed
-    CMemory::InstallCallHook(0x418D48, (DWORD)HookGetDetachedNormalComponentXOne, ASM_JMP);
-    CMemory::InstallCallHook(0x418D68, (DWORD)HookGetDetachedYCoorOne, ASM_JMP);
-    CMemory::InstallCallHook(0x418DAA, (DWORD)HookGetDetachedNormalComponentXTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x418DCB, (DWORD)HookGetDetachedXCoorOne, ASM_JMP);
-    CMemory::InstallCallHook(0x418DEF, (DWORD)HookGetDetachedNormalYOne, ASM_JMP);
-    CMemory::InstallCallHook(0x418E21, (DWORD)HookGetDetachedYCoorTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x418E48, (DWORD)HookGetDetachedXCoorTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x418E7C, (DWORD)HookGetDetachedNormalYTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x418EB8, (DWORD)HookGetDetachedNormalYThree, ASM_JMP);
-    CMemory::InstallCallHook(0x418EE9, (DWORD)HookGetDetachedNormalXThree, ASM_JMP);
-    CMemory::InstallCallHook(0x418F15, (DWORD)HookGetDetachedNormalYFour, ASM_JMP);
-    CMemory::InstallCallHook(0x418F45, (DWORD)HookGetDetachedNormalXFour, ASM_JMP);
+    // hook CPathFind Object pointers
+    CMemory::InstallPatch<CPathFind*>(0x41C4BD, pThePaths);
+
+    // hooks inside CAutopilot::ModifySpeed
+    CMemory::InstallCallHook(0x418D48, (DWORD)HookModSpeedGetDetachedNormalXOne, ASM_JMP);
+    CMemory::InstallCallHook(0x418D68, (DWORD)HookModSpeedGetDetachedYCoorOne, ASM_JMP);
+    CMemory::InstallCallHook(0x418DAA, (DWORD)HookModSpeedGetDetachedNormalXTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x418DCB, (DWORD)HookModSpeedGetDetachedXCoorOne, ASM_JMP);
+    CMemory::InstallCallHook(0x418DEF, (DWORD)HookModSpeedGetDetachedNormalYOne, ASM_JMP);
+    CMemory::InstallCallHook(0x418E21, (DWORD)HookModSpeedGetDetachedYCoorTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x418E48, (DWORD)HookModSpeedGetDetachedXCoorTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x418E7C, (DWORD)HookModSpeedGetDetachedNormalYTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x418EB8, (DWORD)HookModSpeedGetDetachedNormalYThree, ASM_JMP);
+    CMemory::InstallCallHook(0x418EE9, (DWORD)HookModSpeedGetDetachedNormalXThree, ASM_JMP);
+    CMemory::InstallCallHook(0x418F15, (DWORD)HookModSpeedGetDetachedNormalYFour, ASM_JMP);
+    CMemory::InstallCallHook(0x418F45, (DWORD)HookModSpeedGetDetachedNormalXFour, ASM_JMP);
+
+    //hooks inside CCarCtrl::GenerateOneEmergencyServicesCar
+    CMemory::InstallCallHook(0x41C4F1, (DWORD)HookGenEmerCarCheckVehicleType, ASM_JMP);
+    CMemory::InstallCallHook(0x41C6A5, (DWORD)HookGenEmerCarGetAttachedZCoorsOne, ASM_JMP);
 }
 
 void CPathFindHook::RemoveHook(){

@@ -347,7 +347,7 @@ struct CVehicleAI
   int timefield_10;
   int dwDetachedIndex;
   int dwMainNodeLastSet;
-  int field_1C;
+  int field_1CIndex;
   int timeGettingNewCommand;
   int field_24;
   char field_28;

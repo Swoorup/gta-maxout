@@ -252,6 +252,7 @@ void _cdecl HookFindLinksToGoWithTheseNodes(CVehicle* pVehicle) {
     _dwHookArgOne = pVehicle->field_1A6;
     CDebug::DebugAddText("HookFindLinksToGoWithTheseNodes");
 
+    //unnecessary R* leftover?
     if (_dwHookArgOne) {
         _asm mov eax, _dwHookArgOne
         _asm push eax
@@ -353,6 +354,72 @@ void _declspec(naked) HookJoinCarWithRoadFixPathPointerSubtract(void) {
     ASMJMP(41CF97h)
 }
 
+//-------------------------------------------------------------------------
+// This is a direct replacement hook for CCarCtrl::JoinCarWithRoadSystem
+//-------------------------------------------------------------------------
+
+//41D000
+void _cdecl HookJoinCarWithRoadSystem(CVehicle* pVehicle) {
+    CDebug::DebugAddText("JoinCarWithRoadSystem working .....................");
+	pVehicle->Autopilot.dwFollowingNode = 0;
+	pVehicle->Autopilot.dwStartingNode = 0;
+	pVehicle->Autopilot.field_8Index = 0;
+	pVehicle->Autopilot.dwMainNodeLastSet = 0;
+	pVehicle->Autopilot.field_1CIndex = 0;
+	pVehicle->Autopilot.dwDetachedIndex = 0;
+	
+	int nNodeClosestToDirection = pThePaths->FindNodeClosestToCoorsFavourDirection(pVehicle->__parent.__parent.matrix.rwMatrix.vPos.x,
+																		pVehicle->__parent.__parent.matrix.rwMatrix.vPos.y,
+																		pVehicle->__parent.__parent.matrix.rwMatrix.vPos.z,
+																		0,
+																		pVehicle->__parent.__parent.matrix.rwMatrix.vLookAt.x,
+																		pVehicle->__parent.__parent.matrix.rwMatrix.vLookAt.y);
+																		
+	float fnodeDirClosestX = (float)(pThePaths->m_AttachedPaths[nNodeClosestToDirection].wX) / 8.0f;
+	float fnodeDirClosestY = (float)(pThePaths->m_AttachedPaths[nNodeClosestToDirection].wY) / 8.0f;
+	
+	int nClosestNode = -1;
+	float fPreviousSearchCoefficient = 999999.88f;
+	for(int i = 0; i < pThePaths->m_AttachedPaths[nNodeClosestToDirection].bitUnkCount4To7; i++) {
+		int nNextConnectedNode = pThePaths->AttachedPointsInfo[i + pThePaths->m_AttachedPaths[nNodeClosestToDirection].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY;
+		float fnextnodeX = (float)(pThePaths->m_AttachedPaths[nNextConnectedNode].wX) / 8.0f;
+		float fnextnodeY = (float)(pThePaths->m_AttachedPaths[nNextConnectedNode].wY) / 8.0f;
+		
+		float fCurrentLength = sqrt((fnextnodeY - fnodeDirClosestY) * (fnextnodeY - fnodeDirClosestY) + (fnextnodeX - fnodeDirClosestX) * (fnextnodeX - fnodeDirClosestX));
+		if(fCurrentLength < fPreviousSearchCoefficient) {
+			fPreviousSearchCoefficient = fCurrentLength;
+			nClosestNode = nNextConnectedNode;
+		}
+	}
+	
+	if (nClosestNode < 0) {
+		return;
+	}
+	
+	float fLookAtX = pVehicle->__parent.__parent.matrix.rwMatrix.vLookAt.x;
+	float fLookAtY = pVehicle->__parent.__parent.matrix.rwMatrix.vLookAt.y;
+	
+	if(fLookAtX == 0.0f && fLookAtY == 0.0f) {
+		fLookAtX = 1.0f;
+	}
+	
+	float fClosestFoundX = (float)(pThePaths->m_AttachedPaths[nClosestNode].wX) / 8.0f;
+	float fClosestFoundY = (float)(pThePaths->m_AttachedPaths[nClosestNode].wY) / 8.0f;
+	
+	if(((fnodeDirClosestY - fClosestFoundY) * fLookAtY + (fnodeDirClosestX - fClosestFoundX) * fLookAtX) < 0.0f) {
+		int nTempIndex = nClosestNode;
+		nClosestNode = nNodeClosestToDirection;
+		nNodeClosestToDirection = nTempIndex;
+	}
+	
+	pVehicle->Autopilot.field_8Index = 0;
+	pVehicle->Autopilot.dwStartingNode = nClosestNode;
+	pVehicle->Autopilot.dwFollowingNode = nNodeClosestToDirection;
+	pVehicle->Autopilot.numberOfIntermediateRoutes = 0;
+	HookFindLinksToGoWithTheseNodes(pVehicle);
+	pVehicle->Autopilot.field_2B = 0;
+	pVehicle->Autopilot.field_2C = 0;
+}
 //-----------------------------------------------------------------------------
 // List Of Functions Hooked
 // 1.  CPathFind::Init                 -FINE GRAINED
@@ -476,13 +543,16 @@ void CPathFindHook::ApplyHook() {
     CMemory::InstallCallHook(0x41C6A5, (DWORD)HookGenEmerCarGetAttachedZCoorsOne, ASM_JMP);
     CMemory::InstallPatch<CPathFind*>(0x41C4BD, pThePaths);
 
-    //hook inside CCarCtrl::FindLinksToGoWithTheseNodes
+    //whole function replacement hook for CCarCtrl::FindLinksToGoWithTheseNodes
     CMemory::InstallCallHook(0x41CC20, (DWORD)HookFindLinksToGoWithTheseNodes, ASM_JMP);
 
     //hooks inside CCarCtrl::JoinCarWithRoadSystemGotoCoors
     CMemory::InstallPatch<CPathFind*>(0x41CECF, pThePaths);
     CMemory::InstallPatch<CPathFind*>(0x41CF21, pThePaths);
     CMemory::InstallCallHook(0x41CF52, (DWORD)HookJoinCarWithRoadFixPathPointerSubtract, ASM_JMP);
+
+    //whole function replacement hook for CCarCtrl::JoinCarWithRoadSystems
+    CMemory::InstallCallHook(0x41D000, (DWORD)HookJoinCarWithRoadSystem, ASM_JMP);
 }
 
 void CPathFindHook::RemoveHook(){

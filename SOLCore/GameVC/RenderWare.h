@@ -125,17 +125,20 @@ struct RwSphere {
     float radius;
 };
 
+#pragma pack(push, 1)
 struct RwMatrix
-{   // 16-byte padded
-    RwV3d          right;  // 0
-    unsigned int   flags;  // 12
-    RwV3d          up;     // 16
-    unsigned int   pad1;   // 28
-    RwV3d          at;     // 32
-    unsigned int   pad2;   // 44
-    RwV3d          pos;    // 48
-    unsigned int   pad3;   // 60
+{
+  RwV3d vLookRight;
+  uint32_t dwFlags;
+  RwV3d vLookAt;
+  uint32_t dwPad01;
+  RwV3d vLookUp;
+  uint32_t dwPad02;
+  RwV3d vPos;
+  uint32_t dwPad03;
 };
+#pragma pack(pop)
+
 
 // RenderWare enumerations
 enum RsEventStatus

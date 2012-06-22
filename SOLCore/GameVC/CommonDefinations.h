@@ -2,6 +2,10 @@
 #define _COMMONDEFINATIONS_H
 #include "../StdInc.h"
 
+typedef class CPathNode CPathNode;
+typedef struct CVehicle CVehicle;
+typedef class CMatrix CMatrix;
+
 #pragma pack(push, 1)
 struct CEntity__vtbl
 {
@@ -136,6 +140,8 @@ struct CWeaponSlot {
 	_pad(__fxpad00, 3); // 21-24
 };
 #pragma pack(pop)
+
+
 
 #pragma pack(push, 1)
 struct CPed

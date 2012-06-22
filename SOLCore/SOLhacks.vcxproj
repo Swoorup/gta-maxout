@@ -124,6 +124,7 @@
     <ClInclude Include="GameVC\CGameHookManager.h" />
     <ClInclude Include="GameVC\CGameVariables.h" />
     <ClInclude Include="GameVC\CMatrix.h" />
+    <ClInclude Include="GameVC\CommonDefinations.h" />
     <ClInclude Include="GameVC\CPathFind.h" />
     <ClInclude Include="GameVC\CPathFindHook.h" />
     <ClInclude Include="GameVC\CSprite2d.h" />

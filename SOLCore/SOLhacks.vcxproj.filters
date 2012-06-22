@@ -224,5 +224,8 @@
     <ClInclude Include="GameVC\CGameVariables.h">
       <Filter>Header Files\GameVC</Filter>
     </ClInclude>
+    <ClInclude Include="GameVC\CommonDefinations.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

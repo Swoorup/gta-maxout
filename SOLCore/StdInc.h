@@ -20,7 +20,6 @@
 #include "GamePatches.h"
 
 // game definations and new patches includes
-#include "GameVC\CommonDefinations.h"
 #include "GameVC\CPathFindHook.h"
 #include "GameVC\CGameHookManager.h"
 #include "GameVC\CGameVariables.h"
@@ -39,3 +38,4 @@
 #include "GameVC\CFont.h"
 #include "GameVC\CTxdStore.h"
 #include "GameVC\CSprite2D.h"
+#include "GameVC\CommonDefinations.h"

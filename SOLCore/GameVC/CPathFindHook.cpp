@@ -355,7 +355,9 @@ void _declspec(naked) HookJoinCarWithRoadFixPathPointerSubtract(void) {
 }
 
 //-------------------------------------------------------------------------
-// This is a direct replacement hook for CCarCtrl::JoinCarWithRoadSystem
+// This is a direct replacement hook for CCarCtrl::JoinCarWithRoadSystem.
+// This function is usually loaded when a wander system is initiated for
+// vehicles. 
 //-------------------------------------------------------------------------
 
 //41D000

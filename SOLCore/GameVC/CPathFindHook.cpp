@@ -242,7 +242,9 @@ void _declspec(naked) HookGenEmerCarGetAttachedZCoorsOne(void) {
 //----------------------------------------------------------------
 // This is a hook inside CCarCtrl::FindLinksToGoWithTheseNodes.
 // It replaces the entire original function by jump to this 
-// right after the function starts.
+// right after the function starts. This function seems to get 
+// loaded when the a chasing cop car stops right near the player.
+// To-Do: Change into a grid type setup
 //----------------------------------------------------------------
 
 //41CC20

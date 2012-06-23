@@ -422,6 +422,217 @@ void _cdecl HookJoinCarWithRoadSystem(CVehicle* pVehicle) {
 	pVehicle->Autopilot.field_2B = 0;
 	pVehicle->Autopilot.field_2C = 0;
 }
+
+//-----------------------------------------------------------------------------
+// These are hooks inside CCarCtrl::SteerAICarWithPhysicsFollowPaths. They make 
+// sure that proper values with proper type for ThePaths fields are loaded in 
+// CCarCtrl elements.
+//-----------------------------------------------------------------------------
+
+//41EF70
+void _declspec(naked) HookSteerAICarFixDetachedNodeMultiplierOne(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
+
+    _asm popad
+    _asm mov ebp, _dwIndexWithSize
+    ASMJMP(41EF7Bh)
+}
+
+//41EFEB
+void _declspec(naked) HookSteerAICarFixDetachedNodeMultiplierTwo(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
+
+    _asm popad
+    _asm mov esi, _dwIndexWithSize
+    ASMJMP(41EFF5h)
+}
+
+
+//41F088
+void _declspec(naked) HookSteerAICarFixDetachedPreGetLaneDistanceOne(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _pHookDetachedNode = &pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex];
+
+    _asm popad
+    _asm mov ecx, _pHookDetachedNode
+    ASMJMP(41F09Eh)
+}
+
+//41F0C8
+void _declspec(naked) HookSteerCarAIGetDetachedNodeXYCoorsOne(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wX;
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    _asm mov [esp+0A0h], eax
+    _asm fild dword ptr [esp+0A0h]
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    ASMJMP(41F0EEh)
+}
+
+//41F130
+void _declspec(naked) HookSteerCarAIGetDetachedNodeXYCoorsTwo(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wX;
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    _asm mov [esp+0A0h], eax
+    _asm fild dword ptr [esp+0A0h]
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    ASMJMP(41F156h)
+}
+
+//41F346
+void _declspec(naked) HookSteerCarAIFixDetachedPreGetLaneDistanceTwo(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _pHookDetachedNode = &pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex];
+
+    _asm popad
+    _asm mov ecx, _pHookDetachedNode
+    ASMJMP(41F35Ch)
+}
+
+//41F386
+void _declspec(naked) HookSteerCarAIGetDetachedNodeXYCoorsThree(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wX;
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    _asm mov [esp+0A0h], eax
+    _asm fild dword ptr [esp+0A0h]
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    ASMJMP(41F3ACh)
+}
+
+//41F440
+void _declspec(naked) HookSteerCarAIFixDetachedNodeMultiplierThree(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
+
+    _asm popad
+    _asm mov ebp, _dwIndexWithSize
+    ASMJMP(41F44Bh)
+}
+
+//41F4BB
+void _declspec(naked) HookSteerCarAIFixDetachedNodeMultiplierFour(void){
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
+
+    _asm popad
+    _asm mov edx, _dwIndexWithSize
+    ASMJMP(41F4C5h)
+}
+
+
+
+//41F525
+void _declspec(naked) HookSteerCarAIGetDetachedNodeXYCoorsFour(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    _asm fldz
+    _asm fldz
+    _asm mov [esp+0A0h], eax
+    _asm fldz
+    _asm fldz
+    _asm fldz
+    _asm fldz
+    _asm fild dword ptr [esp+0A0h]
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wX;
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    ASMJMP(41F558h)
+}
+
+//41F838
+void _declspec(naked) HookSteerCarAIFixDetachedPreGetLaneDistanceThree(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _pHookDetachedNode = &pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex];
+
+    _asm popad
+    _asm mov ecx, _pHookDetachedNode
+    ASMJMP(41F84Eh)
+}
+
+//41F87B
+void _declspec(naked) HookSteerCarAIGetDetachedNodeXYCoorsFive(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
+    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
+    _fHookFloatOne = 0.125f;
+
+    _asm popad
+    _asm mov ebp, _dwIndexWithSize
+    _asm mov eax, _nHookReturn
+    _asm mov [esp+0A0h], eax
+    _asm push eax
+    _asm fild dword ptr[esp+0A4h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr[esp+94h]
+    _asm fld dword ptr[esp+24h]
+    _asm fmul dword ptr[esp+98h]
+    _asm fsubr dword ptr[esp+94h]
+    _asm fsub dword ptr[esi+4]
+    _asm fstp dword ptr [esp]
+    _asm pushad
+
+    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wX;
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    ASMJMP(41F8C8h)
+}
+
 //-----------------------------------------------------------------------------
 // List Of Functions Hooked
 // 1.  CPathFind::Init                 -FINE GRAINED
@@ -555,6 +766,30 @@ void CPathFindHook::ApplyHook() {
 
     //whole function replacement hook for CCarCtrl::JoinCarWithRoadSystems
     CMemory::InstallCallHook(0x41D000, (DWORD)HookJoinCarWithRoadSystem, ASM_JMP);
+
+    //hooks inside CCarCtrl::SteerAICarWithPhysicsFollowPath
+    CMemory::InstallCallHook(0x41EF70, (DWORD)HookSteerAICarFixDetachedNodeMultiplierOne, ASM_JMP);
+    CMemory::InstallPatch<signed char*>(0x41EF7E, &pThePaths->m_DetachedNodes[0].NormalVecX);
+    CMemory::InstallPatch<signed char*>(0x41EFAA, &pThePaths->m_DetachedNodes[0].NormalVecY);
+    CMemory::InstallCallHook(0x41EFEB, (DWORD)HookSteerAICarFixDetachedNodeMultiplierTwo, ASM_JMP);
+    CMemory::InstallPatch<signed char*>(0x41EFF8, &pThePaths->m_DetachedNodes[0].NormalVecX);
+    CMemory::InstallPatch<CPathFind*>(0x41F015, pThePaths);
+    CMemory::InstallPatch<signed char*>(0x41F02B, &pThePaths->m_DetachedNodes[0].NormalVecY);
+    CMemory::InstallPatch<uint32_t>(0x41F045, OFFSETOF(CPathFind, m_DetachedNodes[0]));
+    CMemory::InstallCallHook(0x41F088, (DWORD)HookSteerAICarFixDetachedPreGetLaneDistanceOne, ASM_JMP);
+    CMemory::InstallCallHook(0x41F0C8, (DWORD)HookSteerCarAIGetDetachedNodeXYCoorsOne, ASM_JMP);
+    CMemory::InstallCallHook(0x41F130, (DWORD)HookSteerCarAIGetDetachedNodeXYCoorsTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x41F346, (DWORD)HookSteerCarAIFixDetachedPreGetLaneDistanceTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x41F386, (DWORD)HookSteerCarAIGetDetachedNodeXYCoorsThree, ASM_JMP);
+    CMemory::InstallCallHook(0x41F440, (DWORD)HookSteerCarAIFixDetachedNodeMultiplierThree, ASM_JMP);
+    CMemory::InstallPatch<signed char*>(0x41F44E, &pThePaths->m_DetachedNodes[0].NormalVecX);
+    CMemory::InstallPatch<signed char*>(0x41F47A, &pThePaths->m_DetachedNodes[0].NormalVecY);
+    CMemory::InstallCallHook(0x41F4BB, (DWORD)HookSteerCarAIFixDetachedNodeMultiplierFour, ASM_JMP);
+    CMemory::InstallPatch<signed char*>(0x41F4C8, &pThePaths->m_DetachedNodes[0].NormalVecX);
+    CMemory::InstallPatch<signed char*>(0x41F4F4, &pThePaths->m_DetachedNodes[0].NormalVecY);
+    CMemory::InstallCallHook(0x41F525, (DWORD)HookSteerCarAIGetDetachedNodeXYCoorsFour, ASM_JMP);
+    CMemory::InstallCallHook(0x41F838, (DWORD)HookSteerCarAIFixDetachedPreGetLaneDistanceThree, ASM_JMP);
+    CMemory::InstallCallHook(0x41F87B, (DWORD)HookSteerCarAIGetDetachedNodeXYCoorsFive, ASM_JMP);
 }
 
 void CPathFindHook::RemoveHook(){

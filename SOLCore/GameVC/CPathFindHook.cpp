@@ -7,12 +7,15 @@ CPathFind* pThePaths = NULL;
 CPathFindHook::CPathFindHook() {
     //pThePaths = new CPathFind();   
     pThePaths = (CPathFind*)0x9B6E5C;
+    m_pAutoPilotHook = new CAutoPilotHook();
 }
 
 CPathFindHook::~CPathFindHook() {
     RemoveHook();
     //delete pThePaths;
     //pThePaths = NULL;
+    delete m_pAutoPilotHook;
+    m_pAutoPilotHook = NULL;
 }
 
 int _nHookDetachedNodeIndex;
@@ -261,19 +264,19 @@ void _cdecl HookFindLinksToGoWithTheseNodes(CVehicle* pVehicle) {
         _asm pop eax
     }
     
-    int nConnectedPointInfo = pThePaths->m_AttachedPaths[pVehicle->Autopilot.dwStartingNode].wRouteInfoIndex;
+    int nConnectedPointInfo = pThePaths->m_AttachedPaths[pVehicle->Autopilot.m_dwMainNode].wRouteInfoIndex;
     int _nLoop = 0;
 
-    for(int _nLoop = 0; _nLoop < 12 && pVehicle->Autopilot.dwFollowingNode != (pThePaths->AttachedPointsInfo[_nLoop + nConnectedPointInfo] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY); _nLoop++);
-    pVehicle->Autopilot.dwMainNodeLastSet = pThePaths->DetachedPointsInfo[_nLoop + nConnectedPointInfo];
-    if(pVehicle->Autopilot.dwStartingNode >= pVehicle->Autopilot.dwFollowingNode) {
-        pVehicle->Autopilot.iIsNodeSame = 1;
+    for(int _nLoop = 0; _nLoop < 12 && pVehicle->Autopilot.m_dwNextNodeIndex != (pThePaths->AttachedPointsInfo[_nLoop + nConnectedPointInfo] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY); _nLoop++);
+    pVehicle->Autopilot.m_dwNextDetachedNodeIndex = pThePaths->DetachedPointsInfo[_nLoop + nConnectedPointInfo];
+    if(pVehicle->Autopilot.m_dwMainNode >= pVehicle->Autopilot.m_dwNextNodeIndex) {
+        pVehicle->Autopilot.m_byteNextDirectionScale = 1;
     }
     else {
-        pVehicle->Autopilot.iIsNodeSame = -1;
+        pVehicle->Autopilot.m_byteNextDirectionScale = -1;
     }
 
-    int nStartNode = pVehicle->Autopilot.dwStartingNode;
+    int nStartNode = pVehicle->Autopilot.m_dwMainNode;
     int nFoundNode, nFoundDetachedNode;
 
     if(pThePaths->m_AttachedPaths[nStartNode].bitUnkCount4To7 == 1) {
@@ -288,14 +291,14 @@ void _cdecl HookFindLinksToGoWithTheseNodes(CVehicle* pVehicle) {
 
         for(int j = 0; j < pThePaths->m_AttachedPaths[nStartNode].bitUnkCount4To7; j++) {
             int nConnectedNextNode = pThePaths->AttachedPointsInfo[j+ pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY;
-            if(nConnectedNextNode == pVehicle->Autopilot.dwFollowingNode) {
+            if(nConnectedNextNode == pVehicle->Autopilot.m_dwNextNodeIndex) {
                 continue;
             }
             
             CVector vecNextConnectedNode;
-            vecNextConnectedNode.x = (float)(pThePaths->m_AttachedPaths[nConnectedNextNode].wX) / 8.0f;
-            vecNextConnectedNode.y = (float)(pThePaths->m_AttachedPaths[nConnectedNextNode].wY) / 8.0f;
-            vecNextConnectedNode.z = (float)(pThePaths->m_AttachedPaths[nConnectedNextNode].wZ) / 8.0f;
+            vecNextConnectedNode.fX = (float)(pThePaths->m_AttachedPaths[nConnectedNextNode].wX) / 8.0f;
+            vecNextConnectedNode.fY = (float)(pThePaths->m_AttachedPaths[nConnectedNextNode].wY) / 8.0f;
+            vecNextConnectedNode.fZ = (float)(pThePaths->m_AttachedPaths[nConnectedNextNode].wZ) / 8.0f;
             float fCurrentCoefficient;
             RwV3d* vPosADDR = &pVehicle->__parent.__parent.matrix.rwMatrix.vPos;
             _asm mov eax, vPosADDR
@@ -314,12 +317,12 @@ void _cdecl HookFindLinksToGoWithTheseNodes(CVehicle* pVehicle) {
         }
         nFoundDetachedNode = pThePaths->DetachedPointsInfo[nFoundNode + pPathNodeStart->wRouteInfoIndex];
     }
-    pVehicle->Autopilot.dwDetachedIndex = nFoundDetachedNode;
+    pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex = nFoundDetachedNode;
     if((pThePaths->AttachedPointsInfo[nFoundNode + pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY) >= nStartNode) {
-        pVehicle->Autopilot.field_29 = 1;
+        pVehicle->Autopilot.m_byteCurrentDirectionScale = 1;
     }
     else {
-        pVehicle->Autopilot.field_29 = -1;
+        pVehicle->Autopilot.m_byteCurrentDirectionScale = -1;
     }
 }
 
@@ -354,21 +357,21 @@ void _declspec(naked) HookJoinCarWithRoadFixPathPointerSubtract(void) {
     ASMJMP(41CF97h)
 }
 
-//-------------------------------------------------------------------------
-// This is a direct replacement hook for CCarCtrl::JoinCarWithRoadSystem.
-// This function is usually loaded when a wander system is initiated for
-// vehicles. 
-//-------------------------------------------------------------------------
+/* 
+ * This is a direct replacement hook for CCarCtrl::JoinCarWithRoadSystem.
+ * This function is usually loaded when a wander system is initiated for
+ * vehicles. 
+ */
 
 //41D000
 void _cdecl HookJoinCarWithRoadSystem(CVehicle* pVehicle) {
     CDebug::DebugAddText("JoinCarWithRoadSystem working .....................");
-	pVehicle->Autopilot.dwFollowingNode = 0;
-	pVehicle->Autopilot.dwStartingNode = 0;
-	pVehicle->Autopilot.field_8Index = 0;
-	pVehicle->Autopilot.dwMainNodeLastSet = 0;
-	pVehicle->Autopilot.field_1CIndex = 0;
-	pVehicle->Autopilot.dwDetachedIndex = 0;
+	pVehicle->Autopilot.m_dwNextNodeIndex = 0;
+	pVehicle->Autopilot.m_dwMainNode = 0;
+	pVehicle->Autopilot.m_dwPrevMainNode = 0;
+	pVehicle->Autopilot.m_dwNextDetachedNodeIndex = 0;
+	pVehicle->Autopilot.m_dwPrevDetachedNodeIndex = 0;
+	pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex = 0;
 	
 	int nNodeClosestToDirection = pThePaths->FindNodeClosestToCoorsFavourDirection(pVehicle->__parent.__parent.matrix.rwMatrix.vPos.x,
 																		pVehicle->__parent.__parent.matrix.rwMatrix.vPos.y,
@@ -414,19 +417,20 @@ void _cdecl HookJoinCarWithRoadSystem(CVehicle* pVehicle) {
 		nNodeClosestToDirection = nTempIndex;
 	}
 	
-	pVehicle->Autopilot.field_8Index = 0;
-	pVehicle->Autopilot.dwStartingNode = nClosestNode;
-	pVehicle->Autopilot.dwFollowingNode = nNodeClosestToDirection;
-	pVehicle->Autopilot.numberOfIntermediateRoutes = 0;
+	pVehicle->Autopilot.m_dwPrevMainNode = 0;
+	pVehicle->Autopilot.m_dwMainNode = nClosestNode;
+	pVehicle->Autopilot.m_dwNextNodeIndex = nNodeClosestToDirection;
+	pVehicle->Autopilot.m_nRouteListStep = 0;
 	HookFindLinksToGoWithTheseNodes(pVehicle);
-	pVehicle->Autopilot.field_2B = 0;
-	pVehicle->Autopilot.field_2C = 0;
+	pVehicle->Autopilot.m_byteCurrentLanes = 0;
+	pVehicle->Autopilot.m_byteNextLanes = 0;
 }
 
 //-----------------------------------------------------------------------------
 // These are hooks inside CCarCtrl::SteerAICarWithPhysicsFollowPaths. They make 
 // sure that proper values with proper type for ThePaths fields are loaded in 
 // CCarCtrl elements.
+// To DO: Reverse entirely in the future
 //-----------------------------------------------------------------------------
 
 //41EF70
@@ -633,37 +637,37 @@ void _declspec(naked) HookSteerCarAIGetDetachedNodeXYCoorsFive(void) {
     ASMJMP(41F8C8h)
 }
 
-//-----------------------------------------------------------------------------
-// List Of Functions Hooked
-// 1.  CPathFind::Init                 -FINE GRAINED
-// 2.  CPathFind::PreparePathDataForType-THOROUGH REVISION AND DUMP TEST NEEDED
-// 3.  CPathFind::StoreNodeInfoPed     -FINE GRAINED
-// 4.  CPathFind::StoreNodeInfoCar     -FINE GRAINED
-// 5.  CPathFind::ArrangeOneNodeList   -FINE GRAINED
-// 6.  CFileLoader::LoadScene          -FINE GRAINED
-// 7.  CPathFind::PreparePathData      -FINE GRAINED
-// 8.  CPathFind::AllocatePathFindInfoMem- FINE GRAINED
-// 9.  CPathFind::AddNodeToList - FINE GRAINED
-// 10. CPathFind::RemoveNodeFromList - FINE GRAINED
-// 11. CPathFind::FindNodeClosestToCoors - REVISION NEEDED
-//          -can be optimized by setting up a grid system.
-//          -work is needed in improving generation per calls
-// 12. CPathFind::DoPathSearch - REVISION NEEDED
-// 13. CPathFind::RemoveBadStartNode   - REVISION DONE
-// 14. CPathFind::FindNextNodeWandering -REVISION NEEDED
-// 15. CPathFind::NewGenerateCarCreationCoors - Optimization needed, finding new nodes - work is needed in improving generation per calls
-// 16. CPathFind::GeneratePedCreationCoors - FINE GRAINED - work is needed in improving generation per calls
-// 17. CPathFind::TestCoorsCloseness - FINE GRAINED
-// 18. CPathFind::CalcRoadDensity - FINE GRAINED
-//          This functions calculates the sum of displacement between car nodes inside an area.
-//          The number is the divided by the area of the game (2500.0) to get the actual density
-// 19. CPathFind::FindNodeClosestToCoorsFavourDirection - REVISION NEEEDED
-//          This function calculates the nearest node favouring the direction an entity is heading
-//          or if not specified the x/straight direction of the entity
-//          -can be optimized using a grid system
-// 20. CPathFind::TestCrossesRoad
-// 21. CPathFind::TestForPedTrafficLight
-//-------------------------------------------------------------------------------
+/*
+ * List Of Functions Hooked
+ * 1.  CPathFind::Init                 -FINE GRAINED
+ * 2.  CPathFind::PreparePathDataForType-THOROUGH REVISION AND DUMP TEST NEEDED
+ * 3.  CPathFind::StoreNodeInfoPed     -FINE GRAINED
+ * 4.  CPathFind::StoreNodeInfoCar     -FINE GRAINED
+ * 5.  CPathFind::ArrangeOneNodeList   -FINE GRAINED
+ * 6.  CFileLoader::LoadScene          -FINE GRAINED
+ * 7.  CPathFind::PreparePathData      -FINE GRAINED
+ * 8.  CPathFind::AllocatePathFindInfoMem- FINE GRAINED
+ * 9.  CPathFind::AddNodeToList - FINE GRAINED
+ * 10. CPathFind::RemoveNodeFromList - FINE GRAINED
+ * 11. CPathFind::FindNodeClosestToCoors - REVISION NEEDED
+ *          -can be optimized by setting up a grid system.
+ *          -work is needed in improving generation per calls
+ * 12. CPathFind::DoPathSearch - REVISION NEEDED
+ * 13. CPathFind::RemoveBadStartNode   - REVISION DONE
+ * 14. CPathFind::FindNextNodeWandering -REVISION NEEDED
+ * 15. CPathFind::NewGenerateCarCreationCoors - Optimization needed, finding new nodes - work is needed in improving generation per calls
+ * 16. CPathFind::GeneratePedCreationCoors - FINE GRAINED - work is needed in improving generation per calls
+ * 17. CPathFind::TestCoorsCloseness - FINE GRAINED
+ * 18. CPathFind::CalcRoadDensity - FINE GRAINED
+ *          This functions calculates the sum of displacement between car nodes inside an area.
+ *          The number is the divided by the area of the game (2500.0) to get the actual density
+ * 19. CPathFind::FindNodeClosestToCoorsFavourDirection - REVISION NEEEDED
+ *          This function calculates the nearest node favouring the direction an entity is heading
+ *          or if not specified the x/straight direction of the entity
+ *          -can be optimized using a grid system
+ * 20. CPathFind::TestCrossesRoad
+ * 21. CPathFind::TestForPedTrafficLight
+ */
 
 void CPathFindHook::ApplyHook() {
     void (CPathFind::*p_mPreparePathDataForType)(uint8_t bytePathDataFor, CTempNode* pTempNode, CPathInfoForObject* pUnusedPathInfos, float fUnkRange, CPathInfoForObject* pPathInfosForObject, int nGroupNodesForObject);
@@ -738,18 +742,19 @@ void CPathFindHook::ApplyHook() {
     CMemory::InstallCallHook(0x4351C0, (DWORD)&CPedPath::CalculateRandomCoordinates, ASM_JMP);
 
     // hooks inside CAutopilot::ModifySpeed
-    CMemory::InstallCallHook(0x418D48, (DWORD)HookModSpeedGetDetachedNormalXOne, ASM_JMP);
-    CMemory::InstallCallHook(0x418D68, (DWORD)HookModSpeedGetDetachedYCoorOne, ASM_JMP);
-    CMemory::InstallCallHook(0x418DAA, (DWORD)HookModSpeedGetDetachedNormalXTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x418DCB, (DWORD)HookModSpeedGetDetachedXCoorOne, ASM_JMP);
-    CMemory::InstallCallHook(0x418DEF, (DWORD)HookModSpeedGetDetachedNormalYOne, ASM_JMP);
-    CMemory::InstallCallHook(0x418E21, (DWORD)HookModSpeedGetDetachedYCoorTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x418E48, (DWORD)HookModSpeedGetDetachedXCoorTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x418E7C, (DWORD)HookModSpeedGetDetachedNormalYTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x418EB8, (DWORD)HookModSpeedGetDetachedNormalYThree, ASM_JMP);
-    CMemory::InstallCallHook(0x418EE9, (DWORD)HookModSpeedGetDetachedNormalXThree, ASM_JMP);
-    CMemory::InstallCallHook(0x418F15, (DWORD)HookModSpeedGetDetachedNormalYFour, ASM_JMP);
-    CMemory::InstallCallHook(0x418F45, (DWORD)HookModSpeedGetDetachedNormalXFour, ASM_JMP);
+    //CMemory::InstallCallHook(0x418D48, (DWORD)HookModSpeedGetDetachedNormalXOne, ASM_JMP);
+    //CMemory::InstallCallHook(0x418D68, (DWORD)HookModSpeedGetDetachedYCoorOne, ASM_JMP);
+    //CMemory::InstallCallHook(0x418DAA, (DWORD)HookModSpeedGetDetachedNormalXTwo, ASM_JMP);
+    //CMemory::InstallCallHook(0x418DCB, (DWORD)HookModSpeedGetDetachedXCoorOne, ASM_JMP);
+    //CMemory::InstallCallHook(0x418DEF, (DWORD)HookModSpeedGetDetachedNormalYOne, ASM_JMP);
+    //CMemory::InstallCallHook(0x418E21, (DWORD)HookModSpeedGetDetachedYCoorTwo, ASM_JMP);
+    //CMemory::InstallCallHook(0x418E48, (DWORD)HookModSpeedGetDetachedXCoorTwo, ASM_JMP);
+    //CMemory::InstallCallHook(0x418E7C, (DWORD)HookModSpeedGetDetachedNormalYTwo, ASM_JMP);
+    //CMemory::InstallCallHook(0x418EB8, (DWORD)HookModSpeedGetDetachedNormalYThree, ASM_JMP);
+    //CMemory::InstallCallHook(0x418EE9, (DWORD)HookModSpeedGetDetachedNormalXThree, ASM_JMP);
+    //CMemory::InstallCallHook(0x418F15, (DWORD)HookModSpeedGetDetachedNormalYFour, ASM_JMP);
+    //CMemory::InstallCallHook(0x418F45, (DWORD)HookModSpeedGetDetachedNormalXFour, ASM_JMP);
+    m_pAutoPilotHook->ApplyHookForPaths();
 
     //hooks inside CCarCtrl::GenerateOneEmergencyServicesCar
     CMemory::InstallCallHook(0x41C4F1, (DWORD)HookGenEmerCarCheckVehicleType, ASM_JMP);

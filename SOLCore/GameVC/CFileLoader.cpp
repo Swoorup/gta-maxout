@@ -97,25 +97,25 @@ void CFileLoader::LoadScene(const char* szSceneFileName){
                 unsigned int dwCullFlags;
                 sscanf(szLine,
                   "%f %f %f %f %f %f %f %f %f %d %d",
-                  &CullCenter.x,
-                  &CullCenter.y,
-                  &CullCenter.z,
-                  &CullLowerLeft.x,
-                  &CullLowerLeft.y,
-                  &CullLowerLeft.z,
-                  &CullUpperRight.x,
-                  &CullUpperRight.y,
-                  &CullUpperRight.z,
+                  &CullCenter.fX,
+                  &CullCenter.fY,
+                  &CullCenter.fZ,
+                  &CullLowerLeft.fX,
+                  &CullLowerLeft.fY,
+                  &CullLowerLeft.fZ,
+                  &CullUpperRight.fX,
+                  &CullUpperRight.fY,
+                  &CullUpperRight.fZ,
                   &dwCullFlags,
                   &iCullUnk);
                 CCullZones::AddCullZone(
                   CullCenter,
-                  CullLowerLeft.x,
-                  CullUpperRight.x,
-                  CullLowerLeft.y,
-                  CullUpperRight.y,
-                  CullLowerLeft.z,
-                  CullUpperRight.z,
+                  CullLowerLeft.fX,
+                  CullUpperRight.fX,
+                  CullLowerLeft.fY,
+                  CullUpperRight.fY,
+                  CullLowerLeft.fZ,
+                  CullUpperRight.fZ,
                   dwCullFlags,
                   iCullUnk);
                 continue;
@@ -139,7 +139,7 @@ void CFileLoader::LoadScene(const char* szSceneFileName){
               {
                 int iPickUpID;
                 CVector PickUpPosition;
-                sscanf(szLine, "%d %f %f %f", &iPickUpID, &PickUpPosition.x, &PickUpPosition.y, &PickUpPosition.z);
+                sscanf(szLine, "%d %f %f %f", &iPickUpID, &PickUpPosition.fX, &PickUpPosition.fY, &PickUpPosition.fZ);
                 continue;
               }
               case 6:

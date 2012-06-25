@@ -1026,9 +1026,9 @@ void CPathFind::FindNextNodeWandering(uint8_t iPathDataFor, float fX, float fY, 
         {
             CVector vecNextDeltaPos(float(pDeltaNextNode->wX)/8.0f, float(pDeltaNextNode->wY)/8.0f, float(pDeltaNextNode->wZ)/8.0f + 1.0f);
             if (CWorld::GetIsLineOfSightClear(&vecCurrentPos, &vecNextDeltaPos, 1, 0, 0, 0, 0, 0, 0)){
-                double fDeltaNextNodeLength = sqrt(vecNextDeltaPos.x*vecNextDeltaPos.x + vecNextDeltaPos.y*vecNextDeltaPos.y);
-                double fDeltaNormalX = vecNextDeltaPos.x / fDeltaNextNodeLength;
-                double fDeltaNormalY = vecNextDeltaPos.y / fDeltaNextNodeLength;
+                double fDeltaNextNodeLength = sqrt(vecNextDeltaPos.fX*vecNextDeltaPos.fX + vecNextDeltaPos.fY*vecNextDeltaPos.fY);
+                double fDeltaNormalX = vecNextDeltaPos.fX / fDeltaNextNodeLength;
+                double fDeltaNormalY = vecNextDeltaPos.fY / fDeltaNextNodeLength;
 
                 double fDeltaCoefficient = fDeltaNormalX * dPrevNormalX + fDeltaNormalY * dPrevNormalY;
                 if (fDeltaCoefficient >= (double)fPrevFoundRangeCoeff){
@@ -1133,12 +1133,12 @@ bool CPathFind::NewGenerateCarCreationCoors(float fX, float fY, float fDirection
 
                                 *aNodeRangeDiffCoeff = fabsRandNodeRangeDelta / (fabsRandNodeRangeDelta + fabsNextNodeRangeDelta);
                                 CVector vecOutPosition;
-                                vecOutPosition.x = (float)(m_AttachedPaths[nNextNodeIndex].wX) / 8.0f * (*aNodeRangeDiffCoeff) + (float)(m_AttachedPaths[nRandIndex].wX) / 8.0f * (1.0f - (*aNodeRangeDiffCoeff));
-                                vecOutPosition.y = (float)(m_AttachedPaths[nNextNodeIndex].wY) / 8.0f * (*aNodeRangeDiffCoeff) + (float)(m_AttachedPaths[nRandIndex].wY) / 8.0f * (1.0f - (*aNodeRangeDiffCoeff));
-                                vecOutPosition.z = (float)(m_AttachedPaths[nNextNodeIndex].wZ) / 8.0f * (*aNodeRangeDiffCoeff) + (float)(m_AttachedPaths[nRandIndex].wZ) / 8.0f * (1.0f - (*aNodeRangeDiffCoeff));
+                                vecOutPosition.fX = (float)(m_AttachedPaths[nNextNodeIndex].wX) / 8.0f * (*aNodeRangeDiffCoeff) + (float)(m_AttachedPaths[nRandIndex].wX) / 8.0f * (1.0f - (*aNodeRangeDiffCoeff));
+                                vecOutPosition.fY = (float)(m_AttachedPaths[nNextNodeIndex].wY) / 8.0f * (*aNodeRangeDiffCoeff) + (float)(m_AttachedPaths[nRandIndex].wY) / 8.0f * (1.0f - (*aNodeRangeDiffCoeff));
+                                vecOutPosition.fZ = (float)(m_AttachedPaths[nNextNodeIndex].wZ) / 8.0f * (*aNodeRangeDiffCoeff) + (float)(m_AttachedPaths[nRandIndex].wZ) / 8.0f * (1.0f - (*aNodeRangeDiffCoeff));
 
-                                float fPosDifferenceX = vecOutPosition.x - fX;
-                                float fPosDifferenceY = vecOutPosition.y - fY;
+                                float fPosDifferenceX = vecOutPosition.fX - fX;
+                                float fPosDifferenceY = vecOutPosition.fY - fY;
                                 float fPosDisplacement = sqrt(fPosDifferenceX * fPosDifferenceX + fPosDifferenceY * fPosDifferenceY);
                                 float fPosDiffCoefficient = fPosDifferenceX / fPosDisplacement * fDirectionVecX + fPosDifferenceY / fPosDisplacement * fDirectionVecY;
 
@@ -1263,16 +1263,16 @@ bool CPathFind::GeneratePedCreationCoors(float fX, float fY, float fMinRange, fl
 				    {
 					    *pStartNodeIndex = nStartNodeIndex;
 					    *pNextNodeIndex = nNextNodeIndex;
-					    pvecSpawnPos->x = vecMeanPos.x;
-					    pvecSpawnPos->y = vecMeanPos.y;
-					    pvecSpawnPos->z = vecMeanPos.z;
+					    pvecSpawnPos->fX = vecMeanPos.x;
+					    pvecSpawnPos->fY = vecMeanPos.y;
+					    pvecSpawnPos->fZ = vecMeanPos.z;
 					    bool bDoesGroundExist;
 					    float fSpawnPosCollisionGround = CWorld::FindGroundZFor3DCoord(vecMeanPos.x, vecMeanPos.y, vecMeanPos.z + 2.0f, &bDoesGroundExist);
 					    if (bDoesGroundExist == false) {
     						continue;
 					    }
 					    if (utl::abs<float>(fSpawnPosCollisionGround - vecMeanPos.z) <= 3.0f) {
-						    pvecSpawnPos->z = fSpawnPosCollisionGround;
+						    pvecSpawnPos->fZ = fSpawnPosCollisionGround;
     						return true;
 					    }
 					    else {
@@ -1473,9 +1473,9 @@ void _cdecl CPedPath::CalculateBestRandomCoors(CPathNode* pPathNodeA, CPathNode*
 }
 
 CVector* _cdecl CPedPath::CalculateRandomCoordinates(CVector* pvecPosition, CPathNode* pPathNode, short sRand) {
-    pvecPosition->x = (float)(pPathNode->sbMedianWidth * ((sRand & 15) - 7)) * 0.0077499999f + (float)(pPathNode->wX) / 8.0f;
-    pvecPosition->y = (float)(pPathNode->sbMedianWidth * (((sRand >> 4) & 15) - 7)) * 0.0077499999f + (float)(pPathNode->wY) / 8.0f;
-    pvecPosition->z = (float)(pPathNode->wZ) / 8.0f;
+    pvecPosition->fX = (float)(pPathNode->sbMedianWidth * ((sRand & 15) - 7)) * 0.0077499999f + (float)(pPathNode->wX) / 8.0f;
+    pvecPosition->fY = (float)(pPathNode->sbMedianWidth * (((sRand >> 4) & 15) - 7)) * 0.0077499999f + (float)(pPathNode->wY) / 8.0f;
+    pvecPosition->fZ = (float)(pPathNode->wZ) / 8.0f;
 
     return pvecPosition;
 }

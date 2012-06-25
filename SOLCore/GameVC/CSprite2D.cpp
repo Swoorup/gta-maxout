@@ -70,7 +70,7 @@ void CSprite2d::Draw3D(CRect& rect, CRGBA& colour, float x1, float y1, float z1,
 
 	WORD indices[6] = { 0, 1, 2, 0, 2, 3 };
 
-	RwRenderStateSet(RwRenderState::rwRENDERSTATETEXTURERASTER, RwTexture->raster);
+	RwRenderStateSet(rwRENDERSTATETEXTURERASTER, RwTexture->raster);
 	RwIm3DTransform(vertices, 4, NULL, 4);
 	RwIm3DRenderIndexedPrimitive(3, indices, 6);
 }

@@ -29,7 +29,7 @@ public:
   char m_byteSpeedLimit;
   char m_gap_3A[2];
   int m_field_3C;
-  char m_field_40;
+  char m_flags;
   char m_field_41;
   short m_field_42;
   CVector m_vecTargetPoint;

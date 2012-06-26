@@ -3,11 +3,8 @@
 
 #include "../StdInc.h"
 
-class CAutoPilotHook;
-
 class CPathFindHook : public CSingleton <CPathFindHook> {
 private:
-    CAutoPilotHook* m_pAutoPilotHook;
     void RemoveHook(void);
 public:
     CPathFindHook();

@@ -136,19 +136,19 @@ void PatchVehicleLimits()
     }
 
     CMemory::NoOperation(0x55FFB6, 7);
-    CMemory::InstallCallHook(0x55FFB6, (DWORD)&HookConstructVehicleModelInfoArray, ASM_JMP);
+    CMemory::InstallCallHook(0x55FFB6, &HookConstructVehicleModelInfoArray, ASM_JMP);
 
     CMemory::NoOperation(0x560156, 7);
-    CMemory::InstallCallHook(0x560156, (DWORD)&HookDestructVehicleModelInfoArray, ASM_JMP);
+    CMemory::InstallCallHook(0x560156, &HookDestructVehicleModelInfoArray, ASM_JMP);
 
     CMemory::NoOperation(0x4C02E4, 7);
-    CMemory::InstallCallHook(0x4C02E4, (DWORD)&HookConstructVehiclePool, ASM_JMP);
+    CMemory::InstallCallHook(0x4C02E4, &HookConstructVehiclePool, ASM_JMP);
     
     // Patches in CCarCtrl Car Arrays and Car Ratings
     memset(&TotalNumOfCarsOfRating, NULL, sizeof(TotalNumOfCarsOfRating));
     memset(&CarArrays, NULL, sizeof(CarArrays));
 
     CMemory::InstallPatch<void*>(0x4294C6, &TotalNumOfCarsOfRating);
-    CMemory::InstallCallHook( 0x426A30, (DWORD)&ChooseCarModel, ASM_JMP);
-    CMemory::InstallCallHook( 0x426820, (DWORD)&AddToCarArray, ASM_JMP);
+    CMemory::InstallCallHook( 0x426A30, &ChooseCarModel, ASM_JMP);
+    CMemory::InstallCallHook( 0x426820, &AddToCarArray, ASM_JMP);
 }

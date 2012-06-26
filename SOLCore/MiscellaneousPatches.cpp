@@ -72,10 +72,10 @@ void PatchLoadingBarDisplayOnly()
   CMemory::InstallPatch<byte>(0x4A6C33, 47); //R
 
   CMemory::NoOperation(0x4A6A83, 5);
-  CMemory::InstallCallHook(0x4A6A83,(DWORD)&GetLoadingScreenMsg,ASM_JMP);
+  CMemory::InstallCallHook(0x4A6A83, &GetLoadingScreenMsg,ASM_JMP);
 
   CMemory::NoOperation(0x4A6D47, 5);
-  CMemory::InstallCallHook(0x4A6D47, (DWORD)&DisplayLoadingScreenMsg, ASM_CALL);
+  CMemory::InstallCallHook(0x4A6D47, &DisplayLoadingScreenMsg, ASM_CALL);
 }
 
 //=======================End of Elvis's patches===================================
@@ -147,7 +147,7 @@ void PatchCarGeneratorLimit() {
     memcpy((void*)0x005A6BF1, HookCCarGeneratorsInitBuffer, sizeof(HookCCarGeneratorsInitBuffer));
       
     CMemory::NoOperation(0x005A6C97, 6);
-    CMemory::InstallCallHook(0x005A6C97, (DWORD)&HookCTheCarGenerators4bCounter, ASM_JMP);
+    CMemory::InstallCallHook(0x005A6C97, &HookCTheCarGenerators4bCounter, ASM_JMP);
 }
 //-----------------------------------------------------------------------------
 

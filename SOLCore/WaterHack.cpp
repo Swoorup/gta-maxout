@@ -397,7 +397,7 @@ void PatchWater(void)
 {
     //Relocates the grid for preparation of use everytime New Game is clicked
     CMemory::NoOperation(0x5C3940, 10);
-    CMemory::InstallCallHook(0x5C3940, (DWORD)Hook__CWaterLevel_Initialize, ASM_CALL);
+    CMemory::InstallCallHook(0x5C3940, Hook__CWaterLevel_Initialize, ASM_CALL);
 
 	// This patch removes the shiny area which appeared to be distorted below the player.
 	CMemory::NoOperation(0x5C1525, 0x58);
@@ -407,11 +407,9 @@ void PatchWater(void)
 	
 	// Instantiate the references to and the new PHYSICAL water tile array itself.
 	memset(&PhysicalWaterGridStore, 0x00, 16 * WaterGridWidth * WaterGridWidth * WATER_MAP_WIDTH * WATER_MAP_WIDTH);
-	CMemory::UnProtect((DWORD)&PhysicalWaterGridStore, 16 * WaterGridWidth * WaterGridWidth * WATER_MAP_WIDTH * WATER_MAP_WIDTH);
 
 	// Instantiate the references to and the new water tile array itself.
 	memset(&VisibleWaterGridStore, 0x00, 4 * WaterGridWidth * WaterGridWidth * WATER_MAP_WIDTH * WATER_MAP_WIDTH);
-	CMemory::UnProtect((DWORD)&VisibleWaterGridStore, 4 * WaterGridWidth * WaterGridWidth * WATER_MAP_WIDTH * WATER_MAP_WIDTH);
 
 	// This massive patch removes the calls to render the hardcoded useless LOD water planes past the default boundaries.
 	CMemory::NoOperation(0x5C20F0, 0x7FC);
@@ -481,41 +479,41 @@ void PatchWater(void)
 
 	// Install the patches (water plane constructor) that allow for north/south boundary manipulation.
 	CMemory::NoOperation(0x5C1D03, 0x06);
-	CMemory::InstallCallHook(0x5C1D03, (DWORD)Hook_WaterPlaneConstruct_1, ASM_CALL);
+	CMemory::InstallCallHook(0x5C1D03, Hook_WaterPlaneConstruct_1, ASM_CALL);
 
 	CMemory::NoOperation(0x5C1D45, 0x06);
-	CMemory::InstallCallHook(0x5C1D45, (DWORD)Hook_WaterPlaneConstruct_1, ASM_CALL);
+	CMemory::InstallCallHook(0x5C1D45, Hook_WaterPlaneConstruct_1, ASM_CALL);
 
 	CMemory::NoOperation(0x5C1C10, 0x06); // construct
 	CMemory::NoOperation(0x5C1C45, 0x06); // construct
 	CMemory::NoOperation(0x5C02F5, 0x06); // destruct
 	CMemory::NoOperation(0x5C0337, 0x06); // destruct
-	CMemory::InstallCallHook(0x5C1C10, (DWORD)Hook_WaterPlaneConstruct_3, ASM_CALL);
-	CMemory::InstallCallHook(0x5C1C45, (DWORD)Hook_WaterPlaneConstruct_3, ASM_CALL);
-	CMemory::InstallCallHook(0x5C02F5, (DWORD)Hook_WaterPlaneConstruct_2, ASM_CALL);
-	CMemory::InstallCallHook(0x5C0337, (DWORD)Hook_WaterPlaneConstruct_2, ASM_CALL);
+	CMemory::InstallCallHook(0x5C1C10, Hook_WaterPlaneConstruct_3, ASM_CALL);
+	CMemory::InstallCallHook(0x5C1C45, Hook_WaterPlaneConstruct_3, ASM_CALL);
+	CMemory::InstallCallHook(0x5C02F5, Hook_WaterPlaneConstruct_2, ASM_CALL);
+	CMemory::InstallCallHook(0x5C0337, Hook_WaterPlaneConstruct_2, ASM_CALL);
 
 	CMemory::NoOperation(0x5C1EA1, 0x06);
-	CMemory::InstallCallHook(0x5C1EA1, (DWORD)Hook_WaterPlaneConstruct_4, ASM_CALL);
+	CMemory::InstallCallHook(0x5C1EA1, Hook_WaterPlaneConstruct_4, ASM_CALL);
 
 	CMemory::NoOperation(0x5C041B, 0x06);
 	CMemory::NoOperation(0x5C0460, 0x06);
-	CMemory::InstallCallHook(0x5C041B, (DWORD)Hook_WaterPlaneDestruct_1, ASM_CALL);
-	CMemory::InstallCallHook(0x5C0460, (DWORD)Hook_WaterPlaneDestruct_1, ASM_CALL);
+	CMemory::InstallCallHook(0x5C041B, Hook_WaterPlaneDestruct_1, ASM_CALL);
+	CMemory::InstallCallHook(0x5C0460, Hook_WaterPlaneDestruct_1, ASM_CALL);
 
 	CMemory::NoOperation(0x5C0690, 0x06);
-	CMemory::InstallCallHook(0x5C0690, (DWORD)Hook_WaterPlaneDestruct_2, ASM_CALL);
+	CMemory::InstallCallHook(0x5C0690, Hook_WaterPlaneDestruct_2, ASM_CALL);
 
 	CMemory::NoOperation(0x5C08EE, 0x06);
-	CMemory::InstallCallHook(0x5C08EE, (DWORD)Hook_WaterPlaneDestruct_3, ASM_CALL);
+	CMemory::InstallCallHook(0x5C08EE, Hook_WaterPlaneDestruct_3, ASM_CALL);
 
 	// Install patch in GetWaterLevelNoWaves.
 	CMemory::NoOperation(0x5C2BF1, 0x06);
-	CMemory::InstallCallHook(0x5C2BF1, (DWORD)Hook_GetWaterLevelNoWave_1, ASM_CALL);
+	CMemory::InstallCallHook(0x5C2BF1, Hook_GetWaterLevelNoWave_1, ASM_CALL);
 
 	// Install patch in GetWaterLevel.
 	CMemory::NoOperation(0x5C2CD3, 6);
-	CMemory::InstallCallHook(0x5C2CD3, (DWORD)Hook_GetWaterLevelNoWave_2, ASM_CALL);
+	CMemory::InstallCallHook(0x5C2CD3, Hook_GetWaterLevelNoWave_2, ASM_CALL);
 
 	// Install patch in the camera processor.
 	//CMemory::NoOperation(0x5BCEDD, 6);
@@ -532,5 +530,5 @@ void PatchWater(void)
 	// NEW TEST MATERIALS
 
 	CMemory::NoOperation(0x4A6589, 0x2A);
-	CMemory::InstallCallHook(0x4A6589, (DWORD)Hook_PreRenderNearWater, ASM_CALL);
+	CMemory::InstallCallHook(0x4A6589, Hook_PreRenderNearWater, ASM_CALL);
 }

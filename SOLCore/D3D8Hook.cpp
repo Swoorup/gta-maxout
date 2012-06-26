@@ -24,7 +24,7 @@ IDirect3D8* WINAPI NewDirect3DCreate8(UINT SDKVersion)
 
 void D3D8HookInit(bool bWindowed)
 {
-    CMemory::InstallCallHook(0x600FC0, (DWORD)&NewDirect3DCreate8, ASM_CALL);
-    CMemory::InstallCallHook(0x65B857, (DWORD)&NewDirect3DCreate8, ASM_CALL);
+    CMemory::InstallCallHook(0x600FC0, &NewDirect3DCreate8, ASM_CALL);
+    CMemory::InstallCallHook(0x65B857, &NewDirect3DCreate8, ASM_CALL);
     bWindowedMode = bWindowed;
 }

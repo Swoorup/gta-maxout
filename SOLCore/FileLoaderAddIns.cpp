@@ -104,7 +104,7 @@ void _declspec (naked) HookReadLineCARS(){
 
 void AddIPLSections(){
     CMemory::NoOperation(0x48B1C0, 8);
-    CMemory::InstallCallHook(0x48B1C0, (DWORD)&Hook_48B1C0, ASM_JMP);
+    CMemory::InstallCallHook(0x48B1C0, &Hook_48B1C0, ASM_JMP);
 
     //Patch the comparision limit
     CMemory::InstallPatch<byte> (0x48B20E, 0x07);
@@ -133,7 +133,7 @@ void InstallFileLoaderHooks(void){
 	fclose(fCheckDAT);
         
     CMemory::NoOperation(0x4A4C9F, 7);
-    CMemory::InstallCallHook(0x4A4C9F, (DWORD)&Hook_CGameInitialize, ASM_CALL);
+    CMemory::InstallCallHook(0x4A4C9F, &Hook_CGameInitialize, ASM_CALL);
 
     // The following function adds new section called 'cars' in CFileLoader::LoadScene
     AddIPLSections();

@@ -21,7 +21,7 @@ void _declspec(naked) HookCMenuManager__LoadTextures() {
     for (int i = 0; i < TOTAL_TILES; i++){
         sprintf(MenuMapName, "menuMap%02d", i);
         MapMenuTexStore[i].SetTexture(MenuMapName);
-        MapMenuTexStore[i].SetAddressing(RwTextureAddressMode::rwTEXTUREADDRESSBORDER);
+        MapMenuTexStore[i].SetAddressing(rwTEXTUREADDRESSBORDER);
     }
     CTxdStore::PopCurrentTxd();
     __asm pop ebx
@@ -113,16 +113,16 @@ void HookNew_CMenuManager__DrawMapTextures()
 void PatchMapMenu(){
     ZeroMemory(MapMenuTexStore, sizeof(MapMenuTexStore));
     CMemory::UnProtect(0x4A2CC2,5);
-    CMemory::InstallCallHook(0x4A2CC2,(DWORD)&HookNew_CMenuManager__DrawMapTextures, ASM_CALL);
+    CMemory::InstallCallHook(0x4A2CC2,&HookNew_CMenuManager__DrawMapTextures, ASM_CALL);
 
     CMemory::UnProtect(0x4A273A,5);
-    CMemory::InstallCallHook(0x4A273A,(DWORD)&HookNew_CMenuManager__DrawMapTextures, ASM_CALL);
+    CMemory::InstallCallHook(0x4A273A,&HookNew_CMenuManager__DrawMapTextures, ASM_CALL);
     
     CMemory::UnProtect(0x4A3BB1, 5);
-    CMemory::InstallCallHook(0x4A3BB1, (DWORD)&HookCMenuManager__LoadTextures, ASM_CALL);
+    CMemory::InstallCallHook(0x4A3BB1, &HookCMenuManager__LoadTextures, ASM_CALL);
     
     CMemory::UnProtect(0x4A39F2,5);
-    CMemory::InstallCallHook(0x4A39F2,(DWORD)&HookCMenuManager__UnloadTextures, ASM_JMP);
+    CMemory::InstallCallHook(0x4A39F2,&HookCMenuManager__UnloadTextures, ASM_JMP);
 
     CMemory::InstallPatch<float>(0x68FD10,0.0028070009f); //Adjust X Center of Menu Map
     CMemory::InstallPatch<float>(0x68FD1C,-0.0009999993f); //Adjust Y Center of Menu Map

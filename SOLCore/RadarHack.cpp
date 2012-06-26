@@ -247,17 +247,17 @@ void PatchRadar(bool bdebugMsg) {
 
 	// Install the hook to customly allocate the array for radar images. Function is hooked at CRadar::Initialise(void)
 	CMemory::NoOperation(0x4C62C0, 0x1B);
-	CMemory::InstallCallHook(0x4C62C0, (DWORD)Hook_CRadar_Init, ASM_CALL);
+	CMemory::InstallCallHook(0x4C62C0, Hook_CRadar_Init, ASM_CALL);
 
 	// Install the hook to Stream the radar textures. Function is hooked at CRadar::StreamRadarSections
 	InstallHook(0x4C28F4, (DWORD)Hook_ChangeRadarStreamTile, 0x4C2611, RadarStreamTile_HookJmpCode, sizeof(RadarStreamTile_HookJmpCode));
 
     // Install the hooks to change the dimensional calls to the size of the radar grid. Function is hooked at CRadar::DrawRadarSection
     CMemory::NoOperation(0x4C1E3A, 0x07);
-	CMemory::InstallCallHook(0x4C1E3A, (DWORD)Hook_ChangeRadarTileFormula, ASM_CALL);
+	CMemory::InstallCallHook(0x4C1E3A, Hook_ChangeRadarTileFormula, ASM_CALL);
     // Debugging Message for Radar(Optional)
     if(bdebugMsg == true) {
         CMemory::UnProtect(0x4C186F, 5);
-        CMemory::InstallCallHook(0x4C186F,(DWORD)&DEBUGHook_CRadar__DrawRadarMap, ASM_CALL);
+        CMemory::InstallCallHook(0x4C186F,&DEBUGHook_CRadar__DrawRadarMap, ASM_CALL);
     }
 }

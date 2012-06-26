@@ -437,9 +437,9 @@ void InstallPatch_Custom_Load_Paths()
 {
     //Disable default loading system for Paths
     CMemory::NoOperation(0x4A4C07, 25);
-    CMemory::InstallCallHook(0x4A4CE7,(DWORD)InitPaths, ASM_CALL);
+    CMemory::InstallCallHook(0x4A4CE7,InitPaths, ASM_CALL);
 
-    CMemory::InstallCallHook(0x4a4c07, (DWORD)PreInitPaths, ASM_CALL);
+    CMemory::InstallCallHook(0x4a4c07, PreInitPaths, ASM_CALL);
 }
 
 
@@ -482,5 +482,5 @@ void ApplyCustomPathPatch(){
             RemovePathRefProtection();
             InstallPatch_Custom_Load_Paths();
 
-            CMemory::InstallCallHook(0x0426DF4, (DWORD)&CCustomPathProcessor, ASM_CALL);
+            CMemory::InstallCallHook(0x0426DF4, &CCustomPathProcessor, ASM_CALL);
 }

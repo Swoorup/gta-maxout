@@ -15,7 +15,7 @@ public:
     static inline float GetFarClipZ() {return *VAR_ms_fFarClipZ;};
     static inline float GetNearClipZ() {return *VAR_ms_fNearClipZ;};
     static inline unsigned int GetTimeInMilliseconds() {return *VAR_CTimer_m_snTimeInMilliseconds;};
-    static inline CPathFind* GetGamePathFindInstance() {return pThePaths;};
+    static inline CPathFind* GetPathFind() {return pThePaths;};
 };
 
 #endif

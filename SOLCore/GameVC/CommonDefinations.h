@@ -338,44 +338,6 @@ struct CPed
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-struct CVehicleAI
-{
-  int dwStartingNode;
-  int dwFollowingNode;
-  int field_8Index;
-  int timefield_C;
-  int timefield_10;
-  int dwDetachedIndex;
-  int dwMainNodeLastSet;
-  int field_1CIndex;
-  int timeGettingNewCommand;
-  int field_24;
-  char field_28;
-  char field_29;
-  char iIsNodeSame;
-  char field_2B;
-  char field_2C;
-  char TrafficBehaviour;
-  char DriverBehaviour;
-  char simple_action;
-  int simple_action_time;
-  int _unk_speed;
-  char maxSpeed;
-  char byteSpeedLimit;
-  char gap_3A[2];
-  int field_3C;
-  char field_40;
-  char field_41;
-  __int16 field_42;
-  RwV3d targetPoint;
-  CPathNode *ppIntermediateRoutes[8];
-  WORD numberOfIntermediateRoutes;
-  char gap_72[2];
-  CEntity *targetEntity;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
 struct CTransmissionData
 {
   char nDriveType;
@@ -428,6 +390,7 @@ struct CHandlingVehicle
 };
 #pragma pack(pop)
 
+#include "CAutoPilot.h"
 
 #pragma pack(push, 1)
 struct CVehicle
@@ -435,7 +398,7 @@ struct CVehicle
   CPhysical __parent;
   CHandlingVehicle *pVehicleHandling;
   void *pFlyingHandling;
-  CVehicleAI Autopilot;
+  CAutoPilot Autopilot;
   char primaryColor;
   char secondaryColor;
   char tertiaryColor;

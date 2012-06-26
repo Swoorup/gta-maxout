@@ -9,7 +9,7 @@ void CAutoPilot::RemoveOnePathNode(void) {
 }
 
 /*
- * Purpose: Modify the Autopilot mode speed in accordance to the situation.
+ * Purpose: Modifies the Autopilot mode speed in accordance to the situation.
  * eg. When a player stops in front of a vehicle then the autopilot speed 
  * needs to be modified to match the actual changes. If this code is removed 
  * or ModifySpeed was not there then even if the player stops in front of 

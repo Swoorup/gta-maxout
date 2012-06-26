@@ -18,11 +18,11 @@ void CMemory::RestoreProtection(DWORD dwAddress, DWORD dwProtBytes, DWORD dwProt
 	VirtualProtect((void*)dwAddress, dwProtBytes, dwProt, &dwPrevProt);
 }
 
-void CMemory::InstallCallHook(DWORD dwAddress, DWORD dwCallTarget, BYTE bCallByte){
+void CMemory::InstallCallHook(DWORD dwAddress, void* pfnFunc, BYTE bCallByte){
 	DWORD dwProt;
 	VirtualProtect((void*)dwAddress, 5, PAGE_EXECUTE_READWRITE, &dwProt);
 	*(BYTE*)dwAddress = bCallByte;
-	*(DWORD*)(dwAddress+1) = dwCallTarget-dwAddress-0x5;
+	*(DWORD*)(dwAddress+1) = ((DWORD)pfnFunc)-dwAddress-0x5;
 	VirtualProtect((void*)dwAddress, 5, dwProt, &dwProt);
 }
 

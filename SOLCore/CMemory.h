@@ -11,7 +11,7 @@ public:
     static void NoOperation(DWORD Addr, DWORD dwNopBytes);
     static DWORD UnProtect(DWORD dwAddress, DWORD dwUnProtectBytes);
     static void RestoreProtection(DWORD dwAddress, DWORD dwProtBytes, DWORD dwProt);
-    static void InstallCallHook(DWORD dwAddress, DWORD dwCallTarget, BYTE bCallByte);
+    static void InstallCallHook(DWORD dwAddress, void* pfnFunc, BYTE bCallByte);
 
     template <class Type> // this is the template parameter declaration
     static void InstallPatch(DWORD dwAddress, Type patchData){ //This isn't actually a real function. Its a template so it gets instiantiated

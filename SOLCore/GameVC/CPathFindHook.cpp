@@ -7,15 +7,12 @@ CPathFind* pThePaths = NULL;
 CPathFindHook::CPathFindHook() {
     //pThePaths = new CPathFind();   
     pThePaths = (CPathFind*)0x9B6E5C;
-    m_pAutoPilotHook = new CAutoPilotHook();
 }
 
 CPathFindHook::~CPathFindHook() {
     RemoveHook();
     //delete pThePaths;
     //pThePaths = NULL;
-    delete m_pAutoPilotHook;
-    m_pAutoPilotHook = NULL;
 }
 
 int _nHookDetachedNodeIndex;
@@ -714,87 +711,92 @@ void CPathFindHook::ApplyHook() {
     // Disable Unused CPathFind Treadables in CFileLoader::LoadObjectInstance
     CMemory::NoOperation(0x48AE30, 44);
     // Hooks in CGame::Init
-    CMemory::InstallCallHook(0x4A4C0C, (DWORD)(void*&)p_mInit, ASM_CALL);
+    CMemory::InstallCallHook(0x4A4C0C, (void*&)p_mInit, ASM_CALL);
 
     CMemory::NoOperation(0x4A4C16, 5); // Remove One Unused Parameter
-    CMemory::InstallCallHook(0x4A4C1B, (DWORD)(void*&)p_mAllocatePathFindInfoMem, ASM_CALL);    
-    CMemory::InstallCallHook(0x4A4CE7, (DWORD)(void*&)p_mPreparePathData, ASM_CALL);
+    CMemory::InstallCallHook(0x4A4C1B, (void*&)p_mAllocatePathFindInfoMem, ASM_CALL);    
+    CMemory::InstallCallHook(0x4A4CE7, (void*&)p_mPreparePathData, ASM_CALL);
     // Install PreparePathDataHook
-    CMemory::InstallCallHook(0x43BF3C, (DWORD)(void*&)p_mPreparePathDataForType, ASM_CALL);
-    CMemory::InstallCallHook(0x43BF74, (DWORD)(void*&)p_mPreparePathDataForType, ASM_CALL);
+    CMemory::InstallCallHook(0x43BF3C, (void*&)p_mPreparePathDataForType, ASM_CALL);
+    CMemory::InstallCallHook(0x43BF74, (void*&)p_mPreparePathDataForType, ASM_CALL);
 
-    CMemory::InstallCallHook(0x439070, (DWORD)(void*&)p_mDoPathSearch, ASM_JMP);
-    CMemory::InstallCallHook(0x437150, (DWORD)(void*&)p_mFindNodeClosestToCoors, ASM_JMP);
-    CMemory::InstallCallHook(0x437330, (DWORD)(void*&)p_mAddNodeToList, ASM_JMP);
-    CMemory::InstallCallHook(0x4375C0, (DWORD)(void*&)p_mRemoveNodeFromList, ASM_JMP);
-    CMemory::InstallCallHook(0x438F90, (DWORD)(void*&)p_mRemoveBadStartNode , ASM_JMP);
-    CMemory::InstallCallHook(0x4386D0, (DWORD)(void*&)p_mFindNextNodeWandering, ASM_JMP);
-    CMemory::InstallCallHook(0x4382B0, (DWORD)(void*&)p_mNewGenerateCarCreationCoors, ASM_JMP);
-    CMemory::InstallCallHook(0x437B10, (DWORD)(void*&)p_mGeneratePedCreationCoors, ASM_JMP);
-    CMemory::InstallCallHook(0x437A40, (DWORD)(void*&)p_mTestCoorsCloseness, ASM_JMP);
-    CMemory::InstallCallHook(0x4377F0, (DWORD)(void*&)p_mCalcRoadDensity, ASM_JMP);
-    CMemory::InstallCallHook(0x436E40, (DWORD)(void*&)p_mFindNodeClosestToCoorsFavourDirection, ASM_JMP);
-    CMemory::InstallCallHook(0x4354E0, (DWORD)(void*&)p_mTestCrossesRoad, ASM_JMP);
-    CMemory::InstallCallHook(0x4356B0, (DWORD)(void*&)p_mTestForPedTrafficLight, ASM_JMP);
+    CMemory::InstallCallHook(0x439070, (void*&)p_mDoPathSearch, ASM_JMP);
+    CMemory::InstallCallHook(0x437150, (void*&)p_mFindNodeClosestToCoors, ASM_JMP);
+    CMemory::InstallCallHook(0x437330, (void*&)p_mAddNodeToList, ASM_JMP);
+    CMemory::InstallCallHook(0x4375C0, (void*&)p_mRemoveNodeFromList, ASM_JMP);
+    CMemory::InstallCallHook(0x438F90, (void*&)p_mRemoveBadStartNode , ASM_JMP);
+    CMemory::InstallCallHook(0x4386D0, (void*&)p_mFindNextNodeWandering, ASM_JMP);
+    CMemory::InstallCallHook(0x4382B0, (void*&)p_mNewGenerateCarCreationCoors, ASM_JMP);
+    CMemory::InstallCallHook(0x437B10, (void*&)p_mGeneratePedCreationCoors, ASM_JMP);
+    CMemory::InstallCallHook(0x437A40, (void*&)p_mTestCoorsCloseness, ASM_JMP);
+    CMemory::InstallCallHook(0x4377F0, (void*&)p_mCalcRoadDensity, ASM_JMP);
+    CMemory::InstallCallHook(0x436E40, (void*&)p_mFindNodeClosestToCoorsFavourDirection, ASM_JMP);
+    CMemory::InstallCallHook(0x4354E0, (void*&)p_mTestCrossesRoad, ASM_JMP);
+    CMemory::InstallCallHook(0x4356B0, (void*&)p_mTestForPedTrafficLight, ASM_JMP);
 
-    CMemory::InstallCallHook(0x434EB0, (DWORD)(void*&)p_mCalculateLaneDistance, ASM_JMP);
-    CMemory::InstallCallHook(0x435140, (DWORD)&CPedPath::CalculateBestRandomCoors, ASM_JMP);
-    CMemory::InstallCallHook(0x4351C0, (DWORD)&CPedPath::CalculateRandomCoordinates, ASM_JMP);
+    CMemory::InstallCallHook(0x434EB0, (void*&)p_mCalculateLaneDistance, ASM_JMP);
+    CMemory::InstallCallHook(0x435140, &CPedPath::CalculateBestRandomCoors, ASM_JMP);
+    CMemory::InstallCallHook(0x4351C0, &CPedPath::CalculateRandomCoordinates, ASM_JMP);
 
     // hooks inside CAutopilot::ModifySpeed
-    //CMemory::InstallCallHook(0x418D48, (DWORD)HookModSpeedGetDetachedNormalXOne, ASM_JMP);
-    //CMemory::InstallCallHook(0x418D68, (DWORD)HookModSpeedGetDetachedYCoorOne, ASM_JMP);
-    //CMemory::InstallCallHook(0x418DAA, (DWORD)HookModSpeedGetDetachedNormalXTwo, ASM_JMP);
-    //CMemory::InstallCallHook(0x418DCB, (DWORD)HookModSpeedGetDetachedXCoorOne, ASM_JMP);
-    //CMemory::InstallCallHook(0x418DEF, (DWORD)HookModSpeedGetDetachedNormalYOne, ASM_JMP);
-    //CMemory::InstallCallHook(0x418E21, (DWORD)HookModSpeedGetDetachedYCoorTwo, ASM_JMP);
-    //CMemory::InstallCallHook(0x418E48, (DWORD)HookModSpeedGetDetachedXCoorTwo, ASM_JMP);
-    //CMemory::InstallCallHook(0x418E7C, (DWORD)HookModSpeedGetDetachedNormalYTwo, ASM_JMP);
-    //CMemory::InstallCallHook(0x418EB8, (DWORD)HookModSpeedGetDetachedNormalYThree, ASM_JMP);
-    //CMemory::InstallCallHook(0x418EE9, (DWORD)HookModSpeedGetDetachedNormalXThree, ASM_JMP);
-    //CMemory::InstallCallHook(0x418F15, (DWORD)HookModSpeedGetDetachedNormalYFour, ASM_JMP);
-    //CMemory::InstallCallHook(0x418F45, (DWORD)HookModSpeedGetDetachedNormalXFour, ASM_JMP);
-    m_pAutoPilotHook->ApplyHookForPaths();
+    //CMemory::InstallCallHook(0x418D48, HookModSpeedGetDetachedNormalXOne, ASM_JMP);
+    //CMemory::InstallCallHook(0x418D68, HookModSpeedGetDetachedYCoorOne, ASM_JMP);
+    //CMemory::InstallCallHook(0x418DAA, HookModSpeedGetDetachedNormalXTwo, ASM_JMP);
+    //CMemory::InstallCallHook(0x418DCB, HookModSpeedGetDetachedXCoorOne, ASM_JMP);
+    //CMemory::InstallCallHook(0x418DEF, HookModSpeedGetDetachedNormalYOne, ASM_JMP);
+    //CMemory::InstallCallHook(0x418E21, HookModSpeedGetDetachedYCoorTwo, ASM_JMP);
+    //CMemory::InstallCallHook(0x418E48, HookModSpeedGetDetachedXCoorTwo, ASM_JMP);
+    //CMemory::InstallCallHook(0x418E7C, HookModSpeedGetDetachedNormalYTwo, ASM_JMP);
+    //CMemory::InstallCallHook(0x418EB8, HookModSpeedGetDetachedNormalYThree, ASM_JMP);
+    //CMemory::InstallCallHook(0x418EE9, HookModSpeedGetDetachedNormalXThree, ASM_JMP);
+    //CMemory::InstallCallHook(0x418F15, HookModSpeedGetDetachedNormalYFour, ASM_JMP);
+    //CMemory::InstallCallHook(0x418F45, HookModSpeedGetDetachedNormalXFour, ASM_JMP);
+    void (CAutoPilot::*pCAutoPilot_ModifySpeed)(float fModSpeed);
+    pCAutoPilot_ModifySpeed = &CAutoPilot::ModifySpeed;
+    CMemory::InstallCallHook(0x418CD0, (void*&)pCAutoPilot_ModifySpeed, ASM_JMP);
 
     //hooks inside CCarCtrl::GenerateOneEmergencyServicesCar
-    CMemory::InstallCallHook(0x41C4F1, (DWORD)HookGenEmerCarCheckVehicleType, ASM_JMP);
-    CMemory::InstallCallHook(0x41C6A5, (DWORD)HookGenEmerCarGetAttachedZCoorsOne, ASM_JMP);
+    CMemory::InstallCallHook(0x41C4F1, HookGenEmerCarCheckVehicleType, ASM_JMP);
+    CMemory::InstallCallHook(0x41C6A5, HookGenEmerCarGetAttachedZCoorsOne, ASM_JMP);
     CMemory::InstallPatch<CPathFind*>(0x41C4BD, pThePaths);
 
     //whole function replacement hook for CCarCtrl::FindLinksToGoWithTheseNodes
-    CMemory::InstallCallHook(0x41CC20, (DWORD)HookFindLinksToGoWithTheseNodes, ASM_JMP);
+    CMemory::InstallCallHook(0x41CC20, HookFindLinksToGoWithTheseNodes, ASM_JMP);
 
     //hooks inside CCarCtrl::JoinCarWithRoadSystemGotoCoors
     CMemory::InstallPatch<CPathFind*>(0x41CECF, pThePaths);
     CMemory::InstallPatch<CPathFind*>(0x41CF21, pThePaths);
-    CMemory::InstallCallHook(0x41CF52, (DWORD)HookJoinCarWithRoadFixPathPointerSubtract, ASM_JMP);
+    CMemory::InstallCallHook(0x41CF52, HookJoinCarWithRoadFixPathPointerSubtract, ASM_JMP);
 
     //whole function replacement hook for CCarCtrl::JoinCarWithRoadSystems
-    CMemory::InstallCallHook(0x41D000, (DWORD)HookJoinCarWithRoadSystem, ASM_JMP);
+    CMemory::InstallCallHook(0x41D000, HookJoinCarWithRoadSystem, ASM_JMP);
 
     //hooks inside CCarCtrl::SteerAICarWithPhysicsFollowPath
-    CMemory::InstallCallHook(0x41EF70, (DWORD)HookSteerAICarFixDetachedNodeMultiplierOne, ASM_JMP);
+    CMemory::InstallCallHook(0x41EF70, HookSteerAICarFixDetachedNodeMultiplierOne, ASM_JMP);
     CMemory::InstallPatch<signed char*>(0x41EF7E, &pThePaths->m_DetachedNodes[0].NormalVecX);
     CMemory::InstallPatch<signed char*>(0x41EFAA, &pThePaths->m_DetachedNodes[0].NormalVecY);
-    CMemory::InstallCallHook(0x41EFEB, (DWORD)HookSteerAICarFixDetachedNodeMultiplierTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x41EFEB, HookSteerAICarFixDetachedNodeMultiplierTwo, ASM_JMP);
     CMemory::InstallPatch<signed char*>(0x41EFF8, &pThePaths->m_DetachedNodes[0].NormalVecX);
     CMemory::InstallPatch<CPathFind*>(0x41F015, pThePaths);
     CMemory::InstallPatch<signed char*>(0x41F02B, &pThePaths->m_DetachedNodes[0].NormalVecY);
     CMemory::InstallPatch<uint32_t>(0x41F045, OFFSETOF(CPathFind, m_DetachedNodes[0]));
-    CMemory::InstallCallHook(0x41F088, (DWORD)HookSteerAICarFixDetachedPreGetLaneDistanceOne, ASM_JMP);
-    CMemory::InstallCallHook(0x41F0C8, (DWORD)HookSteerCarAIGetDetachedNodeXYCoorsOne, ASM_JMP);
-    CMemory::InstallCallHook(0x41F130, (DWORD)HookSteerCarAIGetDetachedNodeXYCoorsTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x41F346, (DWORD)HookSteerCarAIFixDetachedPreGetLaneDistanceTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x41F386, (DWORD)HookSteerCarAIGetDetachedNodeXYCoorsThree, ASM_JMP);
-    CMemory::InstallCallHook(0x41F440, (DWORD)HookSteerCarAIFixDetachedNodeMultiplierThree, ASM_JMP);
+    CMemory::InstallCallHook(0x41F088, HookSteerAICarFixDetachedPreGetLaneDistanceOne, ASM_JMP);
+    CMemory::InstallCallHook(0x41F0C8, HookSteerCarAIGetDetachedNodeXYCoorsOne, ASM_JMP);
+    CMemory::InstallCallHook(0x41F130, HookSteerCarAIGetDetachedNodeXYCoorsTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x41F346, HookSteerCarAIFixDetachedPreGetLaneDistanceTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x41F386, HookSteerCarAIGetDetachedNodeXYCoorsThree, ASM_JMP);
+    CMemory::InstallCallHook(0x41F440, HookSteerCarAIFixDetachedNodeMultiplierThree, ASM_JMP);
     CMemory::InstallPatch<signed char*>(0x41F44E, &pThePaths->m_DetachedNodes[0].NormalVecX);
     CMemory::InstallPatch<signed char*>(0x41F47A, &pThePaths->m_DetachedNodes[0].NormalVecY);
-    CMemory::InstallCallHook(0x41F4BB, (DWORD)HookSteerCarAIFixDetachedNodeMultiplierFour, ASM_JMP);
+    CMemory::InstallCallHook(0x41F4BB, HookSteerCarAIFixDetachedNodeMultiplierFour, ASM_JMP);
     CMemory::InstallPatch<signed char*>(0x41F4C8, &pThePaths->m_DetachedNodes[0].NormalVecX);
     CMemory::InstallPatch<signed char*>(0x41F4F4, &pThePaths->m_DetachedNodes[0].NormalVecY);
-    CMemory::InstallCallHook(0x41F525, (DWORD)HookSteerCarAIGetDetachedNodeXYCoorsFour, ASM_JMP);
-    CMemory::InstallCallHook(0x41F838, (DWORD)HookSteerCarAIFixDetachedPreGetLaneDistanceThree, ASM_JMP);
-    CMemory::InstallCallHook(0x41F87B, (DWORD)HookSteerCarAIGetDetachedNodeXYCoorsFive, ASM_JMP);
+    CMemory::InstallCallHook(0x41F525, HookSteerCarAIGetDetachedNodeXYCoorsFour, ASM_JMP);
+    CMemory::InstallCallHook(0x41F838, HookSteerCarAIFixDetachedPreGetLaneDistanceThree, ASM_JMP);
+    CMemory::InstallCallHook(0x41F87B, HookSteerCarAIGetDetachedNodeXYCoorsFive, ASM_JMP);
+
+    //hook for CCarCtrl::PickNextNodeToFollowPath
+    CMemory::InstallCallHook(0x420D50, CCarCtrl::PickNextNodeToFollowPath, ASM_JMP);
 }
 
 void CPathFindHook::RemoveHook(){

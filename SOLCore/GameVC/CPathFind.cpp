@@ -84,9 +84,9 @@ void __stdcall CPathFind::ArrangeOneNodeList(CPathInfoForObject *PathInfo){
           PathInfo[j].sbNextNode = -1;
           
           // Swap the right most significant bit
-          bool bTempPedSpecificUnkBit = PathInfo[i].byteFlags & NODEINFOFLAGS_ISCROSSROAD;
+          bool bIsCrossRoad = PathInfo[i].byteFlags & NODEINFOFLAGS_ISCROSSROAD;
           PathInfo[i].byteFlags = PathInfo[i].byteFlags & ~NODEINFOFLAGS_ISCROSSROAD | PathInfo[j].byteFlags & NODEINFOFLAGS_ISCROSSROAD;
-          PathInfo[j].byteFlags = PathInfo[j].byteFlags & ~NODEINFOFLAGS_ISCROSSROAD | bTempPedSpecificUnkBit & NODEINFOFLAGS_ISCROSSROAD;
+          PathInfo[j].byteFlags = PathInfo[j].byteFlags & ~NODEINFOFLAGS_ISCROSSROAD | bIsCrossRoad & NODEINFOFLAGS_ISCROSSROAD;
         }
       } 
     }

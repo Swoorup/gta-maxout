@@ -36,7 +36,7 @@ public:
   CPathNode* m_pIntermediateRouteList[8];
   short m_nRouteListStep;
   char m_gap_72[2];
-  CEntity* m_pEntityTarget;
+  CVehicle* m_pTargetVehicle;
   
   void RemoveOnePathNode(void);
   void ModifySpeed(float fModSpeed);

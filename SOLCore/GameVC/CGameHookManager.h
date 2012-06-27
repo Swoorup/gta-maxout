@@ -5,7 +5,7 @@ class CGameHookManager;
 
 #include "../StdInc.h"
 
-class CGameHookManager : public CSingleton < CGameHookManager >
+class CGameHookManager : public CSingleton <CGameHookManager>
 {
 private:
     CPathFindHook* m_pPathFindHook;

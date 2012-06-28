@@ -798,6 +798,10 @@ void CPathFindHook::ApplyHook() {
     //hook for CCarCtrl::PickNextNodeToFollowPath
     CMemory::InstallCallHook(0x420D50, CCarCtrl::PickNextNodeToFollowPath, ASM_JMP);
     CMemory::InstallCallHook(0x4213A0, CCarCtrl::PickNextNodeToChaseCar, ASM_JMP);
+
+    //june 28, 2012
+    CMemory::InstallCallHook(0x421F70, CCarCtrl::PickNextNodeRandomly, ASM_JMP);
+    CMemory::InstallCallHook(0x421DC0, CCarCtrl::FindPathDirection, ASM_JMP);
 }
 
 void CPathFindHook::RemoveHook(){

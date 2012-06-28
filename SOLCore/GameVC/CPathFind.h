@@ -82,6 +82,7 @@ public:
 	unsigned char bitUnkCount4To7:4; // 16.0-16.4
     //number of next connected sets of nodes to iterate
     unsigned char bitUnknownFlag3:1; // 16.4-16.5
+    //is used in CCarCtrl::PickNextNodeRandomly
     unsigned char bitIsIgnoredNode:1; // 16.5-16.6
     //determines whether the node should be ignored
     unsigned char bitRestrictedAccess:1; // 16.6-16.7
@@ -96,7 +97,7 @@ public:
 	unsigned char bitSpeedLimit:2; // 17.3-17.5
     //the maximum speed limit in this route. Speeds are controlled in CAutopilot
     unsigned char bitPadFlags8To10:3; // 17.5-18.0
-    
+
 	unsigned char byteSpawnRate; // 18-19
 	unsigned char byteField0x013; // 19-20
     CPathNode();
@@ -132,7 +133,9 @@ public:
     //PathNode Infos for Car and Peds 
     CDetachedNode m_DetachedNodes[3500]; // 2F1E8h-395F8h
     void* pTreadables[1250]; // 395F8h-3A980h
+    //is unused and can be removed later on
     short AttachedPointsInfo[20400]; // 3A980h-448E0h
+    //this field maybe be unsigned
     uint8_t m_InRangedDisplacement[20400]; // 448E0h-49890h
     short DetachedPointsInfo[20400]; // 49890h-537F0h
     int m_nAttachedNodes; // 537F0h-537F4h

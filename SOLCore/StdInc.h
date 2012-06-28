@@ -2,7 +2,10 @@
 
 #include "main.h"
 
-// standard include directives for C++
+//enable/disable defines
+#define INSTALL_PATCH_FOR_VCPATH_INSTANCE
+
+// standard include directives
 #include <Windows.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -18,6 +21,12 @@
 // to be disengaged
 #include "PathBoundariesHack.hpp"
 #include "GamePatches.h"
+
+// game sdk includes
+#include "GameVC\CVector.h"
+#include "GameVC\CVector2D.h"
+#include "GameVC\CCurves.h"
+#include "GameVC\CGeneral.h"
 
 // game definations and new patches includes
 #include "GameVC\CPathFindHook.h"
@@ -39,3 +48,5 @@
 #include "GameVC\CTxdStore.h"
 #include "GameVC\CSprite2D.h"
 #include "GameVC\CommonDefinations.h"
+#include "GameVC\CAutoPilot.h"
+#include "GameVC\CCarCtrl.h"

@@ -129,6 +129,21 @@
     <ClCompile Include="GameVC\CGameVariables.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
+    <ClCompile Include="GameVC\CAutoPilot.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CCurves.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="StdInc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CCarCtrl.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CGeneral.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameVC\RenderWare.h">
@@ -225,6 +240,24 @@
       <Filter>Header Files\GameVC</Filter>
     </ClInclude>
     <ClInclude Include="GameVC\CommonDefinations.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CAutoPilot.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CCurves.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CVector.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CVector2D.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CCarCtrl.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CGeneral.h">
       <Filter>Header Files\GameVC</Filter>
     </ClInclude>
   </ItemGroup>

@@ -81,13 +81,17 @@
     <ClCompile Include="CCustomPathHooks.cpp" />
     <ClCompile Include="CMemory.cpp" />
     <ClCompile Include="D3D8Hook.cpp" />
+    <ClCompile Include="GameVC\CAutoPilot.cpp" />
+    <ClCompile Include="GameVC\CCarCtrl.cpp" />
     <ClCompile Include="GameVC\CCullZones.cpp" />
+    <ClCompile Include="GameVC\CCurves.cpp" />
     <ClCompile Include="GameVC\CDebug.cpp" />
     <ClCompile Include="GameVC\CFileLoader.cpp" />
     <ClCompile Include="GameVC\CFileMgr.cpp" />
     <ClCompile Include="GameVC\CFont.cpp" />
     <ClCompile Include="GameVC\CGameHookManager.cpp" />
     <ClCompile Include="GameVC\CGameVariables.cpp" />
+    <ClCompile Include="GameVC\CGeneral.cpp" />
     <ClCompile Include="GameVC\CPathFind.cpp" />
     <ClCompile Include="GameVC\CPathFindHook.cpp" />
     <ClCompile Include="GameVC\CSprite2D.cpp" />
@@ -105,6 +109,7 @@
     <ClCompile Include="MiscellaneousPatches.cpp" />
     <ClCompile Include="PathBoundariesHack.cpp" />
     <ClCompile Include="RadarHack.cpp" />
+    <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="VehicleLimitPatch.cpp" />
     <ClCompile Include="WaterHack.cpp" />
   </ItemGroup>
@@ -115,14 +120,18 @@
     <ClInclude Include="CMemory.h" />
     <ClInclude Include="CSingleton.h" />
     <ClInclude Include="D3D8Hook.h" />
+    <ClInclude Include="GameVC\CAutoPilot.h" />
     <ClInclude Include="GameVC\CCamera.h" />
+    <ClInclude Include="GameVC\CCarCtrl.h" />
     <ClInclude Include="GameVC\CCullZones.h" />
+    <ClInclude Include="GameVC\CCurves.h" />
     <ClInclude Include="GameVC\CDebug.h" />
     <ClInclude Include="GameVC\CFileLoader.h" />
     <ClInclude Include="GameVC\CFileMgr.h" />
     <ClInclude Include="GameVC\CFont.h" />
     <ClInclude Include="GameVC\CGameHookManager.h" />
     <ClInclude Include="GameVC\CGameVariables.h" />
+    <ClInclude Include="GameVC\CGeneral.h" />
     <ClInclude Include="GameVC\CMatrix.h" />
     <ClInclude Include="GameVC\CommonDefinations.h" />
     <ClInclude Include="GameVC\CPathFind.h" />
@@ -131,6 +140,8 @@
     <ClInclude Include="GameVC\CTheCarGenerators.h" />
     <ClInclude Include="GameVC\CTheZones.h" />
     <ClInclude Include="GameVC\CTxdStore.h" />
+    <ClInclude Include="GameVC\CVector.h" />
+    <ClInclude Include="GameVC\CVector2D.h" />
     <ClInclude Include="GameVC\CWorld.h" />
     <ClInclude Include="GameVC\GameVC.h" />
     <ClInclude Include="GameVC\RenderWare.h" />

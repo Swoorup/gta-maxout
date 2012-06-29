@@ -26,6 +26,7 @@ DWORD _dwHookArgOne, _dwHookArgTwo;
 CPathFind* _pHookPathFind;
 CDetachedNode* _pHookDetachedNode;
 DWORD _dwHookLocal;
+int _iHookNodeX, _iHookNodeY, _iHookNodeZ;
 float _fHookFloatOne, _fHookFloatTwo;
 int _nHookReturn;
 #define ASMJMP(x) {_asm push x _asm retn} 
@@ -37,7 +38,7 @@ int _nHookReturn;
 //-----------------------------------------------------------
 
 //418D48
-void _declspec(naked) HookModSpeedGetDetachedNormalXOne(void) {
+/*void _declspec(naked) HookModSpeedGetDetachedNormalXOne(void) {
     _asm mov _nHookDetachedNodeIndex, eax
     _asm pushad
     
@@ -190,7 +191,7 @@ void _declspec(naked) HookModSpeedGetDetachedNormalXFour(void) {
     _asm popad
     _asm mov eax, _nHookReturn
     ASMJMP(418F4Ch)
-}
+}*/
 
 // ---------------------------------------------------------------------
 // These hooks are inside CCarCtrl::GenerateOneEmergencyServicesCar.
@@ -635,6 +636,359 @@ void _declspec(naked) HookSteerCarAIGetDetachedNodeXYCoorsFive(void) {
 }
 
 /*
+ * This hooks are inside CWorld::RemoveFallenCars. These hooks
+ * make sure the coordinates are loaded right from the path
+ * node
+ */
+
+//4D4966h
+void _declspec(naked) HookRemoveFallenCarsGetXYZ(void) {
+    _asm mov _nHookAttachedNodeIndex, eax
+    _asm mov ecx, esi
+    _asm pushad
+
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+
+    _asm popad
+    _asm mov ebp, _iHookNodeX
+    _asm mov edx, _iHookNodeY
+    _asm mov eax, _iHookNodeZ
+    _asm fldz
+    _asm fldz
+    _asm mov [esp+8], ebp
+    _asm fldz
+    _asm fild dword ptr [esp+8]
+    ASMJMP(4D4995h)
+}
+
+/* 
+ * Thes hooks are inside CWorld::RemoveFallenPeds
+ */
+//4D4AF2
+void _declspec(naked) HookRemoveFallenPedsGetXYZ(void) {
+    _asm mov _nHookAttachedNodeIndex, eax
+    _asm mov ecx, ebp
+    _asm pushad
+
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+
+    _asm popad
+    _asm mov edi, _iHookNodeX
+    _asm mov edx, _iHookNodeY
+    _asm mov eax, _iHookNodeZ
+    _asm fldz
+    _asm fldz
+    _asm mov [esp+8], edi
+    _asm fldz
+    _asm fild dword ptr [esp+8]
+    ASMJMP(4D4B21h)
+}
+
+// These hooks are inside CPed::FollowPath
+//4F7800h
+void _declspec(naked) HookPedFollowPathGetXY(void) {
+    _asm mov _pHookPathNode, edx
+    _asm pushad
+
+    _iHookNodeX = _pHookPathNode->wX;
+    _iHookNodeY = _pHookPathNode->wY;
+    _fHookFloatOne = 0.125f;
+
+    _asm popad
+    _asm mov eax, _iHookNodeX
+    _asm mov [esp], eax
+    _asm fild dword ptr [esp]
+    _asm fmul _fHookFloatOne
+    _asm fst st(1)
+    _asm fstp dword ptr [ebx+398h]
+    _asm mov ecx, ebx
+    _asm mov eax, _iHookNodeY
+    ASMJMP(4F782Ch)
+}
+
+// This hook is inside sub_4F99F0
+
+//4F9D47h
+void _declspec(naked) HookSub4F99F0GetXYZ(void) {
+    _asm mov _pHookPathNode, ecx
+    _asm pushad
+
+    _iHookNodeX = _pHookPathNode->wX;
+    _iHookNodeY = _pHookPathNode->wY;
+    _iHookNodeZ = _pHookPathNode->wZ;
+    _fHookFloatOne = 0.125f;
+
+    _asm popad
+    _asm mov eax, _iHookNodeZ
+    _asm fldz
+    _asm fldz
+    _asm mov [esp], eax
+    _asm fldz
+    _asm fild dword ptr [esp]
+    _asm mov eax, _iHookNodeY
+    _asm fmul _fHookFloatOne
+    _asm mov [esp], eax
+    _asm mov eax, _iHookNodeX
+    ASMJMP(4F9D68h)
+}
+
+//This hook is inside CPed::SeekFollowingPath
+
+//4FA201h
+void _declspec(naked) HookSeekFollowingPathGetXYZ(void){
+    _asm mov _pHookPathNode, edx
+    _asm pushad
+
+    _iHookNodeX = _pHookPathNode->wX;
+    _iHookNodeY = _pHookPathNode->wY;
+    _iHookNodeZ = _pHookPathNode->wZ;
+
+    _fHookFloatOne = 0.125f;
+
+    _asm popad
+    _asm mov eax, _iHookNodeZ
+    _asm mov [esp], eax
+    _asm fild dword ptr [esp]
+    _asm mov eax, _iHookNodeY
+    _asm fmul _fHookFloatOne
+    _asm mov [esp], eax
+    _asm mov eax, _iHookNodeX
+    ASMJMP(4FA21Ch)
+}
+
+//These hooks are inside CPed::WanderPath
+
+//4FA946h
+void _declspec(naked) HookWanderPathGetXYZOne(void){
+    _asm mov _pHookPathNode, ecx
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _iHookNodeX = _pHookPathNode->wX;
+    _iHookNodeY = _pHookPathNode->wY;
+    _iHookNodeZ = _pHookPathNode->wZ;
+
+    _asm popad
+    _asm mov eax, _iHookNodeX
+    _asm lea edi, [esp+2Ch]
+    _asm mov [esp+20h], eax
+    _asm fild dword ptr [esp+20h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp+50h]
+    _asm mov eax, _iHookNodeY
+    _asm lea esi, [esp+50h]
+    _asm mov [esp+20h], eax
+    _asm fild dword ptr [esp+20h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp+54h]
+    _asm mov eax, _iHookNodeZ
+    ASMJMP(4FA97Eh)
+}
+
+void _declspec(naked) HookWanderPathGetXYZTwo(void) {
+    _asm mov _pHookPathNode, edi
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _iHookNodeX = _pHookPathNode->wX;
+    _iHookNodeY = _pHookPathNode->wY;
+    _iHookNodeZ = _pHookPathNode->wZ;
+
+    _asm popad
+    _asm mov eax, _iHookNodeX
+    _asm mov [esp+20h], eax
+    _asm fild dword ptr [esp+20h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp+5Ch]
+    _asm mov eax, _iHookNodeY
+    _asm lea esi, [esp+5Ch]
+    _asm mov [esp+20h], eax
+    _asm fild dword ptr [esp+20h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp+60h]
+    _asm mov eax, _iHookNodeZ
+    ASMJMP(4FABDAh)
+}
+
+
+//These Hooks are inside CPed::ProcessControl
+
+//507184h
+void _declspec(naked) HookPedProcessControlGetXYZOne(void) {
+    _asm mov _nHookAttachedNodeIndex, eax
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+    _dwIndexWithSize = _nHookAttachedNodeIndex * sizeof(CPathNode);
+
+    _asm popad
+    _asm mov ebp, _dwIndexWithSize
+    _asm mov eax, _iHookNodeZ
+    _asm mov [esp+0A8h], eax
+    _asm push eax
+    _asm fild dword ptr [esp+0ACh]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeY
+    _asm mov [esp+0ACh], eax
+    _asm push eax
+    _asm fild dword ptr [esp+0B0h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeX
+    ASMJMP(5071D5h)
+}
+
+
+//5072D5h
+void _declspec(naked) HookPedProcessControlGetPathNodeOne(void) {
+    _asm mov _nHookAttachedNodeIndex, eax
+    _asm pushad
+
+    _pHookPathNode = &pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex];
+
+    _asm popad
+    _asm mov eax, _pHookPathNode
+    ASMJMP(5072E4h)
+}
+
+//507347h
+void _declspec(naked) HookPedProcessControlGetXYZTwo(void) {
+    _asm mov _pHookPathNode, ecx
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _iHookNodeX = _pHookPathNode->wX;
+    _iHookNodeY = _pHookPathNode->wY;
+    _iHookNodeZ = _pHookPathNode->wZ;
+
+    _asm popad
+    _asm mov eax, _iHookNodeZ
+    _asm mov [esp+0A8h], eax
+    _asm push eax
+    _asm fild dword ptr [esp+0ACh]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeY
+    _asm mov [esp+0ACh], eax
+    _asm push eax
+    _asm fild dword ptr [esp+0B0h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeX
+    ASMJMP(507383h)
+}
+
+//5073D0h
+void _declspec(naked) HookPedProcessControlGetXYZThree(void) {
+    _asm mov _nHookAttachedNodeIndex, eax
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+    _dwIndexWithSize = _nHookAttachedNodeIndex * sizeof(CPathNode);
+
+    _asm popad
+    _asm mov ebp, _dwIndexWithSize
+    _asm mov eax, _iHookNodeZ
+    _asm mov [esp+0A8h], eax
+    _asm push eax
+    _asm fild dword ptr [esp+0ACh]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeY
+    _asm mov [esp+0ACh], eax
+    _asm push eax
+    _asm fild dword ptr [esp+0B0h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeX
+    ASMJMP(507421h)
+}
+
+//507460h
+void _declspec(naked) HookPedProcessControlGetXYZFour(void) {
+    _asm mov _dwIndexWithSize, ebp
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _nHookAttachedNodeIndex = _dwIndexWithSize / sizeof(CPathNode);
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+
+    _asm popad
+    _asm mov eax, _iHookNodeZ
+    _asm mov [esp+0A8h], eax
+    _asm push eax
+    _asm fild dword ptr [esp+0ACh]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeY
+    _asm mov [esp+0ACh], eax
+    _asm push eax
+    _asm fild dword ptr [esp+0B0h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeX
+    ASMJMP(5074A5h)
+}
+
+//5074E4h
+void _declspec(naked) HookPedProcessControlGetXYZFive(void) {
+    _asm mov _dwIndexWithSize, ebp
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _nHookAttachedNodeIndex = _dwIndexWithSize / sizeof(CPathNode);
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+
+    _asm popad
+    _asm mov eax, _iHookNodeZ
+    _asm mov [esp+0A8h], eax
+    _asm push eax
+    _asm fild dword ptr [esp+0ACh]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeY
+    _asm mov [esp+0ACh], eax
+    _asm push eax
+    _asm fild dword ptr [esp+0B0h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeX
+    ASMJMP(507529h)
+}
+
+//These hooks are inside CPed::PositionPedOutOfCollision
+
+//5122BBh
+void _declspec(naked) HookPedOutCollisionGetXYZ(void) {
+    _asm mov _nHookAttachedNodeIndex, eax
+    _asm pushad
+
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+
+    _asm popad
+    _asm mov edi, _iHookNodeZ
+    _asm mov ecx, _iHookNodeX
+    _asm mov eax, _iHookNodeY
+    ASMJMP(5122DAh)
+}
+/*
  * List Of Functions Hooked
  * 1.  CPathFind::Init                 -FINE GRAINED
  * 2.  CPathFind::PreparePathDataForType-THOROUGH REVISION AND DUMP TEST NEEDED
@@ -802,6 +1156,61 @@ void CPathFindHook::ApplyHook() {
     //june 28, 2012
     CMemory::InstallCallHook(0x421F70, CCarCtrl::PickNextNodeRandomly, ASM_JMP);
     CMemory::InstallCallHook(0x421DC0, CCarCtrl::FindPathDirection, ASM_JMP);
+    
+    //patches in CPlayerInfo::Process
+    CMemory::InstallPatch<CPathFind*> (0x4BD66D, pThePaths);
+    CMemory::InstallPatch<CPathFind*> (0x4BD687, pThePaths);
+    CMemory::InstallPatch<CPathFind*> (0x4BE6A3, pThePaths);
+
+    //hooks in CWorld::RemoveFallenCars
+    CMemory::InstallPatch<CPathFind*>(0x4D4945, pThePaths);
+    CMemory::InstallCallHook(0x4D4966, HookRemoveFallenCarsGetXYZ, ASM_JMP);
+
+    //hooks in CWorld::RemoveFallenPeds
+    CMemory::InstallPatch<CPathFind*>(0x4D4AD1, pThePaths);
+    CMemory::InstallCallHook(0x4D4AF2, HookRemoveFallenPedsGetXYZ, ASM_JMP);
+
+    //hooks in CPed::FollowPath
+    CMemory::InstallCallHook(0x4F7800, HookPedFollowPathGetXY, ASM_JMP);
+
+    //hook in sub_4F99F0
+    CMemory::InstallPatch<CPathFind*>(0x4F9BB5, pThePaths);
+    CMemory::InstallCallHook(0x4F9D47, HookSub4F99F0GetXYZ, ASM_JMP);
+
+    //This hook is inside CPed::SeekFollowingPath
+    CMemory::InstallCallHook(0x4FA201, HookSeekFollowingPathGetXYZ, ASM_JMP);
+
+    //These hook are inside CPed:WanderPath
+    CMemory::InstallPatch<CPathFind*>(0x4FA8EA , pThePaths);
+    CMemory::InstallCallHook(0x4FA946, HookWanderPathGetXYZOne, ASM_JMP);
+    CMemory::InstallPatch<CPathFind*>(0x4FAB49, pThePaths);
+    CMemory::InstallCallHook(0x4FABA6, HookWanderPathGetXYZTwo, ASM_JMP);
+    CMemory::InstallPatch<CPathFind*>(0x4FAC36, pThePaths);
+    CMemory::InstallPatch<CPathFind*>(0x4FAC5D, pThePaths);
+    
+    //These hooks are inside CPed::SetWanderPath
+    CMemory::InstallPatch<CPathFind*>(0x4FAEEA, pThePaths);
+    CMemory::InstallPatch<CPathFind*>(0x4FB064, pThePaths);
+    
+    //These hooks are inside CPed::Flee
+    CMemory::InstallPatch<CPathFind*>(0x4FB42B, pThePaths);
+
+    //These hooks are inside CPed::ProcessControl
+    CMemory::InstallPatch<CPathFind*>(0x506F47, pThePaths);
+    CMemory::InstallCallHook(0x507184, HookPedProcessControlGetXYZOne, ASM_JMP);
+    CMemory::InstallCallHook(0x5072D5, HookPedProcessControlGetPathNodeOne, ASM_JMP);
+    CMemory::InstallCallHook(0x507347, HookPedProcessControlGetXYZTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x5073D0, HookPedProcessControlGetXYZThree, ASM_JMP);
+    CMemory::InstallCallHook(0x507460, HookPedProcessControlGetXYZFour, ASM_JMP);
+    CMemory::InstallCallHook(0x5074E4, HookPedProcessControlGetXYZFive, ASM_JMP);
+
+    
+    //This hook is in CPed::WillChat
+    CMemory::InstallPatch<CPathFind*>(0x50AC91, pThePaths);
+    
+    //These hooks are inside CPed::PositionPedOutOfCollision
+    CMemory::InstallPatch<CPathFind*>(0x51228C, pThePaths);
+    CMemory::InstallCallHook(0x5122BB, HookPedOutCollisionGetXYZ, ASM_JMP);
 }
 
 void CPathFindHook::RemoveHook(){

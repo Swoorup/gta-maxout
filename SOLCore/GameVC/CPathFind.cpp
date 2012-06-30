@@ -1441,6 +1441,12 @@ CPathNode::CPathNode(){
     bitUnkCount4To7 = 0;
 }
 
+void CPathNode::GetNodeCoors(CVector* vecNodePosition) {
+    vecNodePosition->fX = (float)(this->wX) / 8.0f;
+    vecNodePosition->fY = (float)(this->wY) / 8.0f;
+    vecNodePosition->fZ = (float)(this->wZ) / 8.0f;
+}
+
 CDetachedNode::CDetachedNode(){
     memset(this, 0, sizeof(CDetachedNode));
 }

@@ -637,6 +637,53 @@ void _declspec(naked) HookSteerCarAIGetDetachedNodeXYCoorsFive(void) {
     ASMJMP(41F8C8h)
 }
 
+// This hook is inside CRestart::FindClosestHospitalRestartPoint
+//442E9Ch
+void _declspec(naked) HookRestartForHospitalGetXYZ(void) {
+    _asm mov _nHookAttachedNodeIndex, eax
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+
+    _asm popad
+    _asm mov ecx, _iHookNodeZ
+    _asm fldz
+    _asm fldz
+    _asm mov [esp+18h], ecx
+    _asm fild dword ptr [esp+18h]
+    _asm mov edx, _iHookNodeY
+    _asm fmul _fHookFloatOne
+    _asm mov [esp+18h], edx
+    _asm mov eax, _iHookNodeX
+    ASMJMP(442ECDh)
+}
+
+// This hook is inside CarCheatSpawner
+//4AE9DDh
+void _declspec(naked) HookCarCheatSpawner(void) {
+    _asm mov _nHookAttachedNodeIndex, edi
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+
+    _asm popad
+    _asm mov eax, _iHookNodeX
+    _asm mov [esp], eax
+    _asm fild dword ptr [esp]
+    _asm mov eax, _iHookNodeY
+    _asm fmul _fHookFloatOne
+    _asm mov [esp], eax
+    _asm mov eax, _iHookNodeZ
+    ASMJMP(4AEA0Bh)
+}
+
+
 /*
  * This hooks are inside CWorld::RemoveFallenCars. These hooks
  * make sure the coordinates are loaded right from the path
@@ -1138,10 +1185,11 @@ void CPathFindHook::ApplyHook() {
     p_mCalculateLaneDistance = &CDetachedNode::CalculateLaneDistance;
     // Disable Unused CPathFind Treadables in CFileLoader::LoadObjectInstance
     CMemory::NoOperation(0x48AE30, 44);
+
     // Hooks in CGame::Init
     CMemory::InstallCallHook(0x4A4C0C, (void*&)p_mInit, ASM_CALL);
-
     CMemory::NoOperation(0x4A4C16, 5); // Remove One Unused Parameter
+
     CMemory::InstallCallHook(0x4A4C1B, (void*&)p_mAllocatePathFindInfoMem, ASM_CALL);    
     CMemory::InstallCallHook(0x4A4CE7, (void*&)p_mPreparePathData, ASM_CALL);
     // Install PreparePathDataHook
@@ -1230,6 +1278,22 @@ void CPathFindHook::ApplyHook() {
     //june 28, 2012
     CMemory::InstallCallHook(0x421F70, CCarCtrl::PickNextNodeRandomly, ASM_JMP);
     CMemory::InstallCallHook(0x421DC0, CCarCtrl::FindPathDirection, ASM_JMP);
+
+    //patches in CRestart::FindClosestHospitalRestartPoint
+    CMemory::InstallPatch<CPathFind*>(0x442E79, pThePaths);
+    CMemory::InstallCallHook(0x442E9C, HookRestartForHospitalGetXYZ, ASM_JMP);
+
+    //patches in CFileLoader::LoadInstance
+    CMemory::InstallPatch<CPathFind*>(0x48AE89, pThePaths);
+
+    //patches in CGame::Initialize
+    CMemory::InstallPatch<CPathFind*>(0x4A4C08, pThePaths);
+    CMemory::InstallPatch<CPathFind*>(0x4A4C12, pThePaths);
+    CMemory::InstallPatch<CPathFind*>(0x4A4CE0, pThePaths);
+
+    //hooks in CarCheatSpawner
+    CMemory::InstallPatch<CPathFind*>(0x4AE993, pThePaths);
+    CMemory::InstallCallHook(0x4AE9DD, HookCarCheatSpawner, ASM_JMP);
     
     //patches in CPlayerInfo::Process
     CMemory::InstallPatch<CPathFind*> (0x4BD66D, pThePaths);
@@ -1304,6 +1368,14 @@ void CPathFindHook::ApplyHook() {
     CMemory::InstallPatch<CPathFind*>(0x53C2C0, pThePaths);
     CMemory::InstallCallHook(0x53C31A, HookAddToPopulationCompareSpawnRate, ASM_JMP);
     CMemory::InstallCallHook(0x53C37B, HookAddToPopulationIndexArithmetic, ASM_JMP);
+
+    //TEMPORARY HOOK DISABLE FOR PED PATH TESTING
+    CMemory::InstallPatch<unsigned char>(0x426DB0, 0xC3);
+    CMemory::InstallPatch<unsigned char>(0x444280, 0xC3);
+    CMemory::InstallPatch<unsigned char>(0x463F90, 0xC3);
+    CMemory::InstallPatch<unsigned char>(0x465C10, 0xC3);
+    CMemory::InstallPatch<unsigned char>(0x4661C0, 0xC3);
+    CMemory::InstallPatch<unsigned char>(0x5881F0, 0xC3);
 }
 
 void CPathFindHook::RemoveHook(){

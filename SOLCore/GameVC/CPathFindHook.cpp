@@ -1211,6 +1211,10 @@ void CPathFindHook::ApplyHook() {
     //These hooks are inside CPed::PositionPedOutOfCollision
     CMemory::InstallPatch<CPathFind*>(0x51228C, pThePaths);
     CMemory::InstallCallHook(0x5122BB, HookPedOutCollisionGetXYZ, ASM_JMP);
+
+    bool (CPed::*pFindBestCoordsFromNodes)(float fUnusedX, float fUnusedY, float fUnusedZ, CVector* vecBestCoords);
+    pFindBestCoordsFromNodes = &CPed::FindBestCoordsFromNodes;
+    CMemory::InstallCallHook(0x513DF0, (void*&)pFindBestCoordsFromNodes, ASM_JMP);
 }
 
 void CPathFindHook::RemoveHook(){

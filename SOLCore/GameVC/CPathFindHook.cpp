@@ -29,6 +29,8 @@ DWORD _dwHookLocal;
 int _iHookNodeX, _iHookNodeY, _iHookNodeZ;
 float _fHookFloatOne, _fHookFloatTwo;
 int _nHookReturn;
+int _nHookIndexOne, _nHookIndexTwo;
+byte _byteHookSpawnRateOne, _byteHookSpawnRateTwo;
 #define ASMJMP(x) {_asm push x _asm retn} 
 
 //-----------------------------------------------------------
@@ -988,6 +990,78 @@ void _declspec(naked) HookPedOutCollisionGetXYZ(void) {
     _asm mov eax, _iHookNodeY
     ASMJMP(5122DAh)
 }
+
+//These hooks are inside CPed::ProcessObjective
+
+//51F726h
+void _declspec(naked) HookProcessObjectiveGetXYZOne(void) {
+    _asm mov _nHookAttachedNodeIndex, eax
+    _asm pushad
+
+    _fHookFloatOne = 0.125f;
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+    _dwIndexWithSize = _nHookAttachedNodeIndex * sizeof(CPathNode);
+
+    _asm popad
+    _asm mov edi, _dwIndexWithSize
+    _asm mov eax, _iHookNodeZ
+    _asm mov [esp+118h], eax
+    _asm push eax
+    _asm fild dword ptr [esp+11Ch]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeY
+    _asm mov [esp+11Ch], eax
+    _asm push eax
+    _asm fild dword ptr [esp+120h]
+    _asm fmul _fHookFloatOne
+    _asm fstp dword ptr [esp]
+    _asm mov eax, _iHookNodeX
+    ASMJMP(51F777h)
+}
+
+//These hooks are inside CPopulation::AddToPopulation
+
+//53C31Ah
+void _declspec(naked) HookAddToPopulationCompareSpawnRate(void) {
+    _asm mov _nHookIndexOne, eax
+    _asm mov eax, [esp+0BCh]
+    _asm mov _nHookIndexTwo, eax
+    _asm pushad
+
+    _byteHookSpawnRateOne = pThePaths->m_AttachedPaths[_nHookIndexOne].byteSpawnRate;
+    _byteHookSpawnRateTwo = pThePaths->m_AttachedPaths[_nHookIndexTwo].byteSpawnRate;
+
+    if(_byteHookSpawnRateTwo >= _byteHookSpawnRateOne) {
+        _asm popad
+        _asm mov dl, _byteHookSpawnRateOne
+        _asm mov bl, dl
+        ASMJMP(53C341h)
+    }
+
+    _asm popad
+    _asm mov dl, _byteHookSpawnRateOne
+    _asm mov bl, _byteHookSpawnRateTwo
+    ASMJMP(53C341h)
+}
+
+//53C37Bh
+void _declspec(naked) HookAddToPopulationIndexArithmetic(void) {
+    _asm mov _nHookIndexOne, edx
+    _asm mov _nHookIndexTwo, eax
+    _asm pushad
+
+    _dwHookArgOne = (DWORD)&pThePaths->m_AttachedPaths[_nHookIndexOne];
+    _dwHookArgTwo = (DWORD)&pThePaths->m_AttachedPaths[_nHookIndexTwo];
+
+    _asm popad
+    _asm mov edx, _dwHookArgOne
+    _asm mov eax, _dwHookArgTwo
+    ASMJMP(53C39Ah)
+}
+
 /*
  * List Of Functions Hooked
  * 1.  CPathFind::Init                 -FINE GRAINED
@@ -1212,9 +1286,24 @@ void CPathFindHook::ApplyHook() {
     CMemory::InstallPatch<CPathFind*>(0x51228C, pThePaths);
     CMemory::InstallCallHook(0x5122BB, HookPedOutCollisionGetXYZ, ASM_JMP);
 
+    // hooks for CPed::FindBestCoordsFromNodes
     bool (CPed::*pFindBestCoordsFromNodes)(float fUnusedX, float fUnusedY, float fUnusedZ, CVector* vecBestCoords);
     pFindBestCoordsFromNodes = &CPed::FindBestCoordsFromNodes;
     CMemory::InstallCallHook(0x513DF0, (void*&)pFindBestCoordsFromNodes, ASM_JMP);
+
+    // These hooks are inside CPed::ProcessObjective
+    CMemory::InstallPatch<CPathFind*>(0x51F6F8, pThePaths);
+    CMemory::InstallCallHook(0x51F726, HookProcessObjectiveGetXYZOne, ASM_JMP);
+    CMemory::InstallPatch<CPathFind*>(0x51F859, pThePaths);
+
+    void (CPathNode::*pGetNodeCoors)(CVector* vecNodePosition);
+    pGetNodeCoors = &CPathNode::GetNodeCoors;
+    CMemory::InstallCallHook(0x520E90, (void*&)pGetNodeCoors, ASM_JMP);
+
+    //These hooks are inside CPopulation::AddToPopulation
+    CMemory::InstallPatch<CPathFind*>(0x53C2C0, pThePaths);
+    CMemory::InstallCallHook(0x53C31A, HookAddToPopulationCompareSpawnRate, ASM_JMP);
+    CMemory::InstallCallHook(0x53C37B, HookAddToPopulationIndexArithmetic, ASM_JMP);
 }
 
 void CPathFindHook::RemoveHook(){

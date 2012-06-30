@@ -101,6 +101,7 @@ public:
 	unsigned char byteSpawnRate; // 18-19
 	unsigned char byteField0x013; // 19-20
     CPathNode();
+    void GetNodeCoors(CVector* vecNodePosition);
 };
 
 class CDetachedNode{

@@ -94,6 +94,7 @@
     <ClCompile Include="GameVC\CGeneral.cpp" />
     <ClCompile Include="GameVC\CPathFind.cpp" />
     <ClCompile Include="GameVC\CPathFindHook.cpp" />
+    <ClCompile Include="GameVC\CPed.cpp" />
     <ClCompile Include="GameVC\CSprite2D.cpp" />
     <ClCompile Include="GameVC\CTheCarGenerators.cpp" />
     <ClCompile Include="GameVC\CTheZones.cpp" />
@@ -109,7 +110,6 @@
     <ClCompile Include="MiscellaneousPatches.cpp" />
     <ClCompile Include="PathBoundariesHack.cpp" />
     <ClCompile Include="RadarHack.cpp" />
-    <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="VehicleLimitPatch.cpp" />
     <ClCompile Include="WaterHack.cpp" />
   </ItemGroup>
@@ -136,6 +136,7 @@
     <ClInclude Include="GameVC\CommonDefinations.h" />
     <ClInclude Include="GameVC\CPathFind.h" />
     <ClInclude Include="GameVC\CPathFindHook.h" />
+    <ClInclude Include="GameVC\CPed.h" />
     <ClInclude Include="GameVC\CSprite2d.h" />
     <ClInclude Include="GameVC\CTheCarGenerators.h" />
     <ClInclude Include="GameVC\CTheZones.h" />

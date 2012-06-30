@@ -50,3 +50,4 @@
 #include "GameVC\CommonDefinations.h"
 #include "GameVC\CAutoPilot.h"
 #include "GameVC\CCarCtrl.h"
+#include "GameVC\CPed.h"

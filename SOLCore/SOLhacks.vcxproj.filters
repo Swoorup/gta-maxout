@@ -135,13 +135,13 @@
     <ClCompile Include="GameVC\CCurves.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
-    <ClCompile Include="StdInc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GameVC\CCarCtrl.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
     <ClCompile Include="GameVC\CGeneral.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\CPed.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
   </ItemGroup>
@@ -258,6 +258,9 @@
       <Filter>Header Files\GameVC</Filter>
     </ClInclude>
     <ClInclude Include="GameVC\CGeneral.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\CPed.h">
       <Filter>Header Files\GameVC</Filter>
     </ClInclude>
   </ItemGroup>

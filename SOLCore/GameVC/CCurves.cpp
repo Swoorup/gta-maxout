@@ -14,3 +14,11 @@ float CCurves::CalcSpeedScaleFactor(CVector2D* pv2dSource, CVector2D* pv2dTarget
 		return (fDisplacement + fScaleFactor);
 	}
 }
+
+//429540h
+int _declspec(naked) CCurves::CalcCurvePoint(CVector* pvecCurrentPoint, CVector* pvecNextPoint, CVector2D* pv2dCurrentDirection, CVector2D* pv2dNextDirection, float fTimeDelta, int nTimeFactor, CVector* pvecGotoPoint, CVector* pvecVelocity) {
+    _asm {
+        mov eax, 429540h
+        jmp eax
+    }
+}

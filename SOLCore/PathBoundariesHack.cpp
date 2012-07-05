@@ -2,7 +2,7 @@
 #include "PathBoundariesHack.hpp"
 #include "CCustomPathHooks.h"
 
-#define ARRLEN(a) (sizeof(a)/sizeof(a[0])) 
+
 #define PATHLIMITMUL 10
 
 float f8xDivider = 0.125f;

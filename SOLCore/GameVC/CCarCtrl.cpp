@@ -3,7 +3,7 @@
 #define THEPATHS CGameVariables::GetPathFind()
 
 #ifdef INSTALL_PATCH_FOR_VCPATH_INSTANCE
-
+//This functions may be incorrect
 /* 
  * This function has weird effects on traffic vehicles. It does not
  * even follow the paths. 
@@ -45,7 +45,15 @@ bool _cdecl CCarCtrl::PickNextNodeToFollowPath(CVehicle* pVehicle) {
     }
     pVehicle->Autopilot.m_dwPrevMainNode = pVehicle->Autopilot.m_dwMainNode;
     pVehicle->Autopilot.m_dwMainNode = pVehicle->Autopilot.m_dwNextNodeIndex;
-    pVehicle->Autopilot.m_dwNextNodeIndex = pVehicle->Autopilot.m_pIntermediateRouteList[0] - &pThePaths->m_AttachedPaths[0];
+    if(pVehicle->Autopilot.m_pIntermediateRouteList[0] < &THEPATHS->m_AttachedPaths[0] || pVehicle->Autopilot.m_pIntermediateRouteList[0] > &THEPATHS->m_AttachedPaths[THEPATHS->m_nAttachedNodes -1]){
+        //sometimes the m_pIntermediateRouteList contains inappropriate value which is below m_AttachedPaths[0] temp fix
+        char buf[256];
+        sprintf(buf, "Intermediate Address: 0x%X \nStupidNode: 0x%X", pVehicle->Autopilot.m_pIntermediateRouteList, pVehicle->Autopilot.m_pIntermediateRouteList[0]);
+        CDebug::DebugAddText(buf);
+        //MessageBoxA(NULL, buf, NULL, NULL);
+        return false;
+    }
+    pVehicle->Autopilot.m_dwNextNodeIndex = ((uint32_t)pVehicle->Autopilot.m_pIntermediateRouteList[0] - (uint32_t)&THEPATHS->m_AttachedPaths[0])/sizeof(CPathNode);
     pVehicle->Autopilot.RemoveOnePathNode();
     pVehicle->Autopilot.m_dwCurrentSpeedScaleFactor += pVehicle->Autopilot.m_dwNextSpeedScaleFactor;
     pVehicle->Autopilot.m_dwPrevDetachedNodeIndex = pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex;
@@ -518,4 +526,138 @@ byte _cdecl CCarCtrl::FindPathDirection(int nPreviousMainNode, int nCurrentNode,
 	}
 }
 
+/*
+ * The following functions calls the proper function which
+ * assigns the path nodes to the car according to behavior
+ * vehicle
+ */
+ //422A10h
+bool _cdecl CCarCtrl::PickNextNodeAccordingStrategy(CVehicle* pVehicle) {
+	pVehicle->Autopilot.m_byteSpeedLimit = THEPATHS->m_AttachedPaths[pVehicle->Autopilot.m_dwNextNodeIndex].bitSpeedLimit;
+	switch(pVehicle->Autopilot.m_DriverBehaviour) {
+		case 2:
+		case 4:
+        {
+			CVehicle* pPlayerVehicle = FindPlayerVehicle();
+			CVector vecPlayerPosition;
+			FindPlayerCoors(&vecPlayerPosition);
+			PickNextNodeToChaseCar(pVehicle, vecPlayerPosition.fX, vecPlayerPosition.fY, pPlayerVehicle);
+			return false;
+			break;
+        }
+		case 15:
+		case 17:
+			PickNextNodeToChaseCar(pVehicle, pVehicle->Autopilot.m_pTargetVehicle->__parent.__parent.matrix.rwMatrix.vPos.x, pVehicle->Autopilot.m_pTargetVehicle->__parent.__parent.matrix.rwMatrix.vPos.y, pVehicle->Autopilot.m_pTargetVehicle);
+			return false;
+			break;
+		case 8:
+		case 12:
+			return PickNextNodeToFollowPath(pVehicle);
+			break;
+		default:
+        {
+			PickNextNodeRandomly(pVehicle);
+			if(THEPATHS->m_AttachedPaths[pVehicle->Autopilot.m_dwNextNodeIndex].bitHaveUnrandomizedVehClass) {
+				if(pVehicle->__parent.__parent.modelIndex == BOAT_RIO || pVehicle->__parent.__parent.modelIndex == BOAT_TROPIC || pVehicle->__parent.__parent.modelIndex == BOAT_MARQUIS) {
+					pVehicle->Autopilot.m_nMaxSpeed = 0;
+				}
+			}
+			return false;
+			break;
+        }
+	}
+}
+
+/* This functions moves the car before the state it is
+ * touched by the player. If this function is nopped 
+ * then the car does not move in traffic until the player
+ * touches the vehicle. It does not seem to have any 
+ * effects on boats though.
+ */
+//425BF0h
+void _cdecl CCarCtrl::UpdateCarOnRails(CVehicle* pVehicle) {
+	if(pVehicle->Autopilot.m_eSimpleAction == 1) {
+		pVehicle->__parent.velocity.x = 0.0f;
+		pVehicle->__parent.velocity.y = 0.0f;
+		pVehicle->__parent.velocity.z = 0.0f;
+		pVehicle->Autopilot.ModifySpeed(0.0f);
+		if(CGameVariables::GetTimeInMilliseconds() > pVehicle->Autopilot.m_simple_action_time) {
+			pVehicle->Autopilot.m_eSimpleAction = 0;
+			pVehicle->Autopilot.m_snGettingNewCommandTimeStamp = CGameVariables::GetTimeInMilliseconds();
+			pVehicle->Autopilot.m_snUnknownTimeStamp = CGameVariables::GetTimeInMilliseconds();
+		}
+	}
+	else {
+		SlowCarOnRailsDownForTrafficAndLights(pVehicle);
+		if(CGameVariables::GetTimeInMilliseconds() >= (int64_t)(pVehicle->Autopilot.m_dwNextSpeedScaleFactor + pVehicle->Autopilot.m_dwCurrentSpeedScaleFactor)) {
+			PickNextNodeAccordingStrategy(pVehicle);
+		}
+		if((pVehicle->__parent.__parent.flags >> 3) != 3) {
+			float fTimeDelta = (float)(uint32_t)(CGameVariables::GetTimeInMilliseconds() - pVehicle->Autopilot.m_dwCurrentSpeedScaleFactor) / (float)(pVehicle->Autopilot.m_dwNextSpeedScaleFactor);
+			int dwCurrentDetachedNode = pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex;
+			CVector2D vecCurrentDirection, vecNextDirection;
+			vecCurrentDirection.fX = (float)(pVehicle->Autopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].NormalVecX) / 100.0f;
+			vecCurrentDirection.fY = (float)(pVehicle->Autopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].NormalVecY) / 100.0f;
+			int dwNextDetachedNode = pVehicle->Autopilot.m_dwNextDetachedNodeIndex;
+			vecNextDirection.fX = (float)(pVehicle->Autopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].NormalVecX) / 100.0f;
+			vecNextDirection.fY = (float)(pVehicle->Autopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].NormalVecY) / 100.0f;
+			
+			float fCurrentLane = (THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].CalculateLaneDistance() + (float)(pVehicle->Autopilot.m_byteCurrentLanes)) * 5.0f;
+			float fNextLane = (THEPATHS->m_DetachedNodes[dwNextDetachedNode].CalculateLaneDistance() + (float)(pVehicle->Autopilot.m_byteNextLanes)) * 5.0f;
+			
+			CVector2D vecCurrentLane, vecNextLane;
+			vecCurrentLane.fX = (double)(((dwCurrentDetachedNode + pVehicle->__parent.__parent.uiPathMedianRand) & 7) - 3) * 0.0089999996f;
+			vecCurrentLane.fY = (double)((((dwCurrentDetachedNode + pVehicle->__parent.__parent.uiPathMedianRand) >> 3) & 7) -3) * 0.0089999996f;
+			vecNextLane.fX = (double)(((dwNextDetachedNode + pVehicle->__parent.__parent.uiPathMedianRand) & 7) - 3) * 0.0089999996f;
+			vecNextLane.fY = (double)((((dwNextDetachedNode + pVehicle->__parent.__parent.uiPathMedianRand) >> 3) & 7) - 3) * 0.0089999996f;
+			
+			vecCurrentLane.fX += vecCurrentDirection.fX;
+			vecCurrentLane.fY += vecCurrentDirection.fY;
+			vecNextLane.fX += vecNextDirection.fX;
+			vecNextLane.fY += vecNextDirection.fY;
+			
+			vecCurrentLane.Normalize();
+			vecNextLane.Normalize();
+			
+			CVector vecCurrentDetachedTest, vecNextDetachedTest;
+			vecCurrentDetachedTest.fZ = 0.0f;
+			vecNextDetachedTest.fZ = 0.0f;
+			
+			vecCurrentDetachedTest.fX = (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].wX) / 8.0f + vecCurrentDirection.fY * fCurrentLane;
+			vecCurrentDetachedTest.fY = (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].wY) / 8.0f - vecCurrentDirection.fX * fCurrentLane;
+			vecNextDetachedTest.fX = (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].wX) / 8.0f + vecNextDirection.fY * fNextLane;
+			vecNextDetachedTest.fY = (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].wY) / 8.0f - vecNextDirection.fX * fNextLane;
+			
+			CVector vecGotoPoint, vecRequiredVelocity;
+			CCurves::CalcCurvePoint(&vecCurrentDetachedTest, &vecNextDetachedTest, &vecCurrentLane, &vecNextLane, fTimeDelta, pVehicle->Autopilot.m_dwNextSpeedScaleFactor, &vecGotoPoint, &vecRequiredVelocity);
+			vecGotoPoint.fZ = 15.0f;
+			DragCarToPoint(pVehicle, &vecGotoPoint);
+			vecRequiredVelocity *= 0.016666668f;
+			pVehicle->__parent.velocity.x = vecRequiredVelocity.fX;
+			pVehicle->__parent.velocity.y = vecRequiredVelocity.fY;
+			pVehicle->__parent.velocity.z = vecRequiredVelocity.fZ;
+		}
+	}
+}
+
 #endif
+
+//4254C0h
+void CCarCtrl::SlowCarOnRailsDownForTrafficAndLights(CVehicle *pVehicle) {
+    _asm {
+        push pVehicle
+        mov eax, 4254C0h
+        call eax
+        add esp, 4
+    }
+}
+
+void CCarCtrl::DragCarToPoint(CVehicle* pVehicle, CVector* pvecGotoPoint) {
+    _asm {
+        push pvecGotoPoint
+        push pVehicle
+        mov eax, 4208B0h
+        call eax
+        add esp, 8
+    }
+}

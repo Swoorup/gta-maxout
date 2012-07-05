@@ -5,8 +5,8 @@ template<> CPathFindHook * CSingleton<CPathFindHook>::m_pSingleton = NULL;
 CPathFind* pThePaths = NULL;
 
 CPathFindHook::CPathFindHook() {
-    //pThePaths = new CPathFind();   
-    pThePaths = (CPathFind*)0x9B6E5C;
+    pThePaths = new CPathFind();   
+//    pThePaths = (CPathFind*)0x9B6E5C;
 }
 
 CPathFindHook::~CPathFindHook() {
@@ -31,6 +31,7 @@ float _fHookFloatOne, _fHookFloatTwo;
 int _nHookReturn;
 int _nHookIndexOne, _nHookIndexTwo;
 byte _byteHookSpawnRateOne, _byteHookSpawnRateTwo;
+byte _byteHookLocal;
 #define ASMJMP(x) {_asm push x _asm retn} 
 
 //-----------------------------------------------------------
@@ -635,6 +636,459 @@ void _declspec(naked) HookSteerCarAIGetDetachedNodeXYCoorsFive(void) {
     _asm popad
     _asm mov eax, _nHookReturn
     ASMJMP(41F8C8h)
+}
+
+// These hooks are inside CCarCtrl::GenerateOneRandomCar
+
+//42733C
+void _declspec(naked) HookGenOneRandomCarCompareSpawnRate(void) {
+    _asm mov _nHookIndexOne, eax
+    _asm mov eax, [esp+0C0h]
+    _asm mov _nHookIndexTwo, eax
+    _asm pushad
+
+    _byteHookSpawnRateOne = pThePaths->m_AttachedPaths[_nHookIndexOne].byteSpawnRate;
+    _byteHookSpawnRateTwo = pThePaths->m_AttachedPaths[_nHookIndexTwo].byteSpawnRate;
+
+    if(_byteHookSpawnRateTwo >= _byteHookSpawnRateOne) {
+        _asm popad
+        _asm mov cl, _byteHookSpawnRateOne
+        _asm mov bl, cl
+        ASMJMP(427363h)
+    }
+
+    _asm popad
+    _asm mov cl, _byteHookSpawnRateOne
+    _asm mov bl, _byteHookSpawnRateTwo
+    ASMJMP(427363h)
+}
+
+//427380h
+void _declspec(naked) HookGenOneRandomCarCheckBoat(void) {
+    _asm mov _nHookAttachedNodeIndex, edx
+    _asm pushad
+
+    if(pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].bitIsVehicleBoat) {
+        _asm popad
+        ASMJMP(427392h)
+    }
+
+    _asm popad
+    ASMJMP(427581h)
+}
+
+//42752Ah
+void _declspec(naked) HookGenOneRandomCarCheckVehClass(void) {
+    _asm mov _nHookIndexOne, ebx
+    _asm mov edx, [esp+0C4h]
+    _asm mov _nHookIndexTwo, edx
+    _asm pushad
+
+    if(pThePaths->m_AttachedPaths[_nHookIndexOne].bitHaveUnrandomizedVehClass || pThePaths->m_AttachedPaths[_nHookIndexTwo].bitHaveUnrandomizedVehClass) {
+        _asm popad
+        ASMJMP(427551h)
+    }
+
+    _asm popad
+    ASMJMP(427581h)
+}
+
+int _nHooki, _nHookCompareIndexOne, _nHookCompareIndexTwo;
+int _nHookx1, _nHooky1, _nHookz1;
+int _nHookx2, _nHooky2, _nHookz2;
+float _fHookValueHalf = 0.5f;
+float _fHookValueOne = 1.0f;
+float _fHookValueOneByEight = 0.125f;
+
+//427623h
+void _declspec(naked) HookGenOneRandomCarGetProperLaneOne(void) {
+    _asm mov _nHookAttachedNodeIndex, ebx
+    _asm mov eax, [esp+0C4h]
+    _asm mov _nHookCompareIndexOne, eax
+    _asm pushad
+
+    _byteHookLocal = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].bitUnkCount4To7;
+    //_dwIndexWithSize = _nHookAttachedNodeIndex * sizeof(CPathNode);
+
+    for(_nHooki = 0; _nHooki < _byteHookLocal && _nHookCompareIndexOne != (pThePaths->AttachedPointsInfo[pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wRouteInfoIndex + _nHooki] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY); _nHooki++) {
+    }
+
+    _nHookReturn = pThePaths->DetachedPointsInfo[pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wRouteInfoIndex + _nHooki];
+
+    _asm popad
+    _asm mov eax, _nHookReturn
+    _asm mov [esp+20h], eax
+    _asm pushad
+
+    if(pThePaths->m_DetachedNodes[_nHookReturn].wPathsIndex == _nHookCompareIndexOne) {
+        _byteHookLocal = pThePaths->m_DetachedNodes[_nHookReturn].bitLeftLanes;
+        _asm popad
+        _asm mov dl, _byteHookLocal
+        _asm movzx eax, dl
+        ASMJMP(4276B7h)
+    }
+
+    _byteHookLocal = pThePaths->m_DetachedNodes[_nHookReturn].bitRightLanes;
+    _asm popad
+    _asm mov cl, _byteHookLocal
+    _asm movzx eax, cl
+    ASMJMP(4276B7h)
+}
+
+
+//427B07h
+void _declspec(naked) HookGenOneRandomCarGetXYsOne(void) {
+    _asm mov _nHookIndexOne, eax
+    _asm fsub dword ptr [ecx+14h]
+    _asm mov edi, [esp+0C0h]
+    _asm mov _nHookIndexTwo, edi
+    _asm pushad
+
+    _nHookx1 = pThePaths->m_AttachedPaths[_nHookIndexOne].wX;
+    _nHooky1 = pThePaths->m_AttachedPaths[_nHookIndexOne].wY;
+
+    _nHookx2 = pThePaths->m_AttachedPaths[_nHookIndexTwo].wX;
+    _nHooky2 = pThePaths->m_AttachedPaths[_nHookIndexTwo].wY;
+
+    _asm popad
+    _asm {
+        fstp st(4)
+        fld _fHookValueHalf
+        fmul st, st(4)
+        fadd _fHookValueOne
+        mov ecx, _nHooky1
+        fstp st(4)
+        mov [esp+0B0h], ecx
+        fild dword ptr[esp+0B0h]
+        fmul _fHookValueOneByEight
+        fstp dword ptr [esp+3Ch]
+        mov edx, _nHooky2
+        mov [esp+0B0h], edx
+        fild dword ptr [esp+0B0h]
+        fmul _fHookValueOneByEight
+        fstp dword ptr [esp+38h]
+        mov ebx, _nHooky1
+        mov [esp+0B0h], ebx
+        fild dword ptr [esp+0B0h]
+        fmul _fHookValueOneByEight
+        fstp dword ptr [esp+34h]
+        mov ecx, _nHooky2
+        mov [esp+0B0h], ecx
+        fild dword ptr [esp+0B0h]
+        fmul _fHookValueOneByEight
+        fstp dword ptr [esp+30h]
+        mov edx, _nHookx1
+        mov [esp+0B0h], edx
+        fild dword ptr [esp+0B0h]
+        fmul _fHookValueOneByEight
+        fstp st(2)
+        fld st(1)
+        fstp dword ptr [esp+28h]
+        mov eax, _nHookx2
+    }
+    ASMJMP(427BDAh)
+}
+
+CVehicle* _pHookVehicle;
+
+//427CC6h
+void _declspec(naked) HookGenRandomCarPathsGeneric(void) {
+    _asm mov _nHookAttachedNodeIndex, ecx
+    _asm pushad
+
+    _byteHookLocal = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].bitUnkCount4To7;
+    if(_byteHookLocal == 1) {
+        _asm popad
+        ASMJMP(427CD6h)
+    }
+    _asm popad
+    _asm mov _pHookVehicle, ebp
+    _asm fldz
+    _asm pushad
+
+    for(_nHooki = _pHookVehicle->Autopilot.m_dwNextDetachedNodeIndex; _nHooki == _pHookVehicle->Autopilot.m_dwNextDetachedNodeIndex; _nHooki = pThePaths->DetachedPointsInfo[_dwHookLocal + pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wRouteInfoIndex]) {
+        _asm fcompp
+        _asm fcompp
+        _asm fstp st
+        _dwHookLocal = (unsigned int)rand() % _byteHookLocal;
+        _asm fldz
+        _asm fldz
+        _asm fldz
+        _asm fldz
+        _asm fldz
+    }
+    _pHookVehicle->Autopilot.m_dwCurrentDetachedNodeIndex = _nHooki;
+    if((pThePaths->AttachedPointsInfo[_dwHookLocal + pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY) >= _nHookAttachedNodeIndex) {
+        _pHookVehicle->Autopilot.m_byteCurrentDirectionScale = 1;
+    }
+    else {
+        _pHookVehicle->Autopilot.m_byteCurrentDirectionScale = -1;
+    }
+
+    _asm popad
+    ASMJMP(427DA7h);
+}
+
+//427DB5h
+void _declspec(naked) HookGenOneRandomCarGetXYZsTwo(void) {
+    _asm mov _nHookIndexOne, ecx
+    _asm mov _nHookIndexTwo, ebx
+    _asm pushad
+
+    _nHookx1 = pThePaths->m_AttachedPaths[_nHookIndexOne].wX;
+    _nHooky1 = pThePaths->m_AttachedPaths[_nHookIndexOne].wY;
+    _nHookz1 = pThePaths->m_AttachedPaths[_nHookIndexOne].wZ;
+
+    _nHookx2 = pThePaths->m_AttachedPaths[_nHookIndexTwo].wX;
+    _nHooky2 = pThePaths->m_AttachedPaths[_nHookIndexTwo].wY;
+    _nHookz2 = pThePaths->m_AttachedPaths[_nHookIndexTwo].wZ;
+
+    _asm popad
+    _asm {
+        mov eax, _nHookz1
+        mov [esp+0B0h], eax
+        fild dword ptr [esp+0B0h]
+        mov eax, _nHooky1
+        fmul _fHookValueOneByEight
+        mov [esp+0B0h], eax
+        mov eax, _nHookx1
+        fstp st(3)
+        fild dword ptr [esp+0B0h]
+        mov [esp+0B0h], eax
+        fmul _fHookValueOneByEight
+        mov eax, _nHookz2
+        fstp st(4)
+        fild dword ptr [esp+0B0h]
+        mov [esp+0B0h], eax
+        fmul _fHookValueOneByEight
+        fstp st(5)
+        fild dword ptr [esp+0B0h]
+        fmul _fHookValueOneByEight
+        fstp dword ptr [esp+2Ch]
+        mov eax, _nHooky2
+        mov [esp+0B0h], eax
+        fild dword ptr [esp+0B0h]
+        mov eax, _nHookx2
+    }
+    ASMJMP(427E55h)
+}
+
+//427FA4h
+void _declspec(naked) HookGenOneRandomCarGetDetachedNodeOffsetOne(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
+    
+
+    _asm popad
+    _asm mov edi, _dwIndexWithSize
+    ASMJMP(427FAEh)
+}
+
+//428026h
+void _declspec(naked) HookGenOneRandomCarGetDetachedNodeOffsetTwo(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
+
+    _asm popad
+    _asm mov esi, _dwIndexWithSize
+    ASMJMP(428030h)
+}
+
+//4280B4h
+void _declspec(naked) HookGenOneRandomCarGetDetachedNodeOne(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _pHookDetachedNode = &pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex];
+
+    _asm popad
+    _asm mov ecx, _pHookDetachedNode
+    ASMJMP(4280CAh)
+}
+
+
+//42810Ah
+void _declspec(naked) HookGenOneRandomCarGetDetachedNodeXYOne(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _iHookNodeX = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
+
+    _asm popad
+    _asm mov eax, _iHookNodeY
+    _asm mov [esp+0B0h], eax
+    _asm fild dword ptr [esp+0B0h]
+    _asm mov eax, _iHookNodeX
+    ASMJMP(428130h)
+}
+
+
+//428198h
+void _declspec(naked) HookGenOneRandomCarGetDetachedNodeXYTwo(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _iHookNodeX = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
+
+    _asm popad
+    _asm mov eax, _iHookNodeY
+    _asm mov [esp+0B0h], eax
+    _asm fild dword ptr [esp+0B0h]
+    _asm mov eax, _iHookNodeX
+    ASMJMP(4281BEh)
+}
+
+
+//428236h
+void _declspec(naked) HookGenRandomCarGetDetachedNodeTwo(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
+
+    _asm popad
+    _asm mov edi, _dwIndexWithSize
+    ASMJMP(428240h)
+}
+
+
+//4282B0
+void _declspec(naked) HookGenRandomCarGetDetachedNodeThree(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
+
+    _asm popad
+    _asm mov edx, _dwIndexWithSize
+    ASMJMP(4282BAh)
+}
+
+
+//42846Bh
+void _declspec(naked) HookGenRandomCarGetDetachedNodeXYThree(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _iHookNodeX = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
+
+    _asm popad
+    _asm mov eax, _iHookNodeY
+    _asm mov [esp+0B0h], eax
+    _asm fild dword ptr [esp+0B0h]
+    _asm mov eax, _iHookNodeX
+    ASMJMP(428491h)
+}
+
+
+//4284E2h
+void _declspec(naked) HookGenRandomCarGetDetachedNodeXYFour(void) {
+    _asm mov _nHookDetachedNodeIndex, eax
+    _asm pushad
+
+    _iHookNodeX = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
+
+    _asm popad
+    _asm mov eax, _iHookNodeY
+    _asm mov [esp+0B0h], eax
+    _asm fild dword ptr [esp+0B0h]
+    _asm mov eax, _iHookNodeX
+    ASMJMP(428508h)
+}
+
+//428585
+void _declspec(naked) HookGenOneRandomCarGetXYZsThree(void) {
+    _asm mov _nHookIndexOne, ecx
+    _asm mov _nHookIndexTwo, edx
+    _asm pushad
+
+    _nHookx1 = pThePaths->m_AttachedPaths[_nHookIndexOne].wX;
+    _nHooky1 = pThePaths->m_AttachedPaths[_nHookIndexOne].wY;
+    _nHookz1 = pThePaths->m_AttachedPaths[_nHookIndexOne].wZ;
+
+    _nHookx2 = pThePaths->m_AttachedPaths[_nHookIndexTwo].wX;
+    _nHooky2 = pThePaths->m_AttachedPaths[_nHookIndexTwo].wY;
+    _nHookz2 = pThePaths->m_AttachedPaths[_nHookIndexTwo].wZ;
+
+    _asm popad
+    _asm {
+        add esp, 20h
+        mov eax, _nHookz1
+        fldz
+        mov [esp+0B0h], eax
+        fldz
+        fldz
+        fldz
+        fild dword ptr [esp+0B0h]
+        mov eax, _nHookz2
+        fmul _fHookValueOneByEight
+        mov [esp+0B0h], eax
+        fild dword ptr [esp+0B0h]
+        mov eax, _nHooky1
+        fmul _fHookValueOneByEight
+        mov [esp+0B0h], eax
+        mov eax, _nHooky2
+        fsubrp st(1), st
+        fstp st(3)
+        fild dword ptr [esp+0B0h]
+        mov [esp+0B0h], eax
+        mov eax, _nHookx1
+        fmul _fHookValueOneByEight
+        fild dword ptr [esp+0B0h]
+        mov [esp+0B0h], eax
+        mov eax, _nHookx2
+    }
+    ASMJMP(42861Dh)
+}
+
+//4286C0h
+void _declspec(naked) HookGenRandomCarGetNodeZsOnly(void) {
+    _asm mov _nHookIndexOne, ebx
+    _asm mov _nHookIndexTwo, esi
+    _asm pushad
+
+    _nHookz1 = pThePaths->m_AttachedPaths[_nHookIndexOne].wZ;
+    _nHookz2 = pThePaths->m_AttachedPaths[_nHookIndexTwo].wZ;
+
+    _asm popad
+    _asm mov eax, _nHookz1
+    _asm mov [esp+0B0h], eax
+    _asm fild dword ptr [esp+0B0h]
+    _asm cmp byte ptr [esp+1Ch], 0
+    _asm fmul _fHookValueOneByEight
+    _asm mov eax, _nHookz2
+    ASMJMP(428701h)
+}
+
+// This hook is inside CRestart::FindClosestPoliceRestartPoint
+//442BD8h
+void _declspec(naked) HookRestartForPoliceGetXYZ(void) {
+    _asm mov _nHookAttachedNodeIndex, eax
+    _asm pushad
+
+    _iHookNodeX = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wX;
+    _iHookNodeY = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wY;
+    _iHookNodeZ = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wZ;
+
+    _asm popad
+    _asm mov ecx, _iHookNodeZ
+    _asm fldz
+    _asm fldz
+    _asm mov [esp+18h], ecx
+    _asm fild dword ptr [esp+18h]
+    _asm mov edx, _iHookNodeY
+    _asm fmul _fHookValueOneByEight
+    _asm mov [esp+18h], edx
+    _asm mov eax, _iHookNodeX
+    ASMJMP(442C09h)
 }
 
 // This hook is inside CRestart::FindClosestHospitalRestartPoint
@@ -1279,6 +1733,49 @@ void CPathFindHook::ApplyHook() {
     CMemory::InstallCallHook(0x421F70, CCarCtrl::PickNextNodeRandomly, ASM_JMP);
     CMemory::InstallCallHook(0x421DC0, CCarCtrl::FindPathDirection, ASM_JMP);
 
+    //hook CCarCtrl::PickNextNodeAccordingStrategy
+    CMemory::InstallCallHook(0x422A10, CCarCtrl::PickNextNodeAccordingStrategy, ASM_JMP);
+
+    //hook CCarCtrl::UpdateCarOnRails
+    CMemory::InstallCallHook(0x425BF0, CCarCtrl::UpdateCarOnRails, ASM_JMP);
+
+    //hooks in CCarCtrl::GenerateOneRandomCar
+    CMemory::InstallPatch<CPathFind*>(0x4272F0, pThePaths);
+    CMemory::InstallCallHook(0x42733C, HookGenOneRandomCarCompareSpawnRate, ASM_JMP);
+    CMemory::InstallCallHook(0x427380, HookGenOneRandomCarCheckBoat, ASM_JMP);
+    CMemory::InstallCallHook(0x42752A, HookGenOneRandomCarCheckVehClass, ASM_JMP);
+    CMemory::InstallPatch<CPathFind*>(0x4275DF, pThePaths);
+    CMemory::InstallCallHook(0x427623, HookGenOneRandomCarGetProperLaneOne, ASM_JMP); //Hardest function of all times
+    CMemory::InstallCallHook(0x427B07, HookGenOneRandomCarGetXYsOne, ASM_JMP);
+    CMemory::InstallCallHook(0x427CC6, HookGenRandomCarPathsGeneric, ASM_JMP);
+
+    CMemory::InstallCallHook(0x427DB5, HookGenOneRandomCarGetXYZsTwo, ASM_JMP);
+    CMemory::InstallPatch<CPathFind*>(0x427F5D, pThePaths);
+    CMemory::InstallCallHook(0x427FA4, HookGenOneRandomCarGetDetachedNodeOffsetOne, ASM_JMP);
+    CMemory::InstallPatch<signed char*>(0x427FB1, &(pThePaths->m_DetachedNodes[0].NormalVecX));
+    CMemory::InstallPatch<unsigned int>(0x427FC7, OFFSETOF(CPathFind, m_DetachedNodes[0]));
+    CMemory::InstallPatch<signed char*>(0x427FE5, &(pThePaths->m_DetachedNodes[0].NormalVecY));
+    CMemory::InstallCallHook(0x428026, HookGenOneRandomCarGetDetachedNodeOffsetTwo, ASM_JMP);
+    CMemory::InstallPatch<signed char*>(0x428033, &(pThePaths->m_DetachedNodes[0].NormalVecX));
+    CMemory::InstallPatch<signed char*>(0x42805F, &(pThePaths->m_DetachedNodes[0].NormalVecY));
+    CMemory::InstallCallHook(0x4280B4, HookGenOneRandomCarGetDetachedNodeOne, ASM_JMP);
+    CMemory::InstallCallHook(0x42810A, HookGenOneRandomCarGetDetachedNodeXYOne, ASM_JMP);
+    CMemory::InstallCallHook(0x428198, HookGenOneRandomCarGetDetachedNodeXYTwo, ASM_JMP);
+    CMemory::InstallCallHook(0x428236, HookGenRandomCarGetDetachedNodeTwo, ASM_JMP);
+    CMemory::InstallPatch<signed char*>(0x428243, &(pThePaths->m_DetachedNodes[0].NormalVecY));
+    CMemory::InstallPatch<signed char*>(0x428275, &(pThePaths->m_DetachedNodes[0].NormalVecX));
+    CMemory::InstallCallHook(0x4282B0, HookGenRandomCarGetDetachedNodeThree, ASM_JMP);
+    CMemory::InstallPatch<signed char*>(0x4282BD, &(pThePaths->m_DetachedNodes[0].NormalVecY));
+    CMemory::InstallPatch<signed char*>(0x4282EF, &(pThePaths->m_DetachedNodes[0].NormalVecX));
+    CMemory::InstallCallHook(0x42846B, HookGenRandomCarGetDetachedNodeXYThree, ASM_JMP);
+    CMemory::InstallCallHook(0x4284E2, HookGenRandomCarGetDetachedNodeXYFour, ASM_JMP);
+    CMemory::InstallCallHook(0x428585, HookGenOneRandomCarGetXYZsThree, ASM_JMP);
+    CMemory::InstallCallHook(0x4286C0, HookGenRandomCarGetNodeZsOnly, ASM_JMP);
+
+    //patches in CRestart::FindClosestPoliceRestartPoint
+    CMemory::InstallPatch<CPathFind*>(0x442BB7, pThePaths);
+    CMemory::InstallCallHook(0x442BD8, HookRestartForPoliceGetXYZ, ASM_JMP);
+
     //patches in CRestart::FindClosestHospitalRestartPoint
     CMemory::InstallPatch<CPathFind*>(0x442E79, pThePaths);
     CMemory::InstallCallHook(0x442E9C, HookRestartForHospitalGetXYZ, ASM_JMP);
@@ -1370,7 +1867,6 @@ void CPathFindHook::ApplyHook() {
     CMemory::InstallCallHook(0x53C37B, HookAddToPopulationIndexArithmetic, ASM_JMP);
 
     //TEMPORARY HOOK DISABLE FOR PED PATH TESTING
-    CMemory::InstallPatch<unsigned char>(0x426DB0, 0xC3);
     CMemory::InstallPatch<unsigned char>(0x444280, 0xC3);
     CMemory::InstallPatch<unsigned char>(0x463F90, 0xC3);
     CMemory::InstallPatch<unsigned char>(0x465C10, 0xC3);

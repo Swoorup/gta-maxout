@@ -15,8 +15,9 @@ void CDebug::Initialize(void){
         m_szTextBuffer[i] = (char*)malloc(CDEBUG_MAX_CHARACTERS);
         memset(m_szTextBuffer[i], 0, CDEBUG_MAX_CHARACTERS);
     }
-    m_File = fopen("SOL_log.txt", "w");
-    m_Font = new CCustomFont("Calibri",8,NULL);
+    FILE* m_File = fopen("sol_log.txt", "w");
+    if(m_File) fclose(m_File);
+    m_Font = new CCustomFont("Calibri", 8, NULL);
     m_Font->InitObjects();
 }
 
@@ -36,8 +37,9 @@ void CDebug::DebugAddText(char const*szFormatText, ...){
         }
     }
 
-	if(m_File == NULL) return;
+    m_File = fopen("sol_log.txt", "a+");
 	fprintf(m_File, "DBG: %s\n", szDebugText);
+    fclose(m_File);
 
     OutputDebugStringA(szDebugText);
 
@@ -53,7 +55,7 @@ void CDebug::DebugAddText(char const*szFormatText, ...){
     strcpy(m_szTextBuffer[CDEBUG_DISPLAY_LINES - 1], szDebugText);
 }
 
-void CDebug::DebugDisplayText(void){
+void CDebug::DebugDisplayText(void){/*
     if (m_Font == NULL ) return;
     for (int i = 0; i<CDEBUG_DISPLAY_LINES; i++)  
         m_Font->DrawText(10.0f, 50.0f + i*10.0f, 0xFFFFFFFF,m_szTextBuffer[i],NULL);
@@ -63,7 +65,7 @@ void CDebug::DebugDisplayText(void){
     
     char PositionStrBuf[256];
     sprintf(PositionStrBuf,"Current Position: %f %f %f",playerPos->x,playerPos->y,playerPos->z);
-    m_Font->DrawText(10.0f, 30.0f,0xFFFFFFFF,PositionStrBuf,NULL);
+    m_Font->DrawText(10.0f, 30.0f,0xFFFFFFFF,PositionStrBuf,NULL);*/
 }
 
 void CDebug::Shutdown(void){
@@ -82,8 +84,9 @@ void CDebug::WriteMessageEvent(char const *szFormatMessage, ...){
 	vsprintf(szErrorMsg, szFormatMessage, args);
 	va_end(args);
 
-	if(m_File == NULL) return;
-	fprintf(m_File, "MSG: %s\n", szErrorMsg);
+    m_File = fopen("sol_log.txt", "a+");
+    fprintf(m_File, "MSG: %s\n", szErrorMsg);
+    fclose(m_File);
 }
 
 void CDebug::WriteErrorEvent(char* pszFunction, char* pszFormat, ...) {
@@ -94,8 +97,9 @@ void CDebug::WriteErrorEvent(char* pszFunction, char* pszFormat, ...) {
 	vsprintf(szErrorMsg, pszFormat, args);
 	va_end(args);
 
-	if(m_File == NULL) return;
-	fprintf(m_File, "Error in %s: %s\n", pszFunction, szErrorMsg);
+    m_File = fopen("sol_log.txt", "a+");
+    fprintf(m_File, "Error in %s: %s\n", pszFunction, szErrorMsg);
+    fclose(m_File);
 }
 
 void CDebug::WriteWarningEvent(char* pszFunction, char* pszFormat, ...) {
@@ -108,6 +112,7 @@ void CDebug::WriteWarningEvent(char* pszFunction, char* pszFormat, ...) {
 	vsprintf(szErrorMsg, pszFormat, args);
 	va_end(args);
 
-	if(m_File == NULL) m_File = fopen("SOL_log.txt", "w");
-	fprintf(m_File, "Warning in %s: %s\n", pszFunction, szErrorMsg);
+    m_File = fopen("sol_log.txt", "a+");
+    fprintf(m_File, "Warning in %s: %s\n", pszFunction, szErrorMsg);
+    fclose(m_File);
 }

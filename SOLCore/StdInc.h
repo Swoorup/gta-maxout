@@ -19,7 +19,6 @@
 #include "CCustomFont.h"
 
 // to be disengaged
-#include "PathBoundariesHack.hpp"
 #include "GamePatches.h"
 
 // game sdk includes

@@ -1,7 +1,6 @@
 #include "../StdInc.h"
 
 template<> CPathFindHook * CSingleton<CPathFindHook>::m_pSingleton = NULL;
-
 CPathFind* pThePaths = NULL;
 
 CPathFindHook::CPathFindHook() {
@@ -11,8 +10,8 @@ CPathFindHook::CPathFindHook() {
 
 CPathFindHook::~CPathFindHook() {
     RemoveHook();
-    //delete pThePaths;
-    //pThePaths = NULL;
+    delete pThePaths;
+    pThePaths = NULL;
 }
 
 int _nHookDetachedNodeIndex;
@@ -33,168 +32,6 @@ int _nHookIndexOne, _nHookIndexTwo;
 byte _byteHookSpawnRateOne, _byteHookSpawnRateTwo;
 byte _byteHookLocal;
 #define ASMJMP(x) {_asm push x _asm retn} 
-
-//-----------------------------------------------------------
-// These are hooks inside CAutopilot::ModifySpeed. They make
-// sure the coordinates values are calculated properly with 
-// the new path system
-//-----------------------------------------------------------
-
-//418D48
-/*void _declspec(naked) HookModSpeedGetDetachedNormalXOne(void) {
-    _asm mov _nHookDetachedNodeIndex, eax
-    _asm pushad
-    
-    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].NormalVecX;
-    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
-
-    _asm popad
-    _asm mov ecx, _dwIndexWithSize
-    _asm mov eax, _nHookReturn
-    ASMJMP(418D59h)
-}
-
-//418D68
-void _declspec(naked) HookModSpeedGetDetachedYCoorOne(void) {
-    _asm mov _nHookDetachedNodeIndex, eax
-    _asm pushad
-
-    _fHookFloatOne = 0.0099999998f;
-    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
-    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
-
-    _asm popad
-    _asm fmul _fHookFloatOne
-    _asm mov eax, _nHookReturn
-    _asm mov ebp, _dwIndexWithSize
-    ASMJMP(418D80h)
-}
-
-//418DAA
-void _declspec(naked) HookModSpeedGetDetachedNormalXTwo(void) {
-    _asm mov _dwIndexWithSize, ebp
-    _asm pushad
-    
-    _nHookReturn = pThePaths->m_DetachedNodes[_dwIndexWithSize / sizeof(CDetachedNode)].NormalVecX;
-
-    _asm popad
-    _asm mov eax, _nHookReturn
-    ASMJMP(418DB1h)
-}
-
-//418DCB
-void _declspec(naked) HookModSpeedGetDetachedXCoorOne(void) {
-    _asm mov _dwIndexWithSize, ebp
-    _asm pushad
-
-    _nHookReturn = pThePaths->m_DetachedNodes[_dwIndexWithSize/sizeof(CDetachedNode)].wX;
-
-    _asm popad
-    _asm mov eax, _nHookReturn
-    ASMJMP(418DD2h)
-}
-
-//418DEF
-void _declspec(naked) HookModSpeedGetDetachedNormalYOne(void) {
-    _asm mov _dwIndexWithSize, ebp
-    _asm pushad
-
-    _nHookReturn = pThePaths->m_DetachedNodes[_dwIndexWithSize/sizeof(CDetachedNode)].NormalVecY;
-
-    _asm popad
-    _asm mov eax, _nHookReturn
-    ASMJMP(418DF6h)
-}
-
-//418E21
-void _declspec(naked) HookModSpeedGetDetachedYCoorTwo(void) {
-    _asm mov _nHookDetachedNodeIndex, eax
-    _asm pushad
-
-    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].wY;
-    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
-
-    _asm popad
-    _asm mov eax, _nHookReturn
-    _asm mov edx, _dwIndexWithSize
-    ASMJMP(418E32h)
-}
-
-//418E48
-void _declspec(naked) HookModSpeedGetDetachedXCoorTwo(void) {
-    _asm mov _dwIndexWithSize, edx
-    _asm pushad
-
-    _nHookReturn = pThePaths->m_DetachedNodes[_dwIndexWithSize/sizeof(CDetachedNode)].wX;
-
-    _asm popad
-    _asm mov eax, _nHookReturn
-    ASMJMP(418E4Fh)
-}
-
-//418E7C
-void _declspec(naked) HookModSpeedGetDetachedNormalYTwo(void) {
-    _asm mov _dwIndexWithSize, ecx
-    _asm pushad
-
-    _nHookReturn = pThePaths->m_DetachedNodes[_dwIndexWithSize/sizeof(CDetachedNode)].NormalVecY;
-
-    _asm popad
-    _asm mov eax, _nHookReturn
-    ASMJMP(418E83h)
-}
-
-//418EB8
-void _declspec(naked) HookModSpeedGetDetachedNormalYThree(void) {
-    _asm mov _nHookDetachedNodeIndex, eax
-    _asm pushad
-
-    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].NormalVecY;
-    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
-
-    _asm popad
-    _asm mov eax, _nHookReturn
-    _asm mov ebp, _dwIndexWithSize
-    ASMJMP(418ECAh)
-}
-
-//418EE9
-void _declspec(naked) HookModSpeedGetDetachedNormalXThree(void) {
-    _asm mov _dwIndexWithSize, ebp
-    _asm pushad
-
-    _nHookReturn = pThePaths->m_DetachedNodes[_dwIndexWithSize/sizeof(CDetachedNode)].NormalVecX;
-
-    _asm popad
-    _asm mov eax, _nHookReturn
-    ASMJMP(418EF0h)
-}
-
-//418F15
-void _declspec(naked) HookModSpeedGetDetachedNormalYFour(void) {
-    _asm mov _nHookDetachedNodeIndex, eax
-    _asm pushad
-
-    _nHookReturn = pThePaths->m_DetachedNodes[_nHookDetachedNodeIndex].NormalVecY;
-    _dwIndexWithSize = _nHookDetachedNodeIndex * sizeof(CDetachedNode);
-
-    _asm popad
-    _asm mov eax, _nHookReturn
-    _asm mov edx, _dwIndexWithSize
-    ASMJMP(418F26h)
-}
-
-//418F45
-void _declspec(naked) HookModSpeedGetDetachedNormalXFour(void) {
-    _asm mov _dwIndexWithSize, edx
-    _asm pushad
-
-    _nHookReturn = pThePaths->m_DetachedNodes[_dwIndexWithSize/sizeof(CDetachedNode)].NormalVecX;
-
-    _asm popad
-    _asm mov eax, _nHookReturn
-    ASMJMP(418F4Ch)
-}*/
 
 // ---------------------------------------------------------------------
 // These hooks are inside CCarCtrl::GenerateOneEmergencyServicesCar.
@@ -1869,7 +1706,10 @@ void CPathFindHook::ApplyHook() {
     //TEMPORARY HOOK DISABLE FOR PED PATH TESTING
     CMemory::InstallPatch<unsigned char>(0x444280, 0xC3);
     CMemory::InstallPatch<unsigned char>(0x463F90, 0xC3);
-    CMemory::InstallPatch<unsigned char>(0x465C10, 0xC3);
+    CMemory::InstallPatch<unsigned char>(0x465C10, 0x30); //CTrafficLights::ShouldCarStopForLights
+    CMemory::InstallPatch<byte>(0x465C11, 0xC0);
+    CMemory::InstallPatch<byte>(0x465C12, 0xC3);
+
     CMemory::InstallPatch<unsigned char>(0x4661C0, 0xC3);
     CMemory::InstallPatch<unsigned char>(0x5881F0, 0xC3);
 }

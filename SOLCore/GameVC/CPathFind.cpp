@@ -20,6 +20,15 @@ DWORD dwFunc_CPathFind__StoreNodeInfoPed = 0x00435FA0;
 #define PATHDATAFOR_CAR 0
 #define PATHDATAFOR_PED 1
 
+//Limits here
+#define PATHMUL 15
+//#define MAXCARGROUPNODE 1024
+#define MAXCARGROUPNODE (1024 * PATHMUL)
+//#define MAXPEDGROUPNODE 1214
+#define MAXPEDGROUPNODE (1214 * PATHMUL)
+//#define MAXPATHTEMPNODE 5000
+#define MAXPATHTEMPNODE (5000 * PATHMUL)
+
 int CPathFind::g_nCarGroupNodes = 0;
 int CPathFind::g_nPedGroupNodes = 0;
 CPathInfoForObject* CPathFind::g_pCarPathInfos = NULL;
@@ -41,7 +50,7 @@ __declspec (naked) void CPathFind::StoreNodeInfoCar(int iNodeInfo_InternalNodesC
 
 //435C30h
 void CPathFind::StoreNodeInfoCar(int nInternalNodeCount, unsigned char iNodeType, signed char iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, unsigned char nLeftLanes, unsigned char nRightLanes, bool bIsIgnoredNode, bool bIsRestrictedAccess, unsigned char bSpeedLimit, bool bIsPoliceRoadBlock, unsigned char byteVehicleType, unsigned int dwSpawnRate, unsigned char bUnknown) {
-  if (g_nCarGroupNodes < 1024){
+  if (g_nCarGroupNodes < MAXCARGROUPNODE){
     g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].fX = fNodeX / 16.0f;
     g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].fY = fNodeY / 16.0f;
     g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].fZ = fNodeZ / 16.0f;
@@ -102,7 +111,7 @@ _declspec (naked) void CPathFind::StoreNodeInfoPed(int iNodeInfo_InternalNodesCo
 #else
 //435FA0h
 void CPathFind::StoreNodeInfoPed(int nInternalNodeCount, unsigned char iNodeType, signed char iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, unsigned char iunknown, bool bIsIgnoredNode, bool bIsRestrictedAccess, unsigned int dwSpawnRate) {
-    if (g_nPedGroupNodes < 1214){
+    if (g_nPedGroupNodes < MAXPEDGROUPNODE){
         g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].fX = fNodeX / 16.0f;
         g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].fY = fNodeY / 16.0f;
         g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].fZ = fNodeZ / 16.0f;
@@ -139,7 +148,8 @@ void CPathFind::Init(void){
     this->m_nDetachedPoints = 0;
     this->Unusedfield_53804 = 0;
 
-    for (int i =0; i<9650; i++)
+    //for (int i =0; i < 9650; i++)
+    for (int i =0; i < (9650 * PATHMUL); i++)
         this->m_AttachedPaths[i].wUnkDist0x0A = 0x7FFE;
 }   
 
@@ -158,13 +168,13 @@ void CPathFind::AllocatePathFindInfoMem(void){
     }
 
     //heap corruption chances, so sizes might need increasing
-    g_pCarPathInfos = new CPathInfoForObject[20000]; 
-    g_pPedPathInfos = new CPathInfoForObject[20000];
-    g_pTempDetachedNodes = new CTempDetachedNode[4600];
+    g_pCarPathInfos = new CPathInfoForObject[20000 * PATHMUL]; 
+    g_pPedPathInfos = new CPathInfoForObject[20000 * PATHMUL];
+    g_pTempDetachedNodes = new CTempDetachedNode[4600 * PATHMUL];
 
-    memset(g_pCarPathInfos, 0, sizeof(CPathInfoForObject) * 20000); 
-    memset(g_pCarPathInfos, 0, sizeof(CPathInfoForObject) * 20000);
-    memset(g_pTempDetachedNodes, 0, sizeof(CTempDetachedNode) * 4600);
+    memset(g_pCarPathInfos, 0, sizeof(CPathInfoForObject) * 20000 * PATHMUL); 
+    memset(g_pCarPathInfos, 0, sizeof(CPathInfoForObject) * 20000 * PATHMUL);
+    memset(g_pTempDetachedNodes, 0, sizeof(CTempDetachedNode) * 4600 * PATHMUL);
     g_nPedGroupNodes = 0;
     g_nCarGroupNodes = 0;
 }
@@ -175,7 +185,7 @@ void CPathFind::PreparePathData(void){
 
     //check if path info pointers are not null
     if ( g_pCarPathInfos && g_pPedPathInfos && g_pTempDetachedNodes){
-        CTempNode* pTempNodes = new CTempNode[5000];
+        CTempNode* pTempNodes = new CTempNode[MAXPATHTEMPNODE];
 
         m_nAttachedPoints = 0;
         m_nAttachedNodes = 0;
@@ -199,7 +209,7 @@ void CPathFind::PreparePathData(void){
 }
 
 void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode* pTempNode, CPathInfoForObject* pUnusedPathInfos, float fUnkRange, CPathInfoForObject* pPathInfosForObject, int nGroupNodesForObject) {
-    signed int *ptempIndices = new signed int[9650];
+    signed int *ptempIndices = new signed int[9650 * PATHMUL];
 	int32_t nTmpDetachedNodes = 0;
 	int32_t nPrevObjectAttachedNodes = m_nAttachedNodes;
 	int32_t nPrevObjectAttachedPoints = m_nAttachedPoints;
@@ -370,7 +380,7 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
 		else
 			nAdjustedPrevNodes = nPrevObjectAttachedNodes;
 		
-		for (int k = nAdjustedPrevNodes; k<i;++k)
+		for (int k = nAdjustedPrevNodes; k<i; ++k)
 			if (ptempIndices[i] == ptempIndices[k]) iGroupNodeIndex++;
         int n = nAdjustedPrevNodes;
 		
@@ -618,7 +628,7 @@ void CPathFind::CountFloodFillGroups(unsigned char iPathDataFor){
 	int j = 0;
 	while (true){
 		++j;
-		if (j > 1500){
+		if (j > (1500)) {// * PATHMUL)){
 			int k = iStartNodeIndex;
 			while (m_AttachedPaths[k].sbField0x0F && k < iEndNodeIndex)	{
                 k++;
@@ -633,9 +643,9 @@ void CPathFind::CountFloodFillGroups(unsigned char iPathDataFor){
 		pNode->sbField0x0F = j;
 		if(pNode->bitUnkCount4To7 == 0) {
 			if(iPathDataFor == PATHDATAFOR_PED)
-				CDebug::DebugAddText("Single ped node: %f %f %f\n", pNode->wX, pNode->wY, pNode->wZ);
+				CDebug::DebugAddText("Single ped node: %f %f %f\n", (float)(pNode->wX) / 8.0f, (float)(pNode->wY) / 8.0f, (float)(pNode->wZ) / 8.0f);
 			else
-				CDebug::DebugAddText("Single car node: %f %f %f\n",	pNode->wX, pNode->wY, pNode->wZ);
+				CDebug::DebugAddText("Single car node: %f %f %f\n",	(float)(pNode->wX) / 8.0f, (float)(pNode->wY) / 8.0f, (float)(pNode->wZ) / 8.0f);
 		}
 		
 		while(pNode) {
@@ -682,7 +692,7 @@ void CPathFind::CountFloodFillGroups(unsigned char iPathDataFor){
 
 void CPathFind::AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement){
 	signed short iDisplacement = iParamDisplacement & 511;
-	signed short iGridIndex01 = m_UnknownNodeList[iDisplacement].wField0x02;
+	signed int iGridIndex01 = m_UnknownNodeList[iDisplacement].wField0x02;
 	CPathNode* pGridNode1; // edx
 
 	if (iGridIndex01 >=0){
@@ -719,7 +729,7 @@ void CPathFind::AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement){
 		pTargetNode->wField0x00 = -1;
 	
 	// Phase 2
-	signed short iGridIndex03 = m_UnknownNodeList[iDisplacement].wField0x02; // dx
+	signed int iGridIndex03 = m_UnknownNodeList[iDisplacement].wField0x02; // dx
 	CPathNode* pGridNode03; //eax
 	if (iGridIndex03 >= 0 ){
 		if (iGridIndex03 >= 512)
@@ -763,7 +773,7 @@ void CPathFind::AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement){
 }
 
 void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode) {
-	signed short iGridIndexTwo00 = pRemoveNode->wField0x02;
+	signed int iGridIndexTwo00 = pRemoveNode->wField0x02;
 	CPathNode* pGrid1; //edx
 
 	if (iGridIndexTwo00 >= 0){
@@ -776,7 +786,7 @@ void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode) {
 		pGrid1 = NULL;
 	
 	CPathNode* pGrid2; //ebp
-	signed short iGridIndexOne00 = pRemoveNode->wField0x00;
+	signed int iGridIndexOne00 = pRemoveNode->wField0x00;
 	if (iGridIndexOne00 >= 0){
 		if (iGridIndexOne00 >= 512)
 			pGrid2 = &m_AttachedPaths[iGridIndexOne00 - 512];
@@ -797,7 +807,7 @@ void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode) {
 		pGrid2->wField0x02 = -1;
     //}
 	
-	signed short iGridIndexTwo01 = pRemoveNode->wField0x02;
+	signed int iGridIndexTwo01 = pRemoveNode->wField0x02;
 	CPathNode* pGrid3; //eax
 	if (iGridIndexTwo01 >= 0){
 		if (iGridIndexTwo01 >= 512)
@@ -809,7 +819,7 @@ void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode) {
 		pGrid3 = NULL;
 	
 	if (pGrid3){ //branch saved for later
-		signed short iGridIndexOne01 = pRemoveNode->wField0x00;
+		signed int iGridIndexOne01 = pRemoveNode->wField0x00;
 		CPathNode* pGrid4; //edx
 		if (iGridIndexOne01 >= 0){
 			if (iGridIndexOne01 >= 512)
@@ -843,7 +853,9 @@ void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode) {
 	}
 }
 
-CPathNode* CPathFind::staticNodes[9650] = {NULL};
+//CPathNode* CPathFind::staticNodes[9650] = {NULL};
+CPathNode* CPathFind::staticNodes[9650*PATHMUL] = {NULL};
+// I have high doubts in this function
 void CPathFind::DoPathSearch(int iPathDataFor, float fOriginX, float fOriginY, float fOriginZ, int iFirstNode, float fDestX, float fDestY, float fDestZ, CPathNode **pIntermediateNodeList, short *pSteps, short sMaxSteps, void *pVehicle, float *pfDistance, float fMaxRadius, int iLastNode) {
 	int iDestNodeIndex = iLastNode;
 	int iOriginNodeIndex = iFirstNode;
@@ -871,7 +883,7 @@ void CPathFind::DoPathSearch(int iPathDataFor, float fOriginX, float fOriginY, f
             bool bFound = false;
             // Phase 1
             do {
-                short sField02 = m_UnknownNodeList[nCircleList].wField0x02;
+                int sField02 = m_UnknownNodeList[nCircleList].wField0x02;
                 CPathNode* pNodeForPhase1Check;
                 if ( sField02 >= 0){
                     if (sField02 >= 512)
@@ -1102,7 +1114,7 @@ bool CPathFind::NewGenerateCarCreationCoors(float fX, float fY, float fDirection
             fReqRange = 1.7f * fRange;
         }
 
-        for(int i = 0; i < 500; i++) {
+        for(int i = 0; i < (500*PATHMUL); i++) {
             int nRandIndex = (rand() /*>> 3*/) % m_nCarAttachedNodes;
             if(!(m_AttachedPaths[nRandIndex].bitIsIgnoredNode) || bDontCheckIgnored == true) {
                 float frandNodeX = (float)(m_AttachedPaths[nRandIndex].wX) / 8.0f;
@@ -1184,7 +1196,7 @@ bool CPathFind::GeneratePedCreationCoors(float fX, float fY, float fMinRange, fl
     }
     
     float fReqRange = 30.0f + fMaxRange;
-    for (int i = 0; i < 230; i++) {
+    for (int i = 0; i < (230*PATHMUL); i++) {
     	staticPedNodesCount++;
     	if (staticPedNodesCount >= m_nPedAttachedNodes) {
     		staticPedNodesCount = 0;
@@ -1311,7 +1323,7 @@ float CPathFind::CalcRoadDensity(float fX, float fY) {
 	}
 	
 	// sum of displacements between ranged nodes is divided by the area of game to get the density
-	float fViceCityRoadDensity = fDeltaDensity / 2500.0f;
+	float fViceCityRoadDensity = fDeltaDensity / (2500.0f * (float)PATHMUL);
     CDebug::DebugAddText("Road Density: %f", fViceCityRoadDensity);
 	return fViceCityRoadDensity;
 }

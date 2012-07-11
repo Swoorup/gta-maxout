@@ -78,7 +78,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CCustomFont.cpp" />
-    <ClCompile Include="CCustomPathHooks.cpp" />
     <ClCompile Include="CMemory.cpp" />
     <ClCompile Include="D3D8Hook.cpp" />
     <ClCompile Include="GameVC\CAutoPilot.cpp" />
@@ -108,7 +107,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuMapHack.cpp" />
     <ClCompile Include="MiscellaneousPatches.cpp" />
-    <ClCompile Include="PathBoundariesHack.cpp" />
     <ClCompile Include="RadarHack.cpp" />
     <ClCompile Include="VehicleLimitPatch.cpp" />
     <ClCompile Include="WaterHack.cpp" />
@@ -116,7 +114,6 @@
   <ItemGroup>
     <ClInclude Include="..\loader\resource.h" />
     <ClInclude Include="CCustomFont.h" />
-    <ClInclude Include="CCustomPathHooks.h" />
     <ClInclude Include="CMemory.h" />
     <ClInclude Include="CSingleton.h" />
     <ClInclude Include="D3D8Hook.h" />
@@ -151,7 +148,6 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="GamePatches.h" />
-    <ClInclude Include="PathBoundariesHack.hpp" />
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

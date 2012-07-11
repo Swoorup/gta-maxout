@@ -54,12 +54,6 @@
     <ClCompile Include="GameVC\GameVC.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
-    <ClCompile Include="PathBoundariesHack.cpp">
-      <Filter>Source Files\GameHooks</Filter>
-    </ClCompile>
-    <ClCompile Include="CCustomPathHooks.cpp">
-      <Filter>Source Files\GameHooks</Filter>
-    </ClCompile>
     <ClCompile Include="CCustomFont.cpp">
       <Filter>Source Files\GameHooks</Filter>
     </ClCompile>
@@ -153,12 +147,6 @@
       <Filter>Header Files\GameVC</Filter>
     </ClInclude>
     <ClInclude Include="CCustomFont.h">
-      <Filter>Header Files\GameHooks</Filter>
-    </ClInclude>
-    <ClInclude Include="CCustomPathHooks.h">
-      <Filter>Header Files\GameHooks</Filter>
-    </ClInclude>
-    <ClInclude Include="PathBoundariesHack.hpp">
       <Filter>Header Files\GameHooks</Filter>
     </ClInclude>
     <ClInclude Include="GameVC\CFileLoader.h">

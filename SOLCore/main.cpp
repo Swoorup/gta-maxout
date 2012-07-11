@@ -1,6 +1,5 @@
 #include "StdInc.h"
 
-#define _CRT_SECURE_NO_WARNINGS
 #pragma comment (lib, "d3dx8.lib")
 char szWindowName[] = "GTA: State Of Liberty";
 char szSOLIcon[] = "Icons//SOL.ico";
@@ -18,7 +17,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,
             g_pGameHooks->ApplyHook();
             CMemory::InstallPatch<char*>(0x602D36, szWindowName);
             //if ( IconHandle != NULL) SetClassLong(pPresentationParameters->hDeviceWindow, GCL_HICON, (LONG)IconHandle);
-            D3D8HookInit(true);
+            //D3D8HookInit(false);
             
             //Apply Patches
             //PatchVehicleLimits();

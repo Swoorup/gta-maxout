@@ -3,10 +3,10 @@
 #define THEPATHS CGameVariables::GetPathFind()
 
 #ifdef INSTALL_PATCH_FOR_VCPATH_INSTANCE
-//This functions may be incorrect
 /* 
  * This function has weird effects on traffic vehicles. It does not
  * even follow the paths. 
+ * This functions may be incorrect.
  */
 //420D50h
 bool _cdecl CCarCtrl::PickNextNodeToFollowPath(CVehicle* pVehicle) {

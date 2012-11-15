@@ -1,15 +1,3 @@
-/*****************************************************************************
-*
-*  PROJECT:     Multi Theft Auto v1.0
-*  LICENSE:     See LICENSE in the top level directory
-*  FILE:        loader/Utils.h
-*  PURPOSE:     Loading utilities
-*  DEVELOPERS:  Christian Myhre Lundheim <>
-*
-*  Multi Theft Auto is available from http://www.multitheftauto.com/
-*
-*****************************************************************************/
-
 #ifndef __UTILS_H
 #define __UTILS_H
 

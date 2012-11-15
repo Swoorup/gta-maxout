@@ -1,15 +1,3 @@
-/*****************************************************************************
-*
-*  PROJECT:     Multi Theft Auto v1.0
-*  LICENSE:     See LICENSE in the top level directory
-*  FILE:        loader/Utils.cpp
-*  PURPOSE:     Loading utilities
-*  DEVELOPERS:  Christian Myhre Lundheim <>
-*
-*  Multi Theft Auto is available from http://www.multitheftauto.com/
-*
-*****************************************************************************/
-
 #include "Utils.h"
 
 HMODULE RemoteLoadLibrary(HANDLE hProcess, const char* szLibPath)

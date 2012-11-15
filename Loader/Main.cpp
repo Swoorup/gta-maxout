@@ -1,17 +1,3 @@
-/*****************************************************************************
-*
-*  PROJECT:     Multi Theft Auto v1.0
-*  LICENSE:     See LICENSE in the top level directory
-*  FILE:        loader/Main.cpp
-*  PURPOSE:     MTA loader
-*  DEVELOPERS:  Ed Lyons <eai@opencoding.net>
-*               Christian Myhre Lundheim <>
-*               Cecill Etheredge <ijsf@gmx.net>
-*
-*  Multi Theft Auto is available from http://www.multitheftauto.com/
-*
-*****************************************************************************/
-
 #include "Main.h"
 #include "Utils.h"
 #include "resource.h"
@@ -237,7 +223,7 @@ int WINAPI WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     char szCoreDLL[MAX_PATH] = {'\0'};
     _snprintf ( szCoreDLL, MAX_PATH, "%s\\%s", szGTAPath, SOL_DLL_NAME );
 
-    // Check if the core (mta_blue.dll or mta_blue_d.dll exists)
+    // Check if the core (solcore.dll exists)
     if ( INVALID_HANDLE_VALUE == FindFirstFile ( szCoreDLL, &fdFileInfo ) )
     {
         if ( hwndSplash )

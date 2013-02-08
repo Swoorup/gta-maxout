@@ -33,10 +33,8 @@ byte _byteHookSpawnRateOne, _byteHookSpawnRateTwo;
 byte _byteHookLocal;
 #define ASMJMP(x) {_asm push x _asm retn} 
 
-// ---------------------------------------------------------------------
 // These hooks are inside CCarCtrl::GenerateOneEmergencyServicesCar.
 // They make sure coordinates of Pathfind member are attached properly
-//----------------------------------------------------------------------
 
 //41C4F1
 void _declspec(naked) HookGenEmerCarCheckVehicleType(void) {
@@ -80,13 +78,11 @@ void _declspec(naked) HookGenEmerCarGetAttachedZCoorsOne(void) {
     ASMJMP(41C6EBh)
 }
 
-//----------------------------------------------------------------
 // This is a hook inside CCarCtrl::FindLinksToGoWithTheseNodes.
 // It replaces the entire original function by jump to this 
 // right after the function starts. This function seems to get 
 // loaded when the a chasing cop car stops right near the player.
 // To-Do: Change into a grid type setup
-//----------------------------------------------------------------
 
 //41CC20
 void _cdecl HookFindLinksToGoWithTheseNodes(CVehicle* pVehicle) {
@@ -105,7 +101,7 @@ void _cdecl HookFindLinksToGoWithTheseNodes(CVehicle* pVehicle) {
     int nConnectedPointInfo = pThePaths->m_AttachedPaths[pVehicle->Autopilot.m_dwMainNode].wRouteInfoIndex;
     int _nLoop = 0;
 
-    for(int _nLoop = 0; _nLoop < 12 && pVehicle->Autopilot.m_dwNextNodeIndex != (pThePaths->AttachedPointsInfo[_nLoop + nConnectedPointInfo] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY); _nLoop++);
+    for(int _nLoop = 0; _nLoop < 12 && pVehicle->Autopilot.m_dwNextNodeIndex != (pThePaths->m_infoConnectedNodes[_nLoop + nConnectedPointInfo] & CPathFind::em_infoConnectedNodesNODEINDEXONLY); _nLoop++);
     pVehicle->Autopilot.m_dwNextDetachedNodeIndex = pThePaths->DetachedPointsInfo[_nLoop + nConnectedPointInfo];
     if(pVehicle->Autopilot.m_dwMainNode >= pVehicle->Autopilot.m_dwNextNodeIndex) {
         pVehicle->Autopilot.m_byteNextDirectionScale = 1;
@@ -117,7 +113,7 @@ void _cdecl HookFindLinksToGoWithTheseNodes(CVehicle* pVehicle) {
     int nStartNode = pVehicle->Autopilot.m_dwMainNode;
     int nFoundNode, nFoundDetachedNode;
 
-    if(pThePaths->m_AttachedPaths[nStartNode].bitUnkCount4To7 == 1) {
+    if(pThePaths->m_AttachedPaths[nStartNode].bitnumberOfNodesConnected == 1) {
         nFoundNode = 0;
         nFoundDetachedNode = pThePaths->DetachedPointsInfo[pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex];
     }
@@ -127,8 +123,8 @@ void _cdecl HookFindLinksToGoWithTheseNodes(CVehicle* pVehicle) {
         CPathNode* pPathNodeStart = &pThePaths->m_AttachedPaths[nStartNode];
         CVector vecStartNode((float)(pPathNodeStart->wX) / 8.0f, (float)(pPathNodeStart->wY) / 8.0f, (float)(pPathNodeStart->wZ) / 8.0f);
 
-        for(int j = 0; j < pThePaths->m_AttachedPaths[nStartNode].bitUnkCount4To7; j++) {
-            int nConnectedNextNode = pThePaths->AttachedPointsInfo[j+ pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY;
+        for(int j = 0; j < pThePaths->m_AttachedPaths[nStartNode].bitnumberOfNodesConnected; j++) {
+            int nConnectedNextNode = pThePaths->m_infoConnectedNodes[j+ pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
             if(nConnectedNextNode == pVehicle->Autopilot.m_dwNextNodeIndex) {
                 continue;
             }
@@ -156,7 +152,7 @@ void _cdecl HookFindLinksToGoWithTheseNodes(CVehicle* pVehicle) {
         nFoundDetachedNode = pThePaths->DetachedPointsInfo[nFoundNode + pPathNodeStart->wRouteInfoIndex];
     }
     pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex = nFoundDetachedNode;
-    if((pThePaths->AttachedPointsInfo[nFoundNode + pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY) >= nStartNode) {
+    if((pThePaths->m_infoConnectedNodes[nFoundNode + pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY) >= nStartNode) {
         pVehicle->Autopilot.m_byteCurrentDirectionScale = 1;
     }
     else {
@@ -223,8 +219,8 @@ void _cdecl HookJoinCarWithRoadSystem(CVehicle* pVehicle) {
 	
 	int nClosestNode = -1;
 	float fPreviousSearchCoefficient = 999999.88f;
-	for(int i = 0; i < pThePaths->m_AttachedPaths[nNodeClosestToDirection].bitUnkCount4To7; i++) {
-		int nNextConnectedNode = pThePaths->AttachedPointsInfo[i + pThePaths->m_AttachedPaths[nNodeClosestToDirection].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY;
+	for(int i = 0; i < pThePaths->m_AttachedPaths[nNodeClosestToDirection].bitnumberOfNodesConnected; i++) {
+		int nNextConnectedNode = pThePaths->m_infoConnectedNodes[i + pThePaths->m_AttachedPaths[nNodeClosestToDirection].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
 		float fnextnodeX = (float)(pThePaths->m_AttachedPaths[nNextConnectedNode].wX) / 8.0f;
 		float fnextnodeY = (float)(pThePaths->m_AttachedPaths[nNextConnectedNode].wY) / 8.0f;
 		
@@ -544,10 +540,10 @@ void _declspec(naked) HookGenOneRandomCarGetProperLaneOne(void) {
     _asm mov _nHookCompareIndexOne, eax
     _asm pushad
 
-    _byteHookLocal = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].bitUnkCount4To7;
+    _byteHookLocal = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].bitnumberOfNodesConnected;
     //_dwIndexWithSize = _nHookAttachedNodeIndex * sizeof(CPathNode);
 
-    for(_nHooki = 0; _nHooki < _byteHookLocal && _nHookCompareIndexOne != (pThePaths->AttachedPointsInfo[pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wRouteInfoIndex + _nHooki] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY); _nHooki++) {
+    for(_nHooki = 0; _nHooki < _byteHookLocal && _nHookCompareIndexOne != (pThePaths->m_infoConnectedNodes[pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wRouteInfoIndex + _nHooki] & CPathFind::em_infoConnectedNodesNODEINDEXONLY); _nHooki++) {
     }
 
     _nHookReturn = pThePaths->DetachedPointsInfo[pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wRouteInfoIndex + _nHooki];
@@ -557,7 +553,7 @@ void _declspec(naked) HookGenOneRandomCarGetProperLaneOne(void) {
     _asm mov [esp+20h], eax
     _asm pushad
 
-    if(pThePaths->m_DetachedNodes[_nHookReturn].wPathsIndex == _nHookCompareIndexOne) {
+    if(pThePaths->m_DetachedNodes[_nHookReturn].nIndexToAttachedNode == _nHookCompareIndexOne) {
         _byteHookLocal = pThePaths->m_DetachedNodes[_nHookReturn].bitLeftLanes;
         _asm popad
         _asm mov dl, _byteHookLocal
@@ -633,7 +629,7 @@ void _declspec(naked) HookGenRandomCarPathsGeneric(void) {
     _asm mov _nHookAttachedNodeIndex, ecx
     _asm pushad
 
-    _byteHookLocal = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].bitUnkCount4To7;
+    _byteHookLocal = pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].bitnumberOfNodesConnected;
     if(_byteHookLocal == 1) {
         _asm popad
         ASMJMP(427CD6h)
@@ -655,7 +651,7 @@ void _declspec(naked) HookGenRandomCarPathsGeneric(void) {
         _asm fldz
     }
     _pHookVehicle->Autopilot.m_dwCurrentDetachedNodeIndex = _nHooki;
-    if((pThePaths->AttachedPointsInfo[_dwHookLocal + pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY) >= _nHookAttachedNodeIndex) {
+    if((pThePaths->m_infoConnectedNodes[_dwHookLocal + pThePaths->m_AttachedPaths[_nHookAttachedNodeIndex].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY) >= _nHookAttachedNodeIndex) {
         _pHookVehicle->Autopilot.m_byteCurrentDirectionScale = 1;
     }
     else {
@@ -1437,10 +1433,10 @@ void CPathFindHook::ApplyHook() {
     void (CPathFind::*p_mInit)(void);
     void (CPathFind::*p_mAllocatePathFindInfoMem)(void);
     void (CPathFind::*p_mPreparePathData)(void);
-    void (CPathFind::*p_mDoPathSearch)(int iPathDataFor, float fOriginX, float fOriginY, float fOriginZ, int iFirstNode, float fDestX, float fDestY, float fDestZ, CPathNode **pIntermediateNodeList, short *pSteps, short sMaxSteps, void *pVehicle, float *pfDistance, float fMaxRadius, int iLastNode); //pVehicle, pfDistance and iLastNode are ununsed
+    void (CPathFind::*p_mDoPathSearch)(int iPathDataFor, float fOriginX, float fOriginY, float fOriginZ, int iFirstNode, float fDestX, float fDestY, float fDestZ, CPathNode **pIntermediateNodeList, short *pSteps, short sMaxSteps, void *pVehicle, float *pfPathCost, float fMaxRadius, int iLastNode); //pVehicle, pfPathCost and iLastNode are ununsed
     int (CPathFind::*p_mFindNodeClosestToCoors)(float fX, float fY, float fZ, unsigned char iPathDataFor, float fRangeCoefficient, bool bCheckIgnored, bool bCheckRestrictedAccess, bool bCheckUnkFlagFor2, bool bIsVehicleBoat);
     void (CPathFind::*p_mRemoveNodeFromList)(CPathNode *pRemoveNode);
-    void (CPathFind::*p_mAddNodeToList)(CPathNode *pTargetNode, int iParamDisplacement);
+    void (CPathFind::*p_mAddNodeToList)(CPathNode *pTargetNode, int nHeuristicCostAndListIndex);
     void (CPathFind::*p_mRemoveBadStartNode)(float fX, float fY, float fZ, CPathNode **pIntermediateNodeList, short *pSteps);
     void (CPathFind::*p_mFindNextNodeWandering)(unsigned char iPathDataFor, float fX, float fY, float fZ, CPathNode** pCurrentNode, CPathNode** pNextNode, uint8_t bytePreviousDirection, uint8_t *byteNewDirection);
     bool (CPathFind::*p_mNewGenerateCarCreationCoors)(float fX, float fY, float fDirectionVecX, float fDirectionVecY, float fRange, float fZlookUp, bool bShouldSpawnPositiveDirection, CVector *pVecPosition, int *aMainNodeIndex, int *aSubNodeIndex, float *aNodeRangeDiffCoeff, char bDontCheckIgnored);

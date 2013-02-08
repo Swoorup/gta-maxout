@@ -55,17 +55,17 @@ void CDebug::DebugAddText(char const*szFormatText, ...){
     strcpy(m_szTextBuffer[CDEBUG_DISPLAY_LINES - 1], szDebugText);
 }
 
-void CDebug::DebugDisplayText(void){/*
-    if (m_Font == NULL ) return;
-    for (int i = 0; i<CDEBUG_DISPLAY_LINES; i++)  
-        m_Font->DrawText(10.0f, 50.0f + i*10.0f, 0xFFFFFFFF,m_szTextBuffer[i],NULL);
-    
-    RwV3d* playerPos;
-    playerPos = FindPlayerCentreOfWorld_NoSniperShift();
-    
-    char PositionStrBuf[256];
-    sprintf(PositionStrBuf,"Current Position: %f %f %f",playerPos->x,playerPos->y,playerPos->z);
-    m_Font->DrawText(10.0f, 30.0f,0xFFFFFFFF,PositionStrBuf,NULL);*/
+void CDebug::DebugDisplayText(void){
+	//    if (m_Font == NULL ) return;
+	//    for (int i = 0; i<CDEBUG_DISPLAY_LINES; i++)  
+	//        m_Font->DrawText(10.0f, 50.0f + i*10.0f, 0xFFFFFFFF,m_szTextBuffer[i],NULL);
+	    
+	//    RwV3d* playerPos;
+	//    playerPos = FindPlayerCentreOfWorld_NoSniperShift();
+	//    
+	//    char PositionStrBuf[256];
+	//sprintf(PositionStrBuf,"Current Position: %f %f %f",playerPos->x,playerPos->y,playerPos->z);
+	//m_Font->DrawText(10.0f, 30.0f,0xFFFFFFFF,PositionStrBuf,NULL);
 }
 
 void CDebug::Shutdown(void){

@@ -50,3 +50,5 @@
 #include "GameVC\CAutoPilot.h"
 #include "GameVC\CCarCtrl.h"
 #include "GameVC\CPed.h"
+
+#pragma comment(lib,"d3d8.lib")

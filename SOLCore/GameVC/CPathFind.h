@@ -2,6 +2,9 @@
 #define __CPATHFIND_H
 
 #include "../StdInc.h"
+#include "CVector.h"
+#include "CVector2D.h"
+
 #undef PATHFINDUSEORIGINAL
 #pragma pack(push, 1)
 
@@ -28,6 +31,8 @@ struct CPathInfoForObject{
   //stores 6 flags for the node
   unsigned char byteSpawnRate; // 19-20
   //spawn rate of the object in the node
+
+  void SwapConnectionsToBeRightWayRound(void);
 };
 
 struct CTempNode{
@@ -38,14 +43,20 @@ struct CTempNode{
     //unit vector component-X
     signed char byteNormalY; // 13-14
     //unit vector component-Y
-    unsigned int PrevDetachedIndex; // 14-16
-    unsigned int NextDetachedIndex; // 16-18
+    unsigned int nConnectedAttachedNode; // 14-16
+    unsigned int nOtherConnectedAttachedNode; // 16-18
     unsigned char byteLeftLanes; // 18-19
 	unsigned char byteRightLanes; // 19-20
 	signed char sbMedianWidth; // 20-21
 	bool bIsCrossRoad; // 21-22
-    unsigned char processState; //22-23
+    unsigned char stateStoreType; //22-23
 	_pad(__fxpad00, 1); // 23-24
+
+	enum 
+	{
+		NOT_IN_RANGE = 1,
+		AVERAGED_NODE = 2,
+	};
 };
 
 struct CTempDetachedNode{
@@ -64,24 +75,24 @@ struct CTempDetachedNode{
 /*
 class CPathNode{
 public:
-	signed short wField0x00; // 0-2
-	signed short wField0x02; // 0-4
+	signed short wNextListOrNodeIndex; // 0-2
+	signed short wPreviousNodeIndex; // 0-4
 	short wX; // 4-6
     //node position in x axis multiplied by 8 to save precision
 	short wY; // 6-8
     //node position in y axis multiplied by 8 to save precision
 	short wZ; // 8-10
     //node position in z axis multiplied by 8 to save precision
-	short wUnkDist0x0A; // 10-12
+	short heuristicCost; // 10-12
     //dynamic store for displacement between two specific node
 	short wRouteInfoIndex; // 12-14
-    //AttachedPointsInfo index and m_InRangedDisplacement index
+    //m_infoConnectedNodes index and m_nConnectionWeight index
 	char sbMedianWidth; // 14-15
     //median gap between left and right lanes
-	unsigned char sbField0x0F; // 15-16
+	unsigned char ucFloodColor; // 15-16
 
 	//bits are inversed. Lowest bit starts from the right side. That is 76543210
-	unsigned char bitUnkCount4To7:4; // 16.0-16.4
+	unsigned char bitnumberOfNodesConnected:4; // 16.0-16.4
     //number of next connected sets of nodes to iterate
     unsigned char bitUnknownFlag3:1; // 16.4-16.5
     //is used in CCarCtrl::PickNextNodeRandomly
@@ -110,7 +121,7 @@ class CDetachedNode{
 public:
 	short wX; // 0-2
     short wY; // 2-4
-    short wPathsIndex; // 4-6
+    short nIndexToAttachedNode; // 4-6
     signed char NormalVecX; // 6-7
     signed char NormalVecY; // 7-8
     unsigned char bitLeftLanes:3; // 8.0-8.3
@@ -138,26 +149,26 @@ public:
     CDetachedNode m_DetachedNodes[3500]; // 2F1E8h-395F8h
     void* pTreadables[1250]; // 395F8h-3A980h
     //is unused and can be removed later on
-    short AttachedPointsInfo[20400]; // 3A980h-448E0h
+    short m_infoConnectedNodes[20400]; // 3A980h-448E0h
     //this field maybe be unsigned
-    uint8_t m_InRangedDisplacement[20400]; // 448E0h-49890h
+    uint8_t m_nConnectionWeight[20400]; // 448E0h-49890h
     short DetachedPointsInfo[20400]; // 49890h-537F0h
     int m_nAttachedNodes; // 537F0h-537F4h
     int m_nCarAttachedNodes; // 537F4h-537F8h
     int m_nPedAttachedNodes; // 537F8h-537FCh
     short w_nTreadables; // 537FCh-537FEh
-    uint16_t m_nAttachedPoints; // 537FEh-53800h
+    uint16_t m_nConnectedNodes; // 537FEh-53800h
     int m_nDetachedPoints; // 53800h-53804h
     uint32_t Unusedfield_53804; // 53804h-53808h
-    char Unusedfield_53808[2]; // 53808h-5380Ah;
-    CPathNode m_UnknownNodeList[512]; // 5380Ah-5600Ah
+    char m_nFloodFillAmountUsed[2]; // 53808h-5380Ah;
+    CPathNode m_OpenNodeList[512]; // 5380Ah-5600Ah
 
     CPathFind();
 
     enum {
-        eATTACHEDPOINTSINFOCROSSROAD = 0x8000,
-        eATTACHEDPOINTSINFOTRAFFICLIGHT = 0x4000,
-        eATTACHEDPOINTSINFONODEINDEXONLY = 0x3FFF,
+        em_infoConnectedNodesCROSSROAD = 0x8000,
+        em_infoConnectedNodesTRAFFICLIGHT = 0x4000,
+        em_infoConnectedNodesNODEINDEXONLY = 0x3FFF,
     };
 
     void Init(void);
@@ -165,11 +176,10 @@ public:
     void PreparePathData(void); 
     void PreparePathDataForType(unsigned char bytePathDataFor, CTempNode* pTempNode, CPathInfoForObject* pUnusedPathInfos, float fUnkRange, CPathInfoForObject* pPathInfosForObject, int nGroupNodesForObject);
     void CountFloodFillGroups(unsigned char iPathDataFor);
-    void AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement);
+    void AddNodeToList(CPathNode *pTargetNode, int nHeuristicCostAndListIndex);
     void RemoveNodeFromList(CPathNode *pRemoveNode);
   
-    static CPathNode* staticNodes[9650];
-    void DoPathSearch(int iPathDataFor, float fOriginX, float fOriginY, float fOriginZ, int iFirstNode, float fDestX, float fDestY, float fDestZ, CPathNode **pIntermediateNodeList, short *pSteps, short sMaxSteps, void *pVehicle, float *pfDistance, float fMaxRadius, int iLastNode); //pVehicle, pfDistance and iLastNode are ununsed
+    void DoPathSearch(int iPathDataFor, float fOriginX, float fOriginY, float fOriginZ, int iFirstNode, float fDestX, float fDestY, float fDestZ, CPathNode **pIntermediateNodeList, short *pSteps, short sMaxSteps, void *pVehicle, float *pfPathCost, float fMaxRadius, int iLastNode); //pVehicle, pfPathCost and iLastNode are ununsed
     void RemoveBadStartNode(float fX, float fY, float fZ, CPathNode **pIntermediateNodeList, short *pSteps);
     int FindNodeClosestToCoors(float fX, float fY, float fZ, unsigned char iPathDataFor, float fRangeCoefficient, bool bCheckIgnored, bool bCheckRestrictedAccess, bool bCheckUnkFlagFor2, bool bIsVehicleBoat);
     void FindNextNodeWandering(unsigned char iPathDataFor, float fX, float fY, float fZ, CPathNode** pCurrentNode, CPathNode** pNextNode, uint8_t bytePreviousDirection, uint8_t *byteNewDirection);
@@ -205,25 +215,25 @@ public:
 
 class CPathNode{
 public:
-	signed int wField0x00; // 0-2
-	signed int wField0x02; // 0-4
+	signed int wNextListOrNodeIndex; // 0-2
+	signed int wPreviousNodeIndex; // 0-4
 	int wX; // 4-6
     //node position in x axis multiplied by 8 to save precision
 	int wY; // 6-8
     //node position in y axis multiplied by 8 to save precision
 	int wZ; // 8-10
     //node position in z axis multiplied by 8 to save precision
-	short wUnkDist0x0A; // 10-12
+	short heuristicCost; // 10-12
     //dynamic store for displacement between two specific node
 	int wRouteInfoIndex; // 12-14
-    //AttachedPointsInfo index and m_InRangedDisplacement index
+    //m_infoConnectedNodes index and m_nConnectionWeight index
 	char sbMedianWidth; // 14-15
     //median gap between left and right lanes
-	unsigned char sbField0x0F; // 15-16
+	unsigned char ucFloodColor; // 15-16
 
 	//bits are inversed. Lowest bit starts from the right side. That is 76543210
-	unsigned char bitUnkCount4To7:4; // 16.0-16.4
-    //number of next connected sets of nodes to iterate
+	unsigned char bitnumberOfNodesConnected:4; // 16.0-16.4
+    //number of nodes attached with the current one
     unsigned char bitUnknownFlag3:1; // 16.4-16.5
     //is used in CCarCtrl::PickNextNodeRandomly
     unsigned char bitIsIgnoredNode:1; // 16.5-16.6
@@ -245,18 +255,28 @@ public:
 	unsigned char byteField0x013; // 19-20
     CPathNode();
     void GetNodeCoors(CVector* vecNodePosition);
+
+	CVector Form3DVector()
+	{
+		return CVector((float)wX / 8.0f, (float)wY / 8.0f, (float)wZ / 8.0f);
+	}
+
+	CVector2D Form2DVector()
+	{
+		return CVector2D((float)wX / 8.0f, (float)wY / 8.0f);
+	}
 };
 
 class CDetachedNode{
 public:
 	int wX; // 0-2
     int wY; // 2-4
-    int wPathsIndex; // 4-6
+    int nIndexToAttachedNode; // 4-6
     signed char NormalVecX; // 6-7
     signed char NormalVecY; // 7-8
     unsigned char bitLeftLanes:3; // 8.0-8.3
 	unsigned char bitRightLanes:3; // 8.3-8.6
-	unsigned char bitPadData:2; // 8.6-9.0
+	unsigned char padTwoBits:2; // 8.6-9.0
     unsigned char byteTrafficFlags; // 9-10
     signed char sbMedianWidth; // 10-11
     _pad(__fxpad00, 1); // 11-12
@@ -266,39 +286,37 @@ public:
 };
 #define PATHMUL 15
 
-class CPathFind{
+class CPathFind
+{
 private:
-#ifndef PATHFINDUSEORIGINAL
-    static void __stdcall ArrangeOneNodeList(CPathInfoForObject *PathInfo);
-#endif
-
 public:
     
+	// attached sets of nodes for both cars and peds
     CPathNode m_AttachedPaths[9650*PATHMUL]; // 0-2F1E8h
-    //PathNode Infos for Car and Peds 
+    // contains info about lanes, only for cars
     CDetachedNode m_DetachedNodes[3500*PATHMUL]; // 2F1E8h-395F8h
     //void* pTreadables[1250]; // 395F8h-3A980h
     //is unused and can be removed later on
-    int AttachedPointsInfo[20400*PATHMUL]; // 3A980h-448E0h
+    int m_infoConnectedNodes[20400*PATHMUL]; // 3A980h-448E0h
     //this field maybe be unsigned
-    uint8_t m_InRangedDisplacement[20400*PATHMUL]; // 448E0h-49890h
+    uint8_t m_nConnectionWeight[20400*PATHMUL]; // 448E0h-49890h
     int DetachedPointsInfo[20400*PATHMUL]; // 49890h-537F0h
     int m_nAttachedNodes; // 537F0h-537F4h
     int m_nCarAttachedNodes; // 537F4h-537F8h
     int m_nPedAttachedNodes; // 537F8h-537FCh
     short w_nTreadables; // 537FCh-537FEh
-    uint32_t m_nAttachedPoints; // 537FEh-53800h
+    uint32_t m_nConnectedNodes; // 537FEh-53800h
     int m_nDetachedPoints; // 53800h-53804h
     uint32_t Unusedfield_53804; // 53804h-53808h
-    char Unusedfield_53808[2]; // 53808h-5380Ah;
-    CPathNode m_UnknownNodeList[512]; // 5380Ah-5600Ah
+    char m_nFloodFillAmountUsed[2]; // 53808h-5380Ah;
+    CPathNode m_OpenNodeList[512]; // 5380Ah-5600Ah
 
     CPathFind();
 
     enum {
-        eATTACHEDPOINTSINFOCROSSROAD = 0x80000000,
-        eATTACHEDPOINTSINFOTRAFFICLIGHT = 0x40000000,
-        eATTACHEDPOINTSINFONODEINDEXONLY = 0x3FFFFFFF,
+        em_infoConnectedNodesCROSSROAD = 0x80000000,
+        em_infoConnectedNodesTRAFFICLIGHT = 0x40000000,
+        em_infoConnectedNodesNODEINDEXONLY = 0x3FFFFFFF,
     };
 
     void Init(void);
@@ -306,11 +324,10 @@ public:
     void PreparePathData(void); 
     void PreparePathDataForType(unsigned char bytePathDataFor, CTempNode* pTempNode, CPathInfoForObject* pUnusedPathInfos, float fUnkRange, CPathInfoForObject* pPathInfosForObject, int nGroupNodesForObject);
     void CountFloodFillGroups(unsigned char iPathDataFor);
-    void AddNodeToList(CPathNode *pTargetNode, int iParamDisplacement);
+    void AddNodeToList(CPathNode *pTargetNode, int nHeuristicCostAndListIndex);
     void RemoveNodeFromList(CPathNode *pRemoveNode);
   
-    static CPathNode* staticNodes[9650*PATHMUL];
-    void DoPathSearch(int iPathDataFor, float fOriginX, float fOriginY, float fOriginZ, int iFirstNode, float fDestX, float fDestY, float fDestZ, CPathNode **pIntermediateNodeList, short *pSteps, short sMaxSteps, void *pVehicle, float *pfDistance, float fMaxRadius, int iLastNode); //pVehicle, pfDistance and iLastNode are ununsed
+    void DoPathSearch(int iPathDataFor, float fOriginX, float fOriginY, float fOriginZ, int iFirstNode, float fDestX, float fDestY, float fDestZ, CPathNode **pIntermediateNodeList, short *pSteps, short sMaxSteps, void *pVehicle, float *pfPathCost, float fMaxRadius, int iLastNode);
     void RemoveBadStartNode(float fX, float fY, float fZ, CPathNode **pIntermediateNodeList, short *pSteps);
     int FindNodeClosestToCoors(float fX, float fY, float fZ, unsigned char iPathDataFor, float fRangeCoefficient, bool bCheckIgnored, bool bCheckRestrictedAccess, bool bCheckUnkFlagFor2, bool bIsVehicleBoat);
     void FindNextNodeWandering(unsigned char iPathDataFor, float fX, float fY, float fZ, CPathNode** pCurrentNode, CPathNode** pNextNode, uint8_t bytePreviousDirection, uint8_t *byteNewDirection);
@@ -327,9 +344,40 @@ public:
     static int g_nPedGroupNodes;
     static CPathInfoForObject* g_pCarPathInfos;
     static CPathInfoForObject* g_pPedPathInfos;
-    static CTempDetachedNode* g_pTempDetachedNodes;
+	
+	// temporarily holds all the raw external path nodes
+    static CTempDetachedNode* s_pTempExternalNodes;
     static void __stdcall StoreNodeInfoCar(int iNodeInfo_InternalNodesCount, uint8_t eNodeType, int8_t iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, uint8_t nLeftLanes, uint8_t nRightLanes, bool bIsIgnoredNode, bool bIsRestrictedAccess, uint8_t bSpeedLimit, bool bIsPoliceRoadBlock, uint8_t nVehicleType, uint32_t dwSpawnRate, uint8_t bUnknown);
     static void __stdcall StoreNodeInfoPed(int iNodeInfo_InternalNodesCount, uint8_t eNodeType, int8_t iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, uint8_t iNode_unknown, bool bIsIgnoredNode, bool bIsRestrictedAccess, uint32_t dwSpawnRate);
+
+
+	//inlined functions
+	// both functions make a two way from list to index and vice versa
+	inline CPathNode* GetAppropriateListFromIndex(int index)
+	{
+		if (index >= 0)
+			if (index >= 512)
+				return &m_AttachedPaths[index - 512];
+			else
+				return &m_OpenNodeList[index];
+		else
+			return NULL;
+	}
+
+	inline int GetAppropriateIndexFromPathNode(CPathNode* pNode)
+	{
+		int index;
+		// R* forgot to include check for NULL nodes, this caused crash in SOL, something to do with flood fill //
+		if (pNode)
+			if (pNode < &m_OpenNodeList[0] || pNode >= &m_OpenNodeList[512])
+				index = (pNode - &m_AttachedPaths[0]) + 512;
+			else	
+				index = pNode - &m_OpenNodeList[0];
+		else
+			index = -1;
+		
+		return index;
+	}
 };
 
 class CPedPath {

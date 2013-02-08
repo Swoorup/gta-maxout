@@ -21,8 +21,8 @@ bool CPed::FindBestCoordsFromNodes(float fUnusedX, float fUnusedY, float fUnused
 		v2dClosestPedNodeRel.fX = this->m_vecTargetPath.fX - (float)(pNodeClosestToPed->wX) / 8.0f;
 		v2dClosestPedNodeRel.fY = this->m_vecTargetPath.fY - (float)(pNodeClosestToPed->wY) / 8.0f;
 		
-		for(int i = 0; i < pNodeClosestToPed->bitUnkCount4To7; i++) {
-			CPathNode* pNextConnectedNode = &THEPATHS->m_AttachedPaths[THEPATHS->AttachedPointsInfo[i + pNodeClosestToPed->wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY];
+		for(int i = 0; i < pNodeClosestToPed->bitnumberOfNodesConnected; i++) {
+			CPathNode* pNextConnectedNode = &THEPATHS->m_AttachedPaths[THEPATHS->m_infoConnectedNodes[i + pNodeClosestToPed->wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY];
 			float fNextNodeX = (float)(pNextConnectedNode->wX) / 8.0f;
 			float fNextNodeY = (float)(pNextConnectedNode->wY) / 8.0f;
 			CVector2D v2dNextNodeRel;
@@ -43,8 +43,8 @@ bool CPed::FindBestCoordsFromNodes(float fUnusedX, float fUnusedY, float fUnused
 				}
 			}
 			
-			for(int j = 0; j < pNextConnectedNode->bitUnkCount4To7; j++) {
-				CPathNode* pNodeFurtherNext = &THEPATHS->m_AttachedPaths[THEPATHS->AttachedPointsInfo[j + pNextConnectedNode->wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY];
+			for(int j = 0; j < pNextConnectedNode->bitnumberOfNodesConnected; j++) {
+				CPathNode* pNodeFurtherNext = &THEPATHS->m_AttachedPaths[THEPATHS->m_infoConnectedNodes[j + pNextConnectedNode->wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY];
 				if(pNodeFurtherNext != pNodeClosestToPed) {
 					CVector2D vecFurtherNode;
 					vecFurtherNode.fX = this->m_vecTargetPath.fX - (float)(pNodeFurtherNext->wX) / 8.0f;
@@ -62,8 +62,8 @@ bool CPed::FindBestCoordsFromNodes(float fUnusedX, float fUnusedY, float fUnused
 							v2dPedPosRelative.fY = vecFurtherNode.fY;
 						}
 					}
-					for(int k = 0; k < pNodeFurtherNext->bitUnkCount4To7; k++) {
-						CPathNode* pNodeFurtherConnected = &THEPATHS->m_AttachedPaths[THEPATHS->AttachedPointsInfo[k+pNodeFurtherNext->wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY];
+					for(int k = 0; k < pNodeFurtherNext->bitnumberOfNodesConnected; k++) {
+						CPathNode* pNodeFurtherConnected = &THEPATHS->m_AttachedPaths[THEPATHS->m_infoConnectedNodes[k+pNodeFurtherNext->wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY];
 						if(pNodeFurtherConnected != pNextConnectedNode) {
 							CVector2D vecFurtherConnectedNode;
 							vecFurtherConnectedNode.fX = this->m_vecTargetPath.fX - (float)(pNodeFurtherConnected->wX) / 8.0f;

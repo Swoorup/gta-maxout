@@ -64,7 +64,7 @@ bool _cdecl CCarCtrl::PickNextNodeToFollowPath(CVehicle* pVehicle) {
 
     int nMainRouteInfoIndex = THEPATHS->m_AttachedPaths[pVehicle->Autopilot.m_dwMainNode].wRouteInfoIndex;
     int nConnectedNodeIndex = 0;
-    while(pVehicle->Autopilot.m_dwNextNodeIndex != (THEPATHS->AttachedPointsInfo[nMainRouteInfoIndex + nConnectedNodeIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY)) {
+    while(pVehicle->Autopilot.m_dwNextNodeIndex != (THEPATHS->m_infoConnectedNodes[nMainRouteInfoIndex + nConnectedNodeIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY)) {
         nConnectedNodeIndex++;
     }
 
@@ -95,7 +95,7 @@ bool _cdecl CCarCtrl::PickNextNodeToFollowPath(CVehicle* pVehicle) {
     if(nRequiredLanes >= 0) {
         float fDisplacement = (v2dNextPoint.fY - v2dCurrentPoint.fY) * (v2dNextPoint.fY - v2dCurrentPoint.fY) + (v2dNextPoint.fX - v2dCurrentPoint.fX) * (v2dNextPoint.fX - v2dCurrentPoint.fX);
         if(fDisplacement > 49.0f && !(rand() & 0x600)) {
-            bool bRandTest = rand() < CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY;
+            bool bRandTest = rand() < CPathFind::em_infoConnectedNodesNODEINDEXONLY;
             if(bRandTest) {
                 pVehicle->Autopilot.m_byteNextLanes++;
             }
@@ -176,10 +176,10 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 			v2dVehiclePos.fX = fTargetX - pVehicle->__parent.__parent.matrix.rwMatrix.vPos.x;
 			v2dVehiclePos.fY = fTargetY - pVehicle->__parent.__parent.matrix.rwMatrix.vPos.y;
 			float fTargetAngle = CGeneral::GetATanOfXY(v2dVehiclePos);
-			int nConnectedSets = THEPATHS->m_AttachedPaths[dwNextNode].bitUnkCount4To7;
+			int nConnectedSets = THEPATHS->m_AttachedPaths[dwNextNode].bitnumberOfNodesConnected;
 			float fPreviousFoundAngle = 10.0f;
 			for(int i = 0; i < nConnectedSets; i++) {
-				int nNext = THEPATHS->AttachedPointsInfo[i + THEPATHS->m_AttachedPaths[dwNextNode].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY;
+				int nNext = THEPATHS->m_infoConnectedNodes[i + THEPATHS->m_AttachedPaths[dwNextNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
 				if(nNext != dwMainNode || nConnectedSets <= 1) {
 					CVector2D v2dDeltaRelativeCarNode;
 					v2dDeltaRelativeCarNode.fX = (float)(THEPATHS->m_AttachedPaths[nNext].wX) / 8.0f - vecStart.fX;
@@ -198,7 +198,7 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 			nNodeWithSmallestDiversion = pInstantRoutes[1] - &THEPATHS->m_AttachedPaths[0];
 			nFoundConnectedBit = 0;
 			int nNextNodeRouteIndex = THEPATHS->m_AttachedPaths[dwNextNode].wRouteInfoIndex;
-			while (nNodeWithSmallestDiversion != (THEPATHS->AttachedPointsInfo[nNextNodeRouteIndex + nFoundConnectedBit] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY)) {
+			while (nNodeWithSmallestDiversion != (THEPATHS->m_infoConnectedNodes[nNextNodeRouteIndex + nFoundConnectedBit] & CPathFind::em_infoConnectedNodesNODEINDEXONLY)) {
 				nFoundConnectedBit++;
 			}
 		}
@@ -207,7 +207,7 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 		nNodeWithSmallestDiversion = pInstantRoutes[0] - &THEPATHS->m_AttachedPaths[0];
 		nFoundConnectedBit = 0;
 		int nNextNodeRouteIndex = THEPATHS->m_AttachedPaths[dwNextNode].wRouteInfoIndex;
-		while (nNodeWithSmallestDiversion != (THEPATHS->AttachedPointsInfo[nNextNodeRouteIndex + nFoundConnectedBit] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY)) {
+		while (nNodeWithSmallestDiversion != (THEPATHS->m_infoConnectedNodes[nNextNodeRouteIndex + nFoundConnectedBit] & CPathFind::em_infoConnectedNodesNODEINDEXONLY)) {
 			nFoundConnectedBit++;
 		}
 	}
@@ -250,7 +250,7 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 		if(fDetachedDisplacement > 49.0f) {
 			int eAutoPilotBehaviour = pVehicle->Autopilot.m_DriverBehaviour;
 			if(eAutoPilotBehaviour != 2 && eAutoPilotBehaviour != 4 && eAutoPilotBehaviour != 15 && eAutoPilotBehaviour != 17 && !(rand() & 0x600)) {
-				if(rand() < CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY) {
+				if(rand() < CPathFind::em_infoConnectedNodesNODEINDEXONLY) {
 					pVehicle->Autopilot.m_byteNextLanes++;
 				}
 				else {
@@ -306,12 +306,12 @@ void _cdecl CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle) {
     }*/
 	
 	int dwPrevNextNode = pVehicle->Autopilot.m_dwNextNodeIndex;
-	int nNextConnectedSets = THEPATHS->m_AttachedPaths[dwPrevNextNode].bitUnkCount4To7;
+	int nNextConnectedSets = THEPATHS->m_AttachedPaths[dwPrevNextNode].bitnumberOfNodesConnected;
 	int dwPrevMainNode = pVehicle->Autopilot.m_dwMainNode;
 	int dwNextDetachedNode = pVehicle->Autopilot.m_dwNextDetachedNodeIndex;
 	int nRequiredLanes = 0;
 	bool bIsFirstOtherLaneNull = false;
-	if(THEPATHS->m_DetachedNodes[dwNextDetachedNode].wPathsIndex == dwPrevNextNode) {
+	if(THEPATHS->m_DetachedNodes[dwNextDetachedNode].nIndexToAttachedNode == dwPrevNextNode) {
 		nRequiredLanes = THEPATHS->m_DetachedNodes[dwNextDetachedNode].bitLeftLanes;
 		bIsFirstOtherLaneNull = THEPATHS->m_DetachedNodes[dwNextDetachedNode].bitRightLanes == 0 ? true : false;
 	}
@@ -337,13 +337,13 @@ void _cdecl CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle) {
     int nRandomConnectedBit = 0;
 	while(nLoopConnectedBits < 15) {
 		nRandomConnectedBit = rand() % nNextConnectedSets;
-		pVehicle->Autopilot.m_dwNextNodeIndex = THEPATHS->AttachedPointsInfo[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY;
+		pVehicle->Autopilot.m_dwNextNodeIndex = THEPATHS->m_infoConnectedNodes[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
 		unsigned char bytePathDirection = CCarCtrl::FindPathDirection(dwPrevMainNode, dwPrevNextNode, pVehicle->Autopilot.m_dwNextNodeIndex);
 		
 		bool bIsOtherLaneNull = false;
 		bool bIsTestLaneNull = false;
 		int nTestDetachedRoute = THEPATHS->DetachedPointsInfo[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
-		if(THEPATHS->m_DetachedNodes[nTestDetachedRoute].wPathsIndex == dwPrevNextNode) {
+		if(THEPATHS->m_DetachedNodes[nTestDetachedRoute].nIndexToAttachedNode == dwPrevNextNode) {
 			bIsOtherLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
 			bIsTestLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitLeftLanes == 0 ? true : false;
 		}
@@ -367,10 +367,10 @@ void _cdecl CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle) {
 	if(nLoopConnectedBits >= 15) {
 		for(nLoopConnectedBits = 0; nLoopConnectedBits < 15; nLoopConnectedBits++) {
 			nRandomConnectedBit = rand() % nNextConnectedSets;
-			pVehicle->Autopilot.m_dwNextNodeIndex = THEPATHS->AttachedPointsInfo[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY;
+			pVehicle->Autopilot.m_dwNextNodeIndex = THEPATHS->m_infoConnectedNodes[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
 			bool bIsOtherLaneNull = false;
 			int nTestDetachedRoute = THEPATHS->DetachedPointsInfo[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
-			if(THEPATHS->m_DetachedNodes[nTestDetachedRoute].wPathsIndex == dwPrevNextNode) {
+			if(THEPATHS->m_DetachedNodes[nTestDetachedRoute].nIndexToAttachedNode == dwPrevNextNode) {
 				bIsOtherLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
 			}
 			else {
@@ -389,10 +389,10 @@ void _cdecl CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle) {
 	}
 	if(nLoopConnectedBits >= 15) {
 		for(nRandomConnectedBit = 0; nRandomConnectedBit < nNextConnectedSets; nRandomConnectedBit++) {
-			pVehicle->Autopilot.m_dwNextNodeIndex = THEPATHS->AttachedPointsInfo[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY;
+			pVehicle->Autopilot.m_dwNextNodeIndex = THEPATHS->m_infoConnectedNodes[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
 			bool bIsTestLaneNull = false;
 			int nTestDetachedRoute = THEPATHS->DetachedPointsInfo[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
-			if(THEPATHS->m_DetachedNodes[nTestDetachedRoute].wPathsIndex == dwPrevNextNode) {
+			if(THEPATHS->m_DetachedNodes[nTestDetachedRoute].nIndexToAttachedNode == dwPrevNextNode) {
 				bIsTestLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
 			}
 			else {
@@ -452,7 +452,7 @@ void _cdecl CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle) {
 			
 			float fAttachedNodeDisplacement = (v2dNextAttached.fY - v2dCurrentAttached.fY) * (v2dNextAttached.fY - v2dCurrentAttached.fY) + (v2dNextAttached.fX - v2dCurrentAttached.fX) * (v2dNextAttached.fX - v2dCurrentAttached.fX);
 			if(fAttachedNodeDisplacement >= 196.0f) {
-				if(rand() < CPathFind::eATTACHEDPOINTSINFONODEINDEXONLY) {
+				if(rand() < CPathFind::em_infoConnectedNodesNODEINDEXONLY) {
 					pVehicle->Autopilot.m_byteNextLanes++;
 				}
 				else {

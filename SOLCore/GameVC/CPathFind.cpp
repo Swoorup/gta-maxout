@@ -29,121 +29,120 @@ DWORD dwFunc_CPathFind__StoreNodeInfoPed = 0x00435FA0;
 //#define MAXPATHTEMPNODE 5000
 #define MAXPATHTEMPNODE (5000 * PATHMUL)
 
-int CPathFind::g_nCarGroupNodes = 0;
-int CPathFind::g_nPedGroupNodes = 0;
-CPathInfoForObject* CPathFind::g_pCarPathInfos = NULL;
-CPathInfoForObject* CPathFind::g_pPedPathInfos = NULL;
+int c_nCarPathTiles = 0;
+int c_nPedPathTiles = 0;
+CPathInfoForObject* cptr_InfoForTileCars = NULL;
+CPathInfoForObject* cptr_InfoForTilePeds = NULL;
+
 CTempDetachedNode* CPathFind::s_pTempExternalNodes = NULL;
 
-CPathFind::CPathFind() {
+CPathFind::CPathFind() 
+{
     ZeroMemory(this->m_infoConnectedNodes, sizeof(this->m_infoConnectedNodes));
-    ZeroMemory(this->DetachedPointsInfo, sizeof(this->DetachedPointsInfo));
+    ZeroMemory(this->m_InfoCarPathLinks, sizeof(this->m_InfoCarPathLinks));
     ZeroMemory(this->m_nConnectionWeight, sizeof(this->m_nConnectionWeight));
 }
 
-#ifdef PATHFINDUSEORIGINAL
-__declspec (naked) void CPathFind::StoreNodeInfoCar(int iNodeInfo_InternalNodesCount, uint8_t iNode_NodeType, int8_t iNode_NextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, uint8_t nLeftLanes, uint8_t nRightLanes, bool bIsIgnoredNode, bool bIsRestrictedAccess, uint8_t bSpeedLimit, bool bIsPoliceRoadBlock, uint8_t nVehicleType, uint32_t dwSpawnRate, uint8_t bUnknown) {
-    __asm jmp dwFunc_CPathFind__StoreNodeInfoCar
-}
-
-#else
 
 //435C30h
-void CPathFind::StoreNodeInfoCar(int nInternalNodeCount, unsigned char iNodeType, signed char iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, unsigned char nLeftLanes, unsigned char nRightLanes, bool bIsIgnoredNode, bool bIsRestrictedAccess, unsigned char bSpeedLimit, bool bIsPoliceRoadBlock, unsigned char byteVehicleType, unsigned int dwSpawnRate, unsigned char bUnknown) {
-  if (g_nCarGroupNodes < MAXCARGROUPNODE){
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].fX = fNodeX / 16.0f;
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].fY = fNodeY / 16.0f;
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].fZ = fNodeZ / 16.0f;
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteNodeType = iNodeType;
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].sbNextNode = iNextNode;
-    if (fMedianWidth > 15.0f) fMedianWidth = 15.0f;
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].sbMedianWidth = (signed int)(8.0f * fMedianWidth);
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteLeftLanes = nLeftLanes;
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteRightLanes = nRightLanes;
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteSpeedLimit = bSpeedLimit;
-    // Set the first bit to zero
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteFlags &= ~NODEINFOFLAGS_ISCROSSROAD;
-
-    if (bUnknown)
-        g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteFlags |= NODEINFOFLAGS_HAVEUNRANDOMIZEDVEHCLASS;
-    if (bIsPoliceRoadBlock)
-        g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteFlags |= NODEINFOFLAGS_POLICEROADBLOCK;
-    if (bIsIgnoredNode)
-        g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteFlags |= NODEINFOFLAGS_IGNORENODEAREA;
-    if (byteVehicleType == VTYPE_BOAT)
-        g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteFlags |= NODEINFOFLAGS_VEHICLETYPEBOAT;
-    if (bIsRestrictedAccess)
-        g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteFlags |= NODEINFOFLAGS_RESTRICTEDACCESS;
-
-    if (dwSpawnRate > 15) dwSpawnRate = 15;
-    g_pCarPathInfos[nInternalNodeCount + 12 * g_nCarGroupNodes].byteSpawnRate = unsigned char(dwSpawnRate);
-    if (nInternalNodeCount == 11)
-      g_pCarPathInfos[12 * g_nCarGroupNodes++].SwapConnectionsToBeRightWayRound();
-  }
+void CPathFind::StoreNodeInfoCar(int nInternalNodeCount, unsigned char iNodeType, signed char iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, unsigned char nLeftLanes, unsigned char nRightLanes, bool bIsIgnoredNode, bool bIsRestrictedAccess, unsigned char bSpeedLimit, bool bIsPoliceRoadBlock, unsigned char byteVehicleType, unsigned int dwSpawnRate, unsigned char bUnknown)
+{
+	if (c_nCarPathTiles < MAXCARGROUPNODE)
+	{
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].fX = fNodeX / 16.0f;
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].fY = fNodeY / 16.0f;
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].fZ = fNodeZ / 16.0f;
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteNodeType = iNodeType;
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].sbNextNode = iNextNode;
+	    if (fMedianWidth > 15.0f) fMedianWidth = 15.0f;
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].sbMedianWidth = (signed int)(8.0f * fMedianWidth);
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteLeftLanes = nLeftLanes;
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteRightLanes = nRightLanes;
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteSpeedLimit = bSpeedLimit;
+	    // Set the first bit to zero
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteFlags &= ~NODEINFOFLAGS_ISCROSSROAD;
+	
+	    if (bUnknown)
+			cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteFlags |= NODEINFOFLAGS_HAVEUNRANDOMIZEDVEHCLASS;
+		if (bIsPoliceRoadBlock)
+	        cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteFlags |= NODEINFOFLAGS_POLICEROADBLOCK;
+	    if (bIsIgnoredNode)
+			cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteFlags |= NODEINFOFLAGS_IGNORENODEAREA;
+		if (byteVehicleType == VTYPE_BOAT)
+	        cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteFlags |= NODEINFOFLAGS_VEHICLETYPEBOAT;
+	    if (bIsRestrictedAccess)
+			cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteFlags |= NODEINFOFLAGS_RESTRICTEDACCESS;
+	
+	    if (dwSpawnRate > 15) dwSpawnRate = 15;
+	    cptr_InfoForTileCars[c_nCarPathTiles].m_pathinfo[nInternalNodeCount].byteSpawnRate = unsigned char(dwSpawnRate);
+	    if (nInternalNodeCount == 11)
+		{
+			cptr_InfoForTileCars[c_nCarPathTiles].SwapConnectionsToBeRightWayRound();
+			c_nCarPathTiles++;
+		}
+	}
 }
 
 
 //43C060h
 void CPathInfoForObject::SwapConnectionsToBeRightWayRound(void)
 {
-	CPathInfoForObject* pPathInfoTile = this;
 	for (int i = 0; i < 12; i++)
 	{
-		if (pPathInfoTile[i].byteNodeType == NODEINFOTYPE_EXTERNAL && pPathInfoTile[i].sbNextNode == -1)
+		if (m_pathinfo[i].byteNodeType == NODEINFOTYPE_EXTERNAL && m_pathinfo[i].sbNextNode == -1)
 		{
 			for (int j = 0; j < 12; j++)
 			{
-		        if (pPathInfoTile[j].byteNodeType == NODEINFOTYPE_INTERNAL && pPathInfoTile[j].sbNextNode == i)
+		        if (m_pathinfo[j].byteNodeType == NODEINFOTYPE_INTERNAL && m_pathinfo[j].sbNextNode == i)
 				{
-					pPathInfoTile[i].sbNextNode = j;
-					pPathInfoTile[j].sbNextNode = -1;
+					m_pathinfo[i].sbNextNode = j;
+					m_pathinfo[j].sbNextNode = -1;
 		
 					// Swap the right most significant bit
-					bool bIsCrossRoad = pPathInfoTile[i].byteFlags & NODEINFOFLAGS_ISCROSSROAD;
-					pPathInfoTile[i].byteFlags = pPathInfoTile[i].byteFlags & ~NODEINFOFLAGS_ISCROSSROAD | pPathInfoTile[j].byteFlags & NODEINFOFLAGS_ISCROSSROAD;
-					pPathInfoTile[j].byteFlags = pPathInfoTile[j].byteFlags & ~NODEINFOFLAGS_ISCROSSROAD | bIsCrossRoad & NODEINFOFLAGS_ISCROSSROAD;
+					bool bIsCrossRoad = m_pathinfo[i].byteFlags & NODEINFOFLAGS_ISCROSSROAD;
+					m_pathinfo[i].byteFlags = m_pathinfo[i].byteFlags & ~NODEINFOFLAGS_ISCROSSROAD | m_pathinfo[j].byteFlags & NODEINFOFLAGS_ISCROSSROAD;
+					m_pathinfo[j].byteFlags = m_pathinfo[j].byteFlags & ~NODEINFOFLAGS_ISCROSSROAD | bIsCrossRoad & NODEINFOFLAGS_ISCROSSROAD;
 				}
 			}
 		}
 	}
 }
-#endif
 
-#ifdef PATHFINDUSEORIGINAL
-_declspec (naked) void CPathFind::StoreNodeInfoPed(int iNodeInfo_InternalNodesCount, uint8_t eNodeType, int8_t iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, uint8_t iNode_unknown, bool bIsIgnoredNode, bool bIsRestrictedAccess, uint32_t dwSpawnRate) {
-    _asm jmp dwFunc_CPathFind__StoreNodeInfoPed
-}
 
-#else
 //435FA0h
-void CPathFind::StoreNodeInfoPed(int nInternalNodeCount, unsigned char iNodeType, signed char iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, unsigned char iunknown, bool bIsIgnoredNode, bool bIsRestrictedAccess, unsigned int dwSpawnRate) {
-    if (g_nPedGroupNodes < MAXPEDGROUPNODE){
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].fX = fNodeX / 16.0f;
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].fY = fNodeY / 16.0f;
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].fZ = fNodeZ / 16.0f;
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteNodeType = iNodeType;
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].sbNextNode = iNextNode;
+void CPathFind::StoreNodeInfoPed(int nInternalNodeCount, unsigned char iNodeType, signed char iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, unsigned char iunknown, bool bIsIgnoredNode, bool bIsRestrictedAccess, unsigned int dwSpawnRate) 
+{
+    if (c_nPedPathTiles < MAXPEDGROUPNODE)
+	{
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].fX = fNodeX / 16.0f;
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].fY = fNodeY / 16.0f;
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].fZ = fNodeZ / 16.0f;
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteNodeType = iNodeType;
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].sbNextNode = iNextNode;
         if(fMedianWidth > 31.0f)
             fMedianWidth = 31.0f;
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].sbMedianWidth = (signed int)(8.0f * fMedianWidth);
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteLeftLanes = 0;
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteRightLanes = 0;
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteSpeedLimit = 0;
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].sbMedianWidth = (signed int)(8.0f * fMedianWidth);
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteLeftLanes = 0;
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteRightLanes = 0;
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteSpeedLimit = 0;
 
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteFlags &= ~NODEINFOFLAGS_HAVEUNRANDOMIZEDVEHCLASS;
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteFlags &= ~NODEINFOFLAGS_POLICEROADBLOCK;
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteFlags &= ~NODEINFOFLAGS_VEHICLETYPEBOAT;
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteFlags &= ~NODEINFOFLAGS_HAVEUNRANDOMIZEDVEHCLASS;
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteFlags &= ~NODEINFOFLAGS_POLICEROADBLOCK;
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteFlags &= ~NODEINFOFLAGS_VEHICLETYPEBOAT;
         if(iunknown)
-            g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteFlags |= NODEINFOFLAGS_ISCROSSROAD;
+            cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteFlags |= NODEINFOFLAGS_ISCROSSROAD;
         if(bIsIgnoredNode)
-            g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteFlags |= NODEINFOFLAGS_IGNORENODEAREA;
+            cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteFlags |= NODEINFOFLAGS_IGNORENODEAREA;
         if(bIsRestrictedAccess)
-            g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteFlags |= NODEINFOFLAGS_RESTRICTEDACCESS;
+            cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteFlags |= NODEINFOFLAGS_RESTRICTEDACCESS;
 
         if (dwSpawnRate > 15) dwSpawnRate = 15;
-        g_pPedPathInfos[nInternalNodeCount + 12 * g_nPedGroupNodes].byteSpawnRate = unsigned char(dwSpawnRate);
+        cptr_InfoForTilePeds[c_nPedPathTiles].m_pathinfo[nInternalNodeCount].byteSpawnRate = unsigned char(dwSpawnRate);
         if (nInternalNodeCount == 11)
-			g_pPedPathInfos[12 * g_nPedGroupNodes++].SwapConnectionsToBeRightWayRound();
+		{
+			cptr_InfoForTilePeds[c_nPedPathTiles].SwapConnectionsToBeRightWayRound();
+			c_nPedPathTiles++;
+		}
     }
 }
 
@@ -151,38 +150,41 @@ void CPathFind::Init(void){
     this->m_nAttachedNodes = 0;
     this->w_nTreadables = 0;
     this->m_nConnectedNodes = 0;
-    this->m_nDetachedPoints = 0;
+    this->m_nCarPathLinks = 0;
     this->Unusedfield_53804 = 0;
 
     
     for (int i =0; i < (9650 * PATHMUL); i++)
-        this->m_AttachedPaths[i].heuristicCost = 32766;
+       this->m_AttachedPaths[i].heuristicCost = 32766;
 }
 
 void CPathFind::AllocatePathFindInfoMem(void){
-    if(g_pCarPathInfos) {
-        delete [] g_pCarPathInfos;
-        g_pCarPathInfos = NULL;
+    if(cptr_InfoForTileCars) 
+	{
+        delete [] cptr_InfoForTileCars;
+        cptr_InfoForTileCars = NULL;
     }
-    if(g_pPedPathInfos) {
-        delete [] g_pPedPathInfos;
-        g_pPedPathInfos = NULL;
+    if(cptr_InfoForTilePeds) 
+	{
+        delete [] cptr_InfoForTilePeds;
+        cptr_InfoForTilePeds = NULL;
     }
-    if(s_pTempExternalNodes) {
+    if(s_pTempExternalNodes) 
+	{
         delete [] s_pTempExternalNodes;
         s_pTempExternalNodes = NULL;
     }
 
     //heap corruption chances, so sizes might need increasing
-    g_pCarPathInfos = new CPathInfoForObject[20000 * PATHMUL];
-    g_pPedPathInfos = new CPathInfoForObject[20000 * PATHMUL];
+    cptr_InfoForTileCars = new CPathInfoForObject[20000 * PATHMUL];
+    cptr_InfoForTilePeds = new CPathInfoForObject[20000 * PATHMUL];
     s_pTempExternalNodes = new CTempDetachedNode[4600 * PATHMUL];
 
-    memset(g_pCarPathInfos, 0, sizeof(CPathInfoForObject) * 20000 * PATHMUL);
-    memset(g_pCarPathInfos, 0, sizeof(CPathInfoForObject) * 20000 * PATHMUL);
+    memset(cptr_InfoForTileCars, 0, sizeof(CPathInfoForObject) * 20000 * PATHMUL);
+    memset(cptr_InfoForTilePeds, 0, sizeof(CPathInfoForObject) * 20000 * PATHMUL);
     memset(s_pTempExternalNodes, 0, sizeof(CTempDetachedNode) * 4600 * PATHMUL);
-    g_nPedGroupNodes = 0;
-    g_nCarGroupNodes = 0;
+    c_nPedPathTiles = 0;
+    c_nCarPathTiles = 0;
 }
 
 void CPathFind::PreparePathData(void){
@@ -190,23 +192,24 @@ void CPathFind::PreparePathData(void){
     CFileMgr::SetDir("");
 
     //check if path info pointers are not null
-    if ( g_pCarPathInfos && g_pPedPathInfos && s_pTempExternalNodes){
+    if (cptr_InfoForTileCars && cptr_InfoForTilePeds && s_pTempExternalNodes)
+	{
         CTempNode* pTempNodes = new CTempNode[MAXPATHTEMPNODE];
 
         m_nConnectedNodes = 0;
         m_nAttachedNodes = 0;
-        PreparePathDataForType(PATHDATAFOR_CAR, pTempNodes, NULL, 1.0f, g_pCarPathInfos, g_nCarGroupNodes);
+        PreparePathDataForType(PATHDATAFOR_CAR, pTempNodes, NULL, 1.0f, cptr_InfoForTileCars, c_nCarPathTiles);
         m_nCarAttachedNodes = m_nAttachedNodes;
-        PreparePathDataForType(PATHDATAFOR_PED, pTempNodes, NULL, 1.0f, g_pPedPathInfos, g_nPedGroupNodes);
+        PreparePathDataForType(PATHDATAFOR_PED, pTempNodes, NULL, 1.0f, cptr_InfoForTilePeds, c_nPedPathTiles);
         m_nPedAttachedNodes = m_nAttachedNodes - m_nCarAttachedNodes;
 
         delete [] pTempNodes;
         CountFloodFillGroups(PATHDATAFOR_CAR);
         CountFloodFillGroups(PATHDATAFOR_PED);
-        delete [] g_pCarPathInfos;
-        g_pCarPathInfos = NULL;
-        delete [] g_pPedPathInfos;
-        g_pPedPathInfos = NULL;
+        delete [] cptr_InfoForTileCars;
+        cptr_InfoForTileCars = NULL;
+        delete [] cptr_InfoForTilePeds;
+        cptr_InfoForTilePeds = NULL;
 
         delete [] s_pTempExternalNodes;
         s_pTempExternalNodes = NULL;
@@ -214,47 +217,48 @@ void CPathFind::PreparePathData(void){
     CDebug::DebugAddText("Done with PreparePathData\n");
 }
 
-void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode* pTempNode, CPathInfoForObject* pUnusedPathInfos, float fUnkRange, CPathInfoForObject* pPathInfosForObject, int nGroupNodesForObject) {
+void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode* pTempNode, CPathInfoForObject* pUnusedPathInfos, float fUnkRange, CPathInfoForObject* pPathTiles, int nGroupNodesForObject) {
     signed int *aGroupNodeIndex_InternalNode = new signed int[9650 * PATHMUL];
 	int32_t nTempExternalNodes = 0;
 	int32_t nPrevObjectAttachedNodes = m_nAttachedNodes;
 	int32_t nPrevObjectAttachedPoints = m_nConnectedNodes;
+	DWORD pas = (DWORD)pThePaths;
 
 	if (nGroupNodesForObject > 0)
 	{
 		for (int i = 0; i < nGroupNodesForObject; i++)
 		{
 			int nAttachedPathsForCurrentGroup = m_nAttachedNodes;
-			for (int j = i * 12; j < (i * 12 + 12); j++)
+			for (int j = 0; j < 12; j++)
 			{
-				if ( pPathInfosForObject[j].byteNodeType == NODEINFOTYPE_INTERNAL)
+				if ( pPathTiles[i].m_pathinfo[j].byteNodeType == NODEINFOTYPE_INTERNAL)
 				{
-					m_AttachedPaths[m_nAttachedNodes].wX = (signed int)(8.0f * pPathInfosForObject[j].fX);
-					m_AttachedPaths[m_nAttachedNodes].wY = (signed int)(8.0f * pPathInfosForObject[j].fY);
-					m_AttachedPaths[m_nAttachedNodes].wZ = (signed int)(8.0f * pPathInfosForObject[j].fZ);
+					m_AttachedPaths[m_nAttachedNodes].wX = (signed int)(8.0f * pPathTiles[i].m_pathinfo[j].fX);
+					m_AttachedPaths[m_nAttachedNodes].wY = (signed int)(8.0f * pPathTiles[i].m_pathinfo[j].fY);
+					m_AttachedPaths[m_nAttachedNodes].wZ = (signed int)(8.0f * pPathTiles[i].m_pathinfo[j].fZ);
 
 					aGroupNodeIndex_InternalNode[m_nAttachedNodes] = -(1  + i);
-					m_AttachedPaths[m_nAttachedNodes].sbMedianWidth = pPathInfosForObject[j].sbMedianWidth;
-					m_AttachedPaths[m_nAttachedNodes].byteSpawnRate = pPathInfosForObject[j].byteSpawnRate;
+					m_AttachedPaths[m_nAttachedNodes].sbMedianWidth = pPathTiles[i].m_pathinfo[j].sbMedianWidth;
+					m_AttachedPaths[m_nAttachedNodes].byteSpawnRate = pPathTiles[i].m_pathinfo[j].byteSpawnRate;
 
-					m_AttachedPaths[m_nAttachedNodes].bitSpeedLimit = pPathInfosForObject[j].byteSpeedLimit;
-					m_AttachedPaths[m_nAttachedNodes].bitCopsRoadBlock = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_POLICEROADBLOCK) >> 2;
-					m_AttachedPaths[m_nAttachedNodes].bitIsIgnoredNode = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_IGNORENODEAREA) >> 3;
-					m_AttachedPaths[m_nAttachedNodes].bitIsVehicleBoat = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_VEHICLETYPEBOAT) >> 4;
-					m_AttachedPaths[m_nAttachedNodes].bitHaveUnrandomizedVehClass = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_HAVEUNRANDOMIZEDVEHCLASS) >> 1;
-					m_AttachedPaths[m_nAttachedNodes].bitRestrictedAccess = (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_RESTRICTEDACCESS) >> 5;
+					m_AttachedPaths[m_nAttachedNodes].bitSpeedLimit = pPathTiles[i].m_pathinfo[j].byteSpeedLimit;
+					m_AttachedPaths[m_nAttachedNodes].bitCopsRoadBlock = (pPathTiles[i].m_pathinfo[j].byteFlags & NODEINFOFLAGS_POLICEROADBLOCK) >> 2;
+					m_AttachedPaths[m_nAttachedNodes].bitIsIgnoredNode = (pPathTiles[i].m_pathinfo[j].byteFlags & NODEINFOFLAGS_IGNORENODEAREA) >> 3;
+					m_AttachedPaths[m_nAttachedNodes].bitIsVehicleBoat = (pPathTiles[i].m_pathinfo[j].byteFlags & NODEINFOFLAGS_VEHICLETYPEBOAT) >> 4;
+					m_AttachedPaths[m_nAttachedNodes].bitHaveUnrandomizedVehClass = (pPathTiles[i].m_pathinfo[j].byteFlags & NODEINFOFLAGS_HAVEUNRANDOMIZEDVEHCLASS) >> 1;
+					m_AttachedPaths[m_nAttachedNodes].bitRestrictedAccess = (pPathTiles[i].m_pathinfo[j].byteFlags & NODEINFOFLAGS_RESTRICTEDACCESS) >> 5;
 					m_nAttachedNodes++;
 				}
-				else if ( pPathInfosForObject[j].byteNodeType == NODEINFOTYPE_EXTERNAL)
+				else if ( pPathTiles[i].m_pathinfo[j].byteNodeType == NODEINFOTYPE_EXTERNAL)
 				{
-					s_pTempExternalNodes[nTempExternalNodes].fX = pPathInfosForObject[j].fX;
-					s_pTempExternalNodes[nTempExternalNodes].fY = pPathInfosForObject[j].fY;
-					s_pTempExternalNodes[nTempExternalNodes].fZ = pPathInfosForObject[j].fZ;
-					s_pTempExternalNodes[nTempExternalNodes].sNextNodeIndex = pPathInfosForObject[j].sbNextNode + nAttachedPathsForCurrentGroup;
-					s_pTempExternalNodes[nTempExternalNodes].byteLeftLanes = pPathInfosForObject[j].byteLeftLanes;
-					s_pTempExternalNodes[nTempExternalNodes].byteRightLanes = pPathInfosForObject[j].byteRightLanes;
-					s_pTempExternalNodes[nTempExternalNodes].sbMedianWidth = pPathInfosForObject[j].sbMedianWidth;
-					if (pPathInfosForObject[j].byteFlags & NODEINFOFLAGS_ISCROSSROAD)
+					s_pTempExternalNodes[nTempExternalNodes].fX = pPathTiles[i].m_pathinfo[j].fX;
+					s_pTempExternalNodes[nTempExternalNodes].fY = pPathTiles[i].m_pathinfo[j].fY;
+					s_pTempExternalNodes[nTempExternalNodes].fZ = pPathTiles[i].m_pathinfo[j].fZ;
+					s_pTempExternalNodes[nTempExternalNodes].sNextNodeIndex = pPathTiles[i].m_pathinfo[j].sbNextNode + nAttachedPathsForCurrentGroup;
+					s_pTempExternalNodes[nTempExternalNodes].byteLeftLanes = pPathTiles[i].m_pathinfo[j].byteLeftLanes;
+					s_pTempExternalNodes[nTempExternalNodes].byteRightLanes = pPathTiles[i].m_pathinfo[j].byteRightLanes;
+					s_pTempExternalNodes[nTempExternalNodes].sbMedianWidth = pPathTiles[i].m_pathinfo[j].sbMedianWidth;
+					if (pPathTiles[i].m_pathinfo[j].byteFlags & NODEINFOFLAGS_ISCROSSROAD)
 						s_pTempExternalNodes[nTempExternalNodes++].bIsCrossRoad = true;
 					else
 						s_pTempExternalNodes[nTempExternalNodes++].bIsCrossRoad = false;
@@ -380,6 +384,7 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
 						m_infoConnectedNodes[m_nConnectedNodes] = pTempNode[j].nOtherConnectedAttachedNode;
 					else
 						m_infoConnectedNodes[m_nConnectedNodes] = pTempNode[j].nConnectedAttachedNode;
+
 					CPathNode* pCurrentNode = &m_AttachedPaths[m_infoConnectedNodes[m_nConnectedNodes] & em_infoConnectedNodesNODEINDEXONLY];
 					//calculate the distance between internal or attached nodes connected by a external node
 					float fDistance = sqrt((float(m_AttachedPaths[i].wX - pCurrentNode->wX)/8.0f * float(m_AttachedPaths[i].wX - pCurrentNode->wX)/8.0f) +
@@ -391,33 +396,33 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
 					if (bytePathDataFor == PATHDATAFOR_CAR)
 					{
 						bool bIsDetachedNodeAlreadyStored = false;
-                        for (int k = 0; k < m_nDetachedPoints; k++)
+                        for (int k = 0; k < m_nCarPathLinks; k++)
 						{
 							if (
-								m_DetachedNodes[k].NormalVecX == (signed char)pTempNode[j].byteNormalX &&
-								m_DetachedNodes[k].NormalVecY == (signed char)pTempNode[j].byteNormalY &&
-								m_DetachedNodes[k].wX == (signed int)(8.0f * pTempNode[j].fX) &&
-								m_DetachedNodes[k].wY == (signed int)(8.0f * pTempNode[j].fY) 
+								m_CarPathLinks[k].NormalVecX == (signed char)pTempNode[j].byteNormalX &&
+								m_CarPathLinks[k].NormalVecY == (signed char)pTempNode[j].byteNormalY &&
+								m_CarPathLinks[k].wX == (signed int)(8.0f * pTempNode[j].fX) &&
+								m_CarPathLinks[k].wY == (signed int)(8.0f * pTempNode[j].fY) 
 							)
 							{
-								DetachedPointsInfo[m_nConnectedNodes] = k;
+								m_InfoCarPathLinks[m_nConnectedNodes] = k;
 								bIsDetachedNodeAlreadyStored = true;
 								break;
 							}
                         }
 						if (!bIsDetachedNodeAlreadyStored)
 						{
-							m_DetachedNodes[m_nDetachedPoints].NormalVecX = pTempNode[j].byteNormalX;
-							m_DetachedNodes[m_nDetachedPoints].NormalVecY = pTempNode[j].byteNormalY;
-							m_DetachedNodes[m_nDetachedPoints].wX = (signed int)(8.0f * pTempNode[j].fX);
-							m_DetachedNodes[m_nDetachedPoints].wY = (signed int)(8.0f * pTempNode[j].fY);
-							m_DetachedNodes[m_nDetachedPoints].nIndexToAttachedNode = i;
-							m_DetachedNodes[m_nDetachedPoints].bitLeftLanes = pTempNode[j].byteLeftLanes;
-							m_DetachedNodes[m_nDetachedPoints].bitRightLanes = pTempNode[j].byteRightLanes;
-							m_DetachedNodes[m_nDetachedPoints].byteTrafficFlags &= 0xFC;
-							m_DetachedNodes[m_nDetachedPoints].sbMedianWidth = pTempNode[j].sbMedianWidth;
-							DetachedPointsInfo[m_nConnectedNodes] = m_nDetachedPoints;
-							m_nDetachedPoints++;
+							m_CarPathLinks[m_nCarPathLinks].NormalVecX = pTempNode[j].byteNormalX;
+							m_CarPathLinks[m_nCarPathLinks].NormalVecY = pTempNode[j].byteNormalY;
+							m_CarPathLinks[m_nCarPathLinks].wX = (signed int)(8.0f * pTempNode[j].fX);
+							m_CarPathLinks[m_nCarPathLinks].wY = (signed int)(8.0f * pTempNode[j].fY);
+							m_CarPathLinks[m_nCarPathLinks].nIndexToAttachedNode = i;
+							m_CarPathLinks[m_nCarPathLinks].bitLeftLanes = pTempNode[j].byteLeftLanes;
+							m_CarPathLinks[m_nCarPathLinks].bitRightLanes = pTempNode[j].byteRightLanes;
+							m_CarPathLinks[m_nCarPathLinks].byteTrafficFlags &= 0xFC;
+							m_CarPathLinks[m_nCarPathLinks].sbMedianWidth = pTempNode[j].sbMedianWidth;
+							m_InfoCarPathLinks[m_nConnectedNodes] = m_nCarPathLinks;
+							m_nCarPathLinks++;
                         }
 					}
 					// increment number of connected nodes to node[i]
@@ -429,8 +434,8 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
 
 		// following codes handles the internally connected nodes
         //Only select the internal nodes
-		CPathInfoForObject *pPathInfoGroup = &pPathInfosForObject[12 * (-1 - aGroupNodeIndex_InternalNode[i])];
-        int iOffsetInGroup = 0;
+		CPathInfoForObject *pPathInfoGroup = &pPathTiles[(-1 - aGroupNodeIndex_InternalNode[i])];
+        int offsetOfiInGroup = 0;
 		int nAssumedGroupFirstNode = 0;
 		if (( i -12) >= nPrevObjectAttachedNodes)
 			nAssumedGroupFirstNode = i - 12;
@@ -438,7 +443,7 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
 			nAssumedGroupFirstNode = nPrevObjectAttachedNodes;
 
 		for (int k = nAssumedGroupFirstNode; k < i; k++)
-			if (aGroupNodeIndex_InternalNode[i] == aGroupNodeIndex_InternalNode[k]) iOffsetInGroup++;
+			if (aGroupNodeIndex_InternalNode[i] == aGroupNodeIndex_InternalNode[k]) offsetOfiInGroup++;
         
         int nAssumedGroupLastNode;
 
@@ -447,26 +452,26 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
         else 
 			nAssumedGroupLastNode = m_nAttachedNodes;
 
-		for(int nNodesInCurrentGroup = nAssumedGroupFirstNode; nNodesInCurrentGroup < nAssumedGroupLastNode; nAssumedGroupLastNode++)
+		for(int nNodesInCurrentGroup = nAssumedGroupFirstNode; nNodesInCurrentGroup < nAssumedGroupLastNode; nNodesInCurrentGroup++)
         {
         	//check if they are in the same group
 			if (aGroupNodeIndex_InternalNode[i] == aGroupNodeIndex_InternalNode[nNodesInCurrentGroup]){
 				if (nNodesInCurrentGroup != i){
-					int currentOffsetInGroup = iOffsetInGroup + nNodesInCurrentGroup - i; //I had  written 1 instead of i
-					if (currentOffsetInGroup == pPathInfoGroup[iOffsetInGroup].sbNextNode ||
-						iOffsetInGroup == pPathInfoGroup[currentOffsetInGroup].sbNextNode)
+					int currentOffsetInGroup = offsetOfiInGroup + nNodesInCurrentGroup - i; //I had  written 1 instead of i
+					if (currentOffsetInGroup == pPathInfoGroup[offsetOfiInGroup].sbNextNode ||
+						offsetOfiInGroup == pPathInfoGroup[currentOffsetInGroup].sbNextNode)
                     {
 						m_infoConnectedNodes[m_nConnectedNodes] = nNodesInCurrentGroup;
-						float fDist = sqrt((float(m_AttachedPaths[i].wX - m_AttachedPaths[nAssumedGroupFirstNode].wX)/8.0f * float(m_AttachedPaths[i].wX - m_AttachedPaths[nAssumedGroupFirstNode].wX)/8.0f) +
-									       (float(m_AttachedPaths[i].wY - m_AttachedPaths[nAssumedGroupFirstNode].wY)/8.0f * float(m_AttachedPaths[i].wY - m_AttachedPaths[nAssumedGroupFirstNode].wY)/8.0f) +
-									       (float(m_AttachedPaths[i].wZ - m_AttachedPaths[nAssumedGroupFirstNode].wZ)/8.0f * float(m_AttachedPaths[i].wZ - m_AttachedPaths[nAssumedGroupFirstNode].wZ)/8.0f));
+						CVector vecCurrentTestNode = m_AttachedPaths[i].Form3DVector() - m_AttachedPaths[nNodesInCurrentGroup].Form3DVector();
+
+						float fDist = vecCurrentTestNode.Length();
 						if (fDist > 255.0f) fDist = 255.0f;
 						m_nConnectionWeight[m_nConnectedNodes] = (signed char)fDist;
 						if (bytePathDataFor == PATHDATAFOR_PED)
 						{
-							if (currentOffsetInGroup == pPathInfoGroup[iOffsetInGroup].sbNextNode && //NOT FEELING WELL HERE
-								pPathInfoGroup[iOffsetInGroup].byteFlags & NODEINFOFLAGS_ISCROSSROAD ||
-							    iOffsetInGroup == pPathInfoGroup[currentOffsetInGroup].sbNextNode &&
+							if (currentOffsetInGroup == pPathInfoGroup[offsetOfiInGroup].sbNextNode && //NOT FEELING WELL HERE
+								pPathInfoGroup[offsetOfiInGroup].byteFlags & NODEINFOFLAGS_ISCROSSROAD ||
+							    offsetOfiInGroup == pPathInfoGroup[currentOffsetInGroup].sbNextNode &&
 							    pPathInfoGroup[currentOffsetInGroup].byteFlags & NODEINFOFLAGS_ISCROSSROAD)
 						    {
 						    	m_infoConnectedNodes[m_nConnectedNodes] |= em_infoConnectedNodesCROSSROAD;
@@ -474,35 +479,28 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
 						}
 						else 
 						{
-							float fiCoorX = (float)(m_AttachedPaths[i].wX)/8.0f;
-							float fiCoorY = (float)(m_AttachedPaths[i].wY)/8.0f;
+							CVector2D iPoint = m_AttachedPaths[i].Form2DVector();
+							CVector2D nPoint = m_AttachedPaths[nNodesInCurrentGroup].Form2DVector();
 
-							float fjCoorX = (float)(m_AttachedPaths[nAssumedGroupFirstNode].wX)/8.0f;
-							float fjCoorY = (float)(m_AttachedPaths[nAssumedGroupFirstNode].wY)/8.0f;
+							CVector2D middlePoint = (iPoint + nPoint) / 2.0f;
+							CVector2D v2dCurrentTestNode = nPoint - iPoint;
 
-							float fijCoorAvgX = (fjCoorX + fiCoorX)/2.0f;
-							float fijCoorAvgY = (fjCoorY + fiCoorY)/2.0f;
-
-							float fijXDiff = fjCoorX - fiCoorX;
-							float fijYDiff = fjCoorY - fiCoorY;
-
-							float fLength = sqrt(fijXDiff * fijXDiff + fijYDiff * fijYDiff);
-							float VecijNormalX = fijXDiff / fLength;
-							float VecijNormalY = fijYDiff / fLength;
+							v2dCurrentTestNode.Normalize();
 							if (i < nNodesInCurrentGroup ){
-								VecijNormalX = -VecijNormalX;
-								VecijNormalY = -VecijNormalY;
+								v2dCurrentTestNode.fX = -v2dCurrentTestNode.fX;
+								v2dCurrentTestNode.fY = -v2dCurrentTestNode.fY;
 							}
 							bool bIsDetachedNodeAlreadyStored = false;
-							for (int k = 0; k < m_nDetachedPoints; k++){
+							for (int k = 0; k < m_nCarPathLinks; k++)
+							{
 								if (
-									m_DetachedNodes[k].NormalVecX == (signed char)(100.0f * VecijNormalX) &&
-									m_DetachedNodes[k].NormalVecY == (signed char)(100.0f * VecijNormalY) &&
-									m_DetachedNodes[k].wX == (signed int)(8.0f * fijCoorAvgX) &&
-									m_DetachedNodes[k].wY == (signed int)(8.0f * fijCoorAvgY)
+									m_CarPathLinks[k].NormalVecX == (signed char)(100.0f * v2dCurrentTestNode.fX) &&
+									m_CarPathLinks[k].NormalVecY == (signed char)(100.0f * v2dCurrentTestNode.fY) &&
+									m_CarPathLinks[k].wX == (signed int)(middlePoint.fX * 8.0f) &&
+									m_CarPathLinks[k].wY == (signed int)(middlePoint.fY * 8.0f)
 								)
 								{
-									DetachedPointsInfo[m_nConnectedNodes] = k;
+									m_InfoCarPathLinks[m_nConnectedNodes] = k;
 									bIsDetachedNodeAlreadyStored = true;
 									break;
 									// if it exist don't create new detached nodes
@@ -511,20 +509,20 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
 							
 							if (!bIsDetachedNodeAlreadyStored)
 							{
-								m_DetachedNodes[m_nDetachedPoints].NormalVecX = (signed char)(100.0f * VecijNormalX);
-								m_DetachedNodes[m_nDetachedPoints].NormalVecY = (signed char)(100.0f * VecijNormalY);
-								m_DetachedNodes[m_nDetachedPoints].wX = (signed int)(8.0f * fijCoorAvgX);
-								m_DetachedNodes[m_nDetachedPoints].wY = (signed int)(8.0f * fijCoorAvgY);
-								m_DetachedNodes[m_nDetachedPoints].nIndexToAttachedNode = i;
-								m_DetachedNodes[m_nDetachedPoints].bitLeftLanes = 7; //Max value
-								m_DetachedNodes[m_nDetachedPoints].bitRightLanes = 7;
-								m_DetachedNodes[m_nDetachedPoints].byteTrafficFlags &= 0xFC;
-								if ((unsigned __int8)m_AttachedPaths[nAssumedGroupFirstNode].sbMedianWidth <= m_AttachedPaths[i].sbMedianWidth)
-									m_DetachedNodes[m_nDetachedPoints].sbMedianWidth = m_AttachedPaths[i].sbMedianWidth;
+								m_CarPathLinks[m_nCarPathLinks].NormalVecX = (signed char)(100.0f * v2dCurrentTestNode.fX);
+								m_CarPathLinks[m_nCarPathLinks].NormalVecY = (signed char)(100.0f * v2dCurrentTestNode.fY);
+								m_CarPathLinks[m_nCarPathLinks].wX = (signed int)(8.0f * middlePoint.fX);
+								m_CarPathLinks[m_nCarPathLinks].wY = (signed int)(8.0f * middlePoint.fY);
+								m_CarPathLinks[m_nCarPathLinks].nIndexToAttachedNode = i;
+								m_CarPathLinks[m_nCarPathLinks].bitLeftLanes = 7; //Max value
+								m_CarPathLinks[m_nCarPathLinks].bitRightLanes = 7;
+								m_CarPathLinks[m_nCarPathLinks].byteTrafficFlags &= 0xFC;
+								if ((unsigned __int8)m_AttachedPaths[nNodesInCurrentGroup].sbMedianWidth <= m_AttachedPaths[i].sbMedianWidth)
+									m_CarPathLinks[m_nCarPathLinks].sbMedianWidth = m_AttachedPaths[i].sbMedianWidth;
 								else
-									m_DetachedNodes[m_nDetachedPoints].sbMedianWidth = m_AttachedPaths[nAssumedGroupFirstNode].sbMedianWidth;
-								DetachedPointsInfo[m_nConnectedNodes] = m_nDetachedPoints;
-								++m_nDetachedPoints;
+									m_CarPathLinks[m_nCarPathLinks].sbMedianWidth = m_AttachedPaths[nNodesInCurrentGroup].sbMedianWidth;
+								m_InfoCarPathLinks[m_nConnectedNodes] = m_nCarPathLinks;
+								++m_nCarPathLinks;
 							}
 						}
 						m_AttachedPaths[i].bitnumberOfNodesConnected = m_AttachedPaths[i].bitnumberOfNodesConnected + 1;
@@ -545,16 +543,16 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
             bShouldLoopExit = true;
             for (int j= 0; j < m_nAttachedNodes; j++){
                 if (m_AttachedPaths[j].bitnumberOfNodesConnected == 2){
-                    int iCurrentDetachedIndex = DetachedPointsInfo[m_AttachedPaths[j].wRouteInfoIndex];
-                    int iForwardDetachedIndex = DetachedPointsInfo[m_AttachedPaths[j].wRouteInfoIndex + 1];
+                    int iCurrentDetachedIndex = m_InfoCarPathLinks[m_AttachedPaths[j].wRouteInfoIndex];
+                    int iForwardDetachedIndex = m_InfoCarPathLinks[m_AttachedPaths[j].wRouteInfoIndex + 1];
 
-                    int iCurrentDetachedLeftLane = m_DetachedNodes[iCurrentDetachedIndex].bitLeftLanes;
-                    int iCurrentDetachedRightLane = m_DetachedNodes[iCurrentDetachedIndex].bitRightLanes;
-                    int iForwardDetachedLeftLane = m_DetachedNodes[iForwardDetachedIndex].bitLeftLanes;
-                    int iForwardDetachedRightLane = m_DetachedNodes[iForwardDetachedIndex].bitRightLanes;
+                    int iCurrentDetachedLeftLane = m_CarPathLinks[iCurrentDetachedIndex].bitLeftLanes;
+                    int iCurrentDetachedRightLane = m_CarPathLinks[iCurrentDetachedIndex].bitRightLanes;
+                    int iForwardDetachedLeftLane = m_CarPathLinks[iForwardDetachedIndex].bitLeftLanes;
+                    int iForwardDetachedRightLane = m_CarPathLinks[iForwardDetachedIndex].bitRightLanes;
 
                     int *iCurrentLane1, *iCurrentLane2, *iForwardLane1, *iForwardLane2;
-                    if (m_DetachedNodes[iCurrentDetachedIndex].nIndexToAttachedNode == j){
+                    if (m_CarPathLinks[iCurrentDetachedIndex].nIndexToAttachedNode == j){
                         iCurrentLane1 = &iCurrentDetachedLeftLane;
                         iCurrentLane2 = &iCurrentDetachedRightLane;
                     }
@@ -562,7 +560,7 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
                         iCurrentLane1 = &iCurrentDetachedRightLane;
                         iCurrentLane2 = &iCurrentDetachedLeftLane;
                     }
-                    if (m_DetachedNodes[iForwardDetachedIndex].nIndexToAttachedNode == j){
+                    if (m_CarPathLinks[iForwardDetachedIndex].nIndexToAttachedNode == j){
                         iForwardLane1 = &iForwardDetachedRightLane;
                         iForwardLane2 = &iForwardDetachedLeftLane;
                     }
@@ -594,20 +592,20 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
                     if (*iForwardLane2 == 7 && *iForwardLane2 == 7)
                         bShouldLoopExit = false;
 
-                    m_DetachedNodes[iCurrentDetachedIndex].bitLeftLanes = iCurrentDetachedLeftLane;
-                    m_DetachedNodes[iCurrentDetachedIndex].bitRightLanes = iCurrentDetachedRightLane;
-                    m_DetachedNodes[iForwardDetachedIndex].bitLeftLanes = iForwardDetachedLeftLane;
-                    m_DetachedNodes[iForwardDetachedIndex].bitRightLanes = iForwardDetachedRightLane;
+                    m_CarPathLinks[iCurrentDetachedIndex].bitLeftLanes = iCurrentDetachedLeftLane;
+                    m_CarPathLinks[iCurrentDetachedIndex].bitRightLanes = iCurrentDetachedRightLane;
+                    m_CarPathLinks[iForwardDetachedIndex].bitLeftLanes = iForwardDetachedLeftLane;
+                    m_CarPathLinks[iForwardDetachedIndex].bitRightLanes = iForwardDetachedRightLane;
                 }
             }
         }
 
         for (int j = 0; j < m_nAttachedNodes; j++){
             for (int k = 0; k < m_AttachedPaths[j].bitnumberOfNodesConnected; k++){
-                if (m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitLeftLanes == 7)
-                    m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitLeftLanes = 0;
-                if (m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitRightLanes == 7)
-                    m_DetachedNodes[DetachedPointsInfo[k + m_AttachedPaths[j].wRouteInfoIndex]].bitRightLanes = 0;
+                if (m_CarPathLinks[m_InfoCarPathLinks[k + m_AttachedPaths[j].wRouteInfoIndex]].bitLeftLanes == 7)
+                    m_CarPathLinks[m_InfoCarPathLinks[k + m_AttachedPaths[j].wRouteInfoIndex]].bitLeftLanes = 0;
+                if (m_CarPathLinks[m_InfoCarPathLinks[k + m_AttachedPaths[j].wRouteInfoIndex]].bitRightLanes == 7)
+                    m_CarPathLinks[m_InfoCarPathLinks[k + m_AttachedPaths[j].wRouteInfoIndex]].bitRightLanes = 0;
             }
         }
     }
@@ -784,17 +782,17 @@ void CPathFind::RemoveNodeFromList(CPathNode *pRemoveNode) {
 }
 
 // I have high doubts in this function
-void CPathFind::DoPathSearch(int iPathDataFor, float fOriginX, float fOriginY, float fOriginZ, int iFirstNode, float fDestX, float fDestY, float fDestZ, CPathNode **pIntermediateNodeList, short *pSteps, short sMaxSteps, void *pVehicle, float *pfPathCost, float fMaxRadius, int iLastNode) {
+void CPathFind::DoPathSearch(int iPathDataFor, CVector& posOrigin, int iFirstNode, CVector& posDest, CPathNode **pIntermediateNodeList, short *pSteps, short sMaxSteps, void *pVehicle, float *pfPathCost, float fMaxRadius, int iLastNode) {
 	int iDestNodeIndex = iLastNode;
 	int iOriginNodeIndex = iFirstNode;
 
 	static CPathNode* c_pResetNodeList[9650 * PATHMUL];
 
 	if(iDestNodeIndex == -1)
-		iDestNodeIndex = FindNodeClosestToCoors(fDestX, fDestY, fDestZ, iPathDataFor, fMaxRadius, 0, 0, 0, 0);
+		iDestNodeIndex = FindNodeClosestToCoors(posDest, iPathDataFor, fMaxRadius, 0, 0, 0, 0);
 
 	if(iOriginNodeIndex == -1)
-		iOriginNodeIndex = FindNodeClosestToCoors(fOriginX, fOriginY, fOriginZ, iPathDataFor, fMaxRadius, 0, 0, 0, 0);
+		iOriginNodeIndex = FindNodeClosestToCoors(posOrigin, iPathDataFor, fMaxRadius, 0, 0, 0, 0);
 
 	if (iDestNodeIndex >= 0 && iOriginNodeIndex >= 0)
 	{
@@ -871,6 +869,7 @@ void CPathFind::DoPathSearch(int iPathDataFor, float fOriginX, float fOriginY, f
 					{
                         pNodeTransverseToDest = &m_AttachedPaths[m_infoConnectedNodes[indexArrayAttached] & em_infoConnectedNodesNODEINDEXONLY];
                         pIntermediateNodeList[(*pSteps)++] = pNodeTransverseToDest;
+						if(*pSteps == sMaxSteps) break;
                         i = 29030; // break out from loop?
                     }
                 }
@@ -892,10 +891,10 @@ void CPathFind::DoPathSearch(int iPathDataFor, float fOriginX, float fOriginY, f
 }
 
 // this stuff would rarely happen
-void CPathFind::RemoveBadStartNode(float fX, float fY, float fZ, CPathNode **pIntermediateNodeList, short *pSteps){
+void CPathFind::RemoveBadStartNode(CVector& posCoors, CPathNode **pIntermediateNodeList, short *pSteps){
     if (*pSteps >= 2){
-        if ((((float)(pIntermediateNodeList[1]->wY)/8.0f - fY) * ((float)(pIntermediateNodeList[0]->wY)/8.0f - fY)) +
-            (((float)(pIntermediateNodeList[1]->wX)/8.0f - fX) * ((float)(pIntermediateNodeList[0]->wX)/8.0f - fX)) < 0.0f)
+        if ((((float)(pIntermediateNodeList[1]->wY)/8.0f - posCoors.fY) * ((float)(pIntermediateNodeList[0]->wY)/8.0f - posCoors.fY)) +
+            (((float)(pIntermediateNodeList[1]->wX)/8.0f - posCoors.fX) * ((float)(pIntermediateNodeList[0]->wX)/8.0f - posCoors.fX)) < 0.0f)
         {
             --(*pSteps);
             for (int i = 0; i < *pSteps; i++)
@@ -904,7 +903,7 @@ void CPathFind::RemoveBadStartNode(float fX, float fY, float fZ, CPathNode **pIn
     }
 }
 
-int CPathFind::FindNodeClosestToCoors(float fX, float fY, float fZ, unsigned char iPathDataFor, float fRangeCoefficient, bool bCheckIgnored, bool bCheckRestrictedAccess, bool bCheckUnkFlagFor2, bool bIsVehicleBoat){
+int CPathFind::FindNodeClosestToCoors(CVector& posCoors, unsigned char iPathDataFor, float fRangeCoefficient, bool bCheckIgnored, bool bCheckRestrictedAccess, bool bCheckUnkFlagFor2, bool bIsVehicleBoat){
 	int iStartNodeIndex, iEndNodeIndex;
 
 	switch(iPathDataFor) {
@@ -927,9 +926,9 @@ int CPathFind::FindNodeClosestToCoors(float fX, float fY, float fZ, unsigned cha
 		   (bCheckUnkFlagFor2 == false || !(pNode->bitUnkFlagFor2)) &&
 		   (bIsVehicleBoat == pNode->bitIsVehicleBoat))
 		{
-			float fXDiff = utl::abs<float>(((float)pNode->wX / 8.0f) - fX);
-			float fYDiff = utl::abs<float>(((float)pNode->wY / 8.0f) - fY);
-			float fZDiff = utl::abs<float>(((float)pNode->wZ / 8.0f) - fZ);
+			float fXDiff = utl::abs<float>(((float)pNode->wX / 8.0f) - posCoors.fX);
+			float fYDiff = utl::abs<float>(((float)pNode->wY / 8.0f) - posCoors.fY);
+			float fZDiff = utl::abs<float>(((float)pNode->wZ / 8.0f) - posCoors.fZ);
 
 			float fCurrentCoeff = fXDiff + fYDiff + fZDiff * 3.0f;
 			if ( fCurrentCoeff < fPrevFoundRangeCoeff){
@@ -945,14 +944,15 @@ int CPathFind::FindNodeClosestToCoors(float fX, float fY, float fZ, unsigned cha
 		return -1;
 }
 
-void CPathFind::FindNextNodeWandering(uint8_t iPathDataFor, float fX, float fY, float fZ, CPathNode** pCurrentNode, CPathNode** pNextNode, uint8_t bytePreviousDirection, uint8_t *byteNewDirection){
-    CVector vecCurrentPos(fX, fY, fZ + 1.0f);
+void CPathFind::FindNextNodeWandering(uint8_t iPathDataFor, CVector& posCoors, CPathNode** pCurrentNode, CPathNode** pNextNode, uint8_t bytePreviousDirection, uint8_t *byteNewDirection){
+    CVector vecCurrentPos(posCoors);
+	vecCurrentPos.fZ += 1.0f;
     CPathNode* pCurrentActPedNode;
 
     if(pCurrentNode == NULL || (*pCurrentNode) == NULL ||
-        ((fY - float((*pCurrentNode)->wY) / 8.0f) * (fY - float((*pCurrentNode)->wY) / 8.0f) + (fX - float((*pCurrentNode)->wX) / 8.0f) * (fX - float((*pCurrentNode)->wX) / 8.0f) + (fZ - float((*pCurrentNode)->wZ) / 8.0f) * (fZ - float((*pCurrentNode)->wZ) / 8.0f)) > 49.0f)
+        ((posCoors.fY - float((*pCurrentNode)->wY) / 8.0f) * (posCoors.fY - float((*pCurrentNode)->wY) / 8.0f) + (posCoors.fX - float((*pCurrentNode)->wX) / 8.0f) * (posCoors.fX - float((*pCurrentNode)->wX) / 8.0f) + (posCoors.fZ - float((*pCurrentNode)->wZ) / 8.0f) * (posCoors.fZ - float((*pCurrentNode)->wZ) / 8.0f)) > 49.0f)
     {
-        pCurrentActPedNode = &m_AttachedPaths[FindNodeClosestToCoors(fX, fY, fZ, iPathDataFor, 999999.88f, 0, 0, 0, 0)];
+        pCurrentActPedNode = &m_AttachedPaths[FindNodeClosestToCoors(posCoors, iPathDataFor, 999999.88f, 0, 0, 0, 0)];
     }
     else
         pCurrentActPedNode = *pCurrentNode;
@@ -1041,7 +1041,7 @@ void CPathFind::FindNextNodeWandering(uint8_t iPathDataFor, float fX, float fY, 
 // To do: Implement CarGenerate Request Rejects per second.
 //-----------------------------------------------------------------------------
 
-bool CPathFind::NewGenerateCarCreationCoors(float fX, float fY, float fDirectionVecX, float fDirectionVecY, float fRange, float fZlookUp, bool bShouldSpawnPositiveDirection, CVector *pVecPosition, int *aMainNodeIndex, int *aSubNodeIndex, float *aNodeRangeDiffCoeff, char bDontCheckIgnored) {
+bool CPathFind::NewGenerateCarCreationCoors(CVector2D& pos2DCoors, CVector2D& v2dDirection, float fRange, float fZlookUp, bool bShouldSpawnPositiveDirection, CVector *pVecPosition, int *aMainNodeIndex, int *aSubNodeIndex, float *aNodeRangeDiffCoeff, char bDontCheckIgnored) {
     //CDebug::DebugAddText("UnkX1 : %f, UnkY1: %f, UnkX2: %f, charUnk: %d", fDirectionVecX, fDirectionVecY, fZlookUp, (int)bShouldSpawnPositiveDirection);
     if(m_nCarAttachedNodes) {
         float fReqRange = 70.0f + fRange;
@@ -1054,7 +1054,7 @@ bool CPathFind::NewGenerateCarCreationCoors(float fX, float fY, float fDirection
             int nRandIndex = (rand() /*>> 3*/) % m_nCarAttachedNodes;
             if(!(m_AttachedPaths[nRandIndex].bitIsIgnoredNode) || bDontCheckIgnored == true) 
 			{
-				float fDistanceToRandNode = (m_AttachedPaths[nRandIndex].Form2DVector() - CVector2D(fX, fY)).Length();
+				float fDistanceToRandNode = (m_AttachedPaths[nRandIndex].Form2DVector() - pos2DCoors).Length();
 
                 if(fDistanceToRandNode < fReqRange) 
 				{
@@ -1062,7 +1062,7 @@ bool CPathFind::NewGenerateCarCreationCoors(float fX, float fY, float fDirection
                         int nNextNodeIndex = m_infoConnectedNodes[j + m_AttachedPaths[nRandIndex].wRouteInfoIndex] & em_infoConnectedNodesNODEINDEXONLY;
                         if(!(m_AttachedPaths[nNextNodeIndex].bitIsIgnoredNode) || bDontCheckIgnored == true) 
 						{
-							float fDistanceToNextNode = (m_AttachedPaths[nNextNodeIndex].Form2DVector() - CVector2D(fX, fY)).Length();
+							float fDistanceToNextNode = (m_AttachedPaths[nNextNodeIndex].Form2DVector() - pos2DCoors).Length();
                             float frandNodeRangeDelta, fnextNodeRangeDelta;
 
                             if(m_AttachedPaths[nRandIndex].bitIsVehicleBoat) {
@@ -1081,10 +1081,10 @@ bool CPathFind::NewGenerateCarCreationCoors(float fX, float fY, float fDirection
                                 *aNodeRangeDiffCoeff = fabsRandNodeRangeDelta / (fabsRandNodeRangeDelta + fabsNextNodeRangeDelta);
                                 CVector vecOutPosition = (m_AttachedPaths[nNextNodeIndex].Form3DVector() * (*aNodeRangeDiffCoeff)) + (m_AttachedPaths[nRandIndex].Form3DVector() * (1.0f - (*aNodeRangeDiffCoeff)));
                                 
-								CVector2D norV2dToAvgNode =  CVector2D(vecOutPosition) - CVector2D(fX, fY);
+								CVector2D norV2dToAvgNode =  CVector2D(vecOutPosition) - pos2DCoors;
 								norV2dToAvgNode.Normalize();
 
-								float fProjectionOfDirection = norV2dToAvgNode.DotProduct(CVector2D(fDirectionVecX, fDirectionVecY));
+								float fProjectionOfDirection = norV2dToAvgNode.DotProduct(v2dDirection);
 
                                 if((bShouldSpawnPositiveDirection == true && fProjectionOfDirection > fZlookUp) || (bShouldSpawnPositiveDirection == false && fProjectionOfDirection <= fZlookUp)) {
                                     *aMainNodeIndex = nRandIndex;
@@ -1115,7 +1115,7 @@ bool CPathFind::NewGenerateCarCreationCoors(float fX, float fY, float fDirection
 // immediately.
 //----------------------------------------------------------------------------
 
-bool CPathFind::GeneratePedCreationCoors(float fX, float fY, float fMinRange, float fMaxRange, float fSecMinRange, float fSecMaxRange, CVector *pvecSpawnPos, int *pStartNodeIndex, int *pNextNodeIndex, float *fRandomByte, RwMatrix *rwTransformationMatrix) {
+bool CPathFind::GeneratePedCreationCoors(CVector2D& pos2dCoors, float fMinRange, float fMaxRange, float fSecMinRange, float fSecMaxRange, CVector *pvecSpawnPos, int *pStartNodeIndex, int *pNextNodeIndex, float *fRandomByte, RwMatrix *rwTransformationMatrix) {
     static bool staticPedNodeCheck = false;
     static int staticPedNodesCount;
     if (staticPedNodeCheck == false) {
@@ -1134,9 +1134,9 @@ bool CPathFind::GeneratePedCreationCoors(float fX, float fY, float fMinRange, fl
     		staticPedNodesCount = 0;
 	    }
 	    int nStartNodeIndex = m_nCarAttachedNodes + staticPedNodesCount;
-	    float fStartNodeX = (float)(m_AttachedPaths[nStartNodeIndex].wX) / 8.0f;
-	    float fStartNodeY = (float)(m_AttachedPaths[nStartNodeIndex].wY) / 8.0f;
-	    float fStartNodeDisplacement = sqrt((fStartNodeY - fY) * (fStartNodeY - fY) + (fStartNodeX - fX) * (fStartNodeX - fX));
+		CVector2D v2dStartNodeToCoors(m_AttachedPaths[nStartNodeIndex].Form2DVector() - pos2dCoors);
+
+	    float fStartNodeDisplacement = v2dStartNodeToCoors.Length();
 	    if (fStartNodeDisplacement >= fReqRange) {
 		    continue;
     	}
@@ -1157,9 +1157,10 @@ bool CPathFind::GeneratePedCreationCoors(float fX, float fY, float fMinRange, fl
 		    if (m_AttachedPaths[nNextNodeIndex].bitIsIgnoredNode) {
     			continue;
 		    }
-		    float fNextNodeX = (float)(m_AttachedPaths[nNextNodeIndex].wX) / 8.0f;
-		    float fNextNodeY = (float)(m_AttachedPaths[nNextNodeIndex].wY) / 8.0f;
-		    float fNextNodeDisplacement = sqrt((fNextNodeX - fX) * (fNextNodeX - fX) + (fNextNodeY - fY) * (fNextNodeY - fY));
+
+			CVector2D v2dNextNodeToCoors(m_AttachedPaths[nNextNodeIndex].Form2DVector() - pos2dCoors);
+		   
+		    float fNextNodeDisplacement = v2dNextNodeToCoors.Length();
 
 		    if ((fStartNodeDisplacement < fMaxRange || fNextNodeDisplacement < fMaxRange) &&
     		    (fStartNodeDisplacement > fSecMinRange || fNextNodeDisplacement > fSecMinRange))
@@ -1180,11 +1181,10 @@ bool CPathFind::GeneratePedCreationCoors(float fX, float fY, float fMinRange, fl
 				    }
 				    float fStartNodeZ = (float)(m_AttachedPaths[nStartNodeIndex].wZ) / 8.0f;
 				    float fNextNodeZ = (float)(m_AttachedPaths[nNextNodeIndex].wZ) / 8.0f;
-				    RwV3d vecMeanPos;
-				    vecMeanPos.x = fStartNodeX * (1.0f - *fRandomByte) + fNextNodeX * (*fRandomByte);
-				    vecMeanPos.y = fStartNodeY * (1.0f - *fRandomByte) + fNextNodeY * (*fRandomByte);
-				    vecMeanPos.z = fStartNodeZ * (1.0f - *fRandomByte) + fNextNodeZ * (*fRandomByte);
-				    float fRandNodeDisplacement = sqrt((vecMeanPos.x - fX) * (vecMeanPos.x - fX) + (vecMeanPos.y - fY) * (vecMeanPos.y - fY));
+				    
+					CVector vTemp = m_AttachedPaths[nStartNodeIndex].Form3DVector() * (1.0f - *fRandomByte) + m_AttachedPaths[nNextNodeIndex].Form3DVector() * (*fRandomByte);
+					RwV3d& vecMeanPos = *(RwV3d*)&vTemp; //WHAT DUCKINGL
+				    float fRandNodeDisplacement = (CVector2D(vTemp) - pos2dCoors).Length();
 				    bool bLiesInViewableRange = false;
 				    RwV3d vecTransform = vecMeanPos;
 				    if (rwTransformationMatrix == NULL) {
@@ -1230,27 +1230,27 @@ bool CPathFind::GeneratePedCreationCoors(float fX, float fY, float fMinRange, fl
     return false;
 }
 
-float CPathFind::CalcRoadDensity(float fX, float fY) {
+float CPathFind::CalcRoadDensity(CVector2D& pos2dCoors) {
 	float fDeltaDensity = 0.0f;
-	for (int i = 0; i < m_nCarAttachedNodes; i++) {
-		float fStartNodeX = (float)(m_AttachedPaths[i].wX) / 8.0f;
-		float fStartNodeY = (float)(m_AttachedPaths[i].wY) / 8.0f;
+	for (int i = 0; i < m_nCarAttachedNodes; i++) 
+	{
+		CVector2D pos2dStartNode(m_AttachedPaths[i].Form2DVector());
+		CVector2D v2dStartNodeToCoors(pos2dStartNode - pos2dCoors);
 
         // ignore nodes that are over 80 units range
-		if (utl::abs<float>(fStartNodeX - fX) >= 80.0f) {
+		if (utl::abs<float>(v2dStartNodeToCoors.fX) >= 80.0f)
 			continue;
-		}
-		if (utl::abs<float>(fStartNodeX - fY) >= 80.0f) {
+		
+		if (utl::abs<float>(v2dStartNodeToCoors.fY) >= 80.0f)
 			continue;
-		}
+		
 
 		for (int j = 0; j < m_AttachedPaths[i].bitnumberOfNodesConnected; j++) {
 			int nNextNodeIndex = m_infoConnectedNodes[j+ m_AttachedPaths[i].wRouteInfoIndex] & em_infoConnectedNodesNODEINDEXONLY;
-			int nDetachedNodeIndex = DetachedPointsInfo[j+ m_AttachedPaths[i].wRouteInfoIndex];
-			float fnextNodeX = (float)(m_AttachedPaths[nNextNodeIndex].wX) / 8.0f;
-			float fnextNodeY = (float)(m_AttachedPaths[nNextNodeIndex].wY) / 8.0f;
-			float fDisplacement = sqrt((fStartNodeX - fnextNodeX) * (fStartNodeX - fnextNodeX) + (fStartNodeY - fnextNodeY) * (fStartNodeY - fnextNodeY));
-			fDeltaDensity += (float)(m_DetachedNodes[nDetachedNodeIndex].bitLeftLanes) * fDisplacement + (float)(m_DetachedNodes[nDetachedNodeIndex].bitRightLanes) * fDisplacement;
+			int nDetachedNodeIndex = m_InfoCarPathLinks[j+ m_AttachedPaths[i].wRouteInfoIndex];
+			CVector2D pos2dNextNode(m_AttachedPaths[nNextNodeIndex].Form2DVector());
+			float fDisplacement = (pos2dStartNode - pos2dNextNode).Length();
+			fDeltaDensity += (float)(m_CarPathLinks[nDetachedNodeIndex].bitLeftLanes) * fDisplacement + (float)(m_CarPathLinks[nDetachedNodeIndex].bitRightLanes) * fDisplacement;
 		}
 	}
 
@@ -1260,16 +1260,14 @@ float CPathFind::CalcRoadDensity(float fX, float fY) {
 	return fViceCityRoadDensity;
 }
 
-int CPathFind::FindNodeClosestToCoorsFavourDirection(float fX, float fY, float fZ, uint8_t uiPathDataFor, float fLookAtX, float fLookAtY) {
-	// normalize the LookAt vector
-	float fLookAtLength = sqrt(fLookAtX * fLookAtX + fLookAtY * fLookAtY);
-	if (fLookAtLength == 0.0f) {
+int CPathFind::FindNodeClosestToCoorsFavourDirection(CVector& posCoors, uint8_t uiPathDataFor, CVector2D& v2dPreferedDirection) {
+	// checked if it is normalized
+	if (v2dPreferedDirection.Length() == 0.0f) {
 		// maybe the LookAt vector components was set to 0.0
-		fLookAtX = 1.0f;
+		v2dPreferedDirection.fX = 1.0f;
 	}
 	else {
-		fLookAtX = fLookAtX / fLookAtLength;
-		fLookAtY = fLookAtY / fLookAtLength;
+		v2dPreferedDirection.Normalize();
 	}
 	int ifoundNode = 0;
 	float fprevRangedCoefficient = 10000.0f;
@@ -1291,27 +1289,27 @@ int CPathFind::FindNodeClosestToCoorsFavourDirection(float fX, float fY, float f
 		return 0;
 	}
 
-	for (int i = iStartNodeIndex; i < iEndNodeIndex; i++) {
-		float fnodeDiffX = (float)(m_AttachedPaths[i].wX) / 8.0f - fX;
-		float fnodeDiffY = (float)(m_AttachedPaths[i].wY) / 8.0f - fY;
-		float fnodeDiffZ = (float)(m_AttachedPaths[i].wZ) / 8.0f - fZ;
+	for (int i = iStartNodeIndex; i < iEndNodeIndex; i++) 
+	{
+		CVector vecStartNodeToCoors(m_AttachedPaths[i].Form3DVector() - posCoors);
 
-		float fcurDistCoefficient = utl::abs<float>(fnodeDiffX) + utl::abs<float>(fnodeDiffY) + 3.0f* utl::abs<float>(fnodeDiffZ);
+		float fcurDistCoefficient = utl::abs<float>(vecStartNodeToCoors.fX) + utl::abs<float>(vecStartNodeToCoors.fY) + 3.0f* utl::abs<float>(vecStartNodeToCoors.fZ);
 		if (fcurDistCoefficient < fprevRangedCoefficient) {
-			float fdirectionVecX, fdirectionVecY;
-			float flengthBetweenNodes = sqrt(fnodeDiffX * fnodeDiffX + fnodeDiffY * fnodeDiffY);
+			CVector2D v2dNodeDirection;
 
 			// may be there was no distance between caller's position and paths node
-			if (flengthBetweenNodes == 0.0f) {
-				fdirectionVecX = 1.0f;
-				fdirectionVecY = 0.0f;
+			if (CVector2D(vecStartNodeToCoors).Length() == 0.0f) 
+			{
+				v2dNodeDirection.fX = 1.0f;
+				v2dNodeDirection.fY = 0.0f;
 			}
-			else {
-				fdirectionVecX = fnodeDiffX / flengthBetweenNodes;
-				fdirectionVecY = fnodeDiffY / flengthBetweenNodes;
+			else 
+			{
+				v2dNodeDirection = CVector2D(vecStartNodeToCoors);
+				v2dNodeDirection.Normalize();
 			}
 
-			float fimmCoefficientWithDirection = fcurDistCoefficient + (fdirectionVecY * fLookAtY + fdirectionVecX * fLookAtX - 1.0f) * -20.0f;
+			float fimmCoefficientWithDirection = fcurDistCoefficient + (v2dNodeDirection.DotProduct(v2dPreferedDirection) - 1.0f) * -20.0f;
 			if (fimmCoefficientWithDirection < fprevRangedCoefficient) {
 				fprevRangedCoefficient = fimmCoefficientWithDirection;
 				ifoundNode = i;
@@ -1323,7 +1321,8 @@ int CPathFind::FindNodeClosestToCoorsFavourDirection(float fX, float fY, float f
 }
 
 
-bool CPathFind::TestCoorsCloseness(float fDestinationX, float fDestinationY, float fDestinationZ, uint8_t uiPathDataFor, float fOriginX, float fOriginY, float fOriginZ) {
+bool CPathFind::TestCoorsCloseness(CVector& posDest, uint8_t uiPathDataFor, CVector& posOrigin) 
+{
     static CPathNode *pIntermediateCarRouteInfos[32] = {0};
     static short sCarSteps = 0;
     static short sPedSteps = 0;
@@ -1331,7 +1330,7 @@ bool CPathFind::TestCoorsCloseness(float fDestinationX, float fDestinationY, flo
 
     switch (uiPathDataFor) {
         case PATHDATAFOR_CAR:
-            DoPathSearch(PATHDATAFOR_CAR, fOriginX, fOriginY, fOriginZ, -1, fDestinationX, fDestinationY, fDestinationZ, pIntermediateCarRouteInfos, &sCarSteps, 32, NULL, &fDistance, 999999.88f, -1);
+            DoPathSearch(PATHDATAFOR_CAR, posOrigin, -1, posDest, pIntermediateCarRouteInfos, &sCarSteps, 32, NULL, &fDistance, 999999.88f, -1);
             if (fDistance < 150.0f) {
                 return true;
             }
@@ -1340,13 +1339,11 @@ bool CPathFind::TestCoorsCloseness(float fDestinationX, float fDestinationY, flo
             }
             break;
         case PATHDATAFOR_PED:
-            DoPathSearch(PATHDATAFOR_PED, fOriginX, fOriginY, fOriginZ, -1, fDestinationX, fDestinationY, fDestinationZ, NULL, &sPedSteps, 0, NULL, &fDistance, 50.0f, -1);
-            if (fDistance < 100.0f) {
+            DoPathSearch(PATHDATAFOR_PED, posOrigin, -1, posDest, NULL, &sPedSteps, 0, NULL, &fDistance, 50.0f, -1);
+            if (fDistance < 100.0f)
                 return true;
-            }
-            else {
+            else
                 return false;
-            }
             break;
     }
 }
@@ -1393,22 +1390,22 @@ void CPathNode::GetNodeCoors(CVector* vecNodePosition) {
     vecNodePosition->fZ = (float)(this->wZ) / 8.0f;
 }
 
-CDetachedNode::CDetachedNode(){
-    memset(this, 0, sizeof(CDetachedNode));
+CCarPathLink::CCarPathLink(){
+    memset(this, 0, sizeof(CCarPathLink));
 }
 
-float CDetachedNode::CalculateLaneDistance() {
+float CCarPathLink::OneWayLaneOffset() {
 	float fdistance;
 
-	if (this->bitLeftLanes) {
-		if (this->bitRightLanes) {
+	if (this->bitLeftLanes){
+		if (this->bitRightLanes){
 			fdistance = (float)(this->sbMedianWidth) / 80.0f + 1.0f/2.0f;
 		}
-		else {
+		else{
 			fdistance = 1.0f/2.0f - (float)(this->bitLeftLanes) * 1.0f/2.0f;
 		}
     }
-	else {
+	else{
 		fdistance = 1.0f/2.0f - (float)(this->bitRightLanes) * 1.0f/2.0f;
 	}
 	return fdistance;
@@ -1432,4 +1429,3 @@ CVector* _cdecl CPedPath::CalculateRandomCoordinates(CVector* pvecPosition, CPat
     return pvecPosition;
 }
 
-#endif

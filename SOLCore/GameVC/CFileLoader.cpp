@@ -264,66 +264,6 @@ void CFileLoader::LoadScene(const char* szSceneFileName){
   CDebug::DebugAddText("Finished loading IPL\n");
 
   //Dump pCarPathInfos
-#ifdef PATHFINDUSEORIGINAL
-#define SZCARPATHINFOS "CarPathInfoTiles.dat"
-#define SZPEDPATHINFOS "PedPathInfoTiles.dat"
-#else
-#define SZCARPATHINFOS "NewCarPathInfoTiles.dat"
-#define SZPEDPATHINFOS "NewPedPathInfoTiles.dat"
-#endif
-  int& nCarGroupNodes = *(int*)0x97F288;
-  CPathInfoForObject*& pCarPathInfos = *(CPathInfoForObject**)0x9B6A7C;
-  int& nPedGroupNodes = *(int*)0x94DBD8;
-  CPathInfoForObject*& pPedPathInfos = *(CPathInfoForObject**)0x9B6DF8;
-
-  static bool bPathDumpedOnce = false;
-  if (bPathDumpedOnce == false && nCarGroupNodes > 0 && nPedGroupNodes > 0){
-    bPathDumpedOnce = true;
-    
-    if (nCarGroupNodes > 0){
-        FILE* binFilePath = fopen(SZCARPATHINFOS, "w");
-        fprintf(binFilePath, "NodeTye, NextNode, x, y, z, median, leftlanes, rightlanes, speedlimit, flags, spawnrate\n");
-        for (int i = 0; i < nCarGroupNodes * 12; i++)
-        fprintf(binFilePath, "%d, %d, %.2f, %.2f, %.2f, %d, %d, %d, %d, %d, %d\n",
-                                pCarPathInfos[i].byteNodeType,
-                                pCarPathInfos[i].sbNextNode,
-                                pCarPathInfos[i].fX * 16.0f,
-                                pCarPathInfos[i].fY * 16.0f,
-                                pCarPathInfos[i].fZ * 16.0f,
-                                pCarPathInfos[i].sbMedianWidth,
-                                pCarPathInfos[i].byteLeftLanes,
-                                pCarPathInfos[i].byteRightLanes,
-                                pCarPathInfos[i].byteSpeedLimit,
-                                pCarPathInfos[i].byteFlags,
-                                pCarPathInfos[i].byteSpawnRate);
-        fclose(binFilePath);
-        binFilePath = fopen("binCarInfoTiles.buf", "wb");
-        fwrite(pCarPathInfos, sizeof(CPathInfoForObject) * 12 * nCarGroupNodes, 1, binFilePath);
-        fclose(binFilePath);
-    }
-    
-    if (nPedGroupNodes > 0){
-        FILE* binFilePath = fopen(SZPEDPATHINFOS, "w");
-        fprintf(binFilePath, "NodeTye, NextNode, x, y, z, median, leftlanes, rightlanes, speedlimit, flags, spawnrate\n");
-        for (int i = 0; i < nPedGroupNodes * 12; i++)
-        fprintf(binFilePath, "%d, %d, %.2f, %.2f, %.2f, %d, %d, %d, %d, %d, %d\n",
-                                pPedPathInfos[i].byteNodeType,
-                                pPedPathInfos[i].sbNextNode,
-                                pPedPathInfos[i].fX * 16.0f,
-                                pPedPathInfos[i].fY * 16.0f,
-                                pPedPathInfos[i].fZ * 16.0f,
-                                pPedPathInfos[i].sbMedianWidth,
-                                pPedPathInfos[i].byteLeftLanes,
-                                pPedPathInfos[i].byteRightLanes,
-                                pPedPathInfos[i].byteSpeedLimit,
-                                pPedPathInfos[i].byteFlags,
-                                pPedPathInfos[i].byteSpawnRate);
-        fclose(binFilePath);
-        binFilePath = fopen("binPedInfoTiles.buf", "wb");
-        fwrite(pPedPathInfos, sizeof(CPathInfoForObject) * 12 * nPedGroupNodes, 1, binFilePath);
-        fclose(binFilePath);
-    }
-  }
 }
 
 #endif

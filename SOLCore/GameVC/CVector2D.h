@@ -91,6 +91,11 @@ public:
         return CVector2D ( fX / vecRight.fX, fY / vecRight.fY );
     }
 
+	CVector2D operator / ( float fRight) const
+	{
+		return CVector2D (fX / fRight, fY / fRight);
+	}
+
     void operator += ( float fRight )
     {
         fX += fRight;

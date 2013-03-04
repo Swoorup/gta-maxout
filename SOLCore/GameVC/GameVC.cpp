@@ -19,4 +19,4 @@ FindPlayerCoors_t                                       FindPlayerCoors         
 //----------------------------------------------------------------
 // Global Variables for the game
 //----------------------------------------------------------------
-CCamera& TheCamera = *(CCamera*)0x7E4688;
+CCameraVC& TheCamera = *(CCameraVC*)0x7E4688;

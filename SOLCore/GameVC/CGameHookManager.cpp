@@ -19,8 +19,7 @@ CGameHookManager::~CGameHookManager(void){
 
 
 void CGameHookManager::ApplyHook(void){
-    // Hooked in CFileLoader::LoadLevel
-    CMemory::InstallCallHook( 0x48DD5D, &CFileLoader::LoadScene, ASM_CALL);
+    
     // Hooked in CGame::InitializeRenderware
     CMemory::InstallCallHook( 0x4A5298, &CDebug::Initialize, ASM_CALL);
     // Hooked in Idle(void*)

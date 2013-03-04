@@ -3,10 +3,10 @@
 #define THEPATHS CGameVariables::GetPathFind()
 
 bool CPed::FindBestCoordsFromNodes(float fUnusedX, float fUnusedY, float fUnusedZ, CVector* vecBestCoords) {
-	if(this->m_pNextNode == NULL && (this->m_field_14F & 0x20)) {
-		CVector *vecPedPosition = (CVector*)&this->__parent.__parent.matrix.rwMatrix.vPos;
-		int dwNodeClosestToPed = THEPATHS->FindNodeClosestToCoors(vecPedPosition->fX, vecPedPosition->fY, vecPedPosition->fZ, 1, 999999.88f, 0, 0, 0, 0);
-		CVector vecTargetPath = m_vecTargetPath;
+	if(this->m_pNextNode == NULL && (this->bfFlagsD & 0x20)) {
+		CVector *vecPedPosition = (CVector*)&this->phys.ent.mat.vPos;
+		int dwNodeClosestToPed = THEPATHS->FindNodeClosestToCoors(*vecPedPosition, 1, 999999.88f, 0, 0, 0, 0);
+		CVector vecTargetPath = vecSeekVehicle;
 		vecTargetPath.fZ += 1.0f;
 		
 		if(CWorld::GetIsLineOfSightClear(vecPedPosition, &vecTargetPath, true, false, false, true, false, false, false)) {
@@ -16,18 +16,18 @@ bool CPed::FindBestCoordsFromNodes(float fUnusedX, float fUnusedY, float fUnused
 		this->m_pNextNode = NULL;
 		CPathNode* pNodeClosestToPed = &THEPATHS->m_AttachedPaths[dwNodeClosestToPed];
 		CVector2D v2dPedPosRelative, v2dClosestPedNodeRel;
-		v2dPedPosRelative.fX = this->m_vecTargetPath.fX - vecPedPosition->fX;
-		v2dPedPosRelative.fY = this->m_vecTargetPath.fY - vecPedPosition->fY;
-		v2dClosestPedNodeRel.fX = this->m_vecTargetPath.fX - (float)(pNodeClosestToPed->wX) / 8.0f;
-		v2dClosestPedNodeRel.fY = this->m_vecTargetPath.fY - (float)(pNodeClosestToPed->wY) / 8.0f;
+		v2dPedPosRelative.fX = this->vecSeekVehicle.fX - vecPedPosition->fX;
+		v2dPedPosRelative.fY = this->vecSeekVehicle.fY - vecPedPosition->fY;
+		v2dClosestPedNodeRel.fX = this->vecSeekVehicle.fX - (float)(pNodeClosestToPed->wX) / 8.0f;
+		v2dClosestPedNodeRel.fY = this->vecSeekVehicle.fY - (float)(pNodeClosestToPed->wY) / 8.0f;
 		
 		for(int i = 0; i < pNodeClosestToPed->bitnumberOfNodesConnected; i++) {
 			CPathNode* pNextConnectedNode = &THEPATHS->m_AttachedPaths[THEPATHS->m_infoConnectedNodes[i + pNodeClosestToPed->wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY];
 			float fNextNodeX = (float)(pNextConnectedNode->wX) / 8.0f;
 			float fNextNodeY = (float)(pNextConnectedNode->wY) / 8.0f;
 			CVector2D v2dNextNodeRel;
-			v2dNextNodeRel.fX = this->m_vecTargetPath.fX - fNextNodeX;
-			v2dNextNodeRel.fY = this->m_vecTargetPath.fY - fNextNodeY;
+			v2dNextNodeRel.fX = this->vecSeekVehicle.fX - fNextNodeX;
+			v2dNextNodeRel.fY = this->vecSeekVehicle.fY - fNextNodeY;
 			float fNextNodeLengthFromTargetPath = v2dNextNodeRel.fX * v2dNextNodeRel.fX + v2dNextNodeRel.fY * v2dNextNodeRel.fY;
 			
 			if((v2dPedPosRelative.fX * v2dPedPosRelative.fX + v2dPedPosRelative.fY * v2dPedPosRelative.fY) > fNextNodeLengthFromTargetPath) {
@@ -47,8 +47,8 @@ bool CPed::FindBestCoordsFromNodes(float fUnusedX, float fUnusedY, float fUnused
 				CPathNode* pNodeFurtherNext = &THEPATHS->m_AttachedPaths[THEPATHS->m_infoConnectedNodes[j + pNextConnectedNode->wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY];
 				if(pNodeFurtherNext != pNodeClosestToPed) {
 					CVector2D vecFurtherNode;
-					vecFurtherNode.fX = this->m_vecTargetPath.fX - (float)(pNodeFurtherNext->wX) / 8.0f;
-					vecFurtherNode.fY = this->m_vecTargetPath.fY - (float)(pNodeFurtherNext->wY) / 8.0f;
+					vecFurtherNode.fX = this->vecSeekVehicle.fX - (float)(pNodeFurtherNext->wX) / 8.0f;
+					vecFurtherNode.fY = this->vecSeekVehicle.fY - (float)(pNodeFurtherNext->wY) / 8.0f;
 					float fFurtherNodeDisplacement = vecFurtherNode.fY *vecFurtherNode.fY + vecFurtherNode.fX * vecFurtherNode.fX;
 					if((v2dPedPosRelative.fX * v2dPedPosRelative.fX +v2dPedPosRelative.fY * v2dPedPosRelative.fY) > fFurtherNodeDisplacement) {
 						if((v2dClosestPedNodeRel.fY * v2dClosestPedNodeRel.fY + v2dClosestPedNodeRel.fX * v2dClosestPedNodeRel.fX) <= fFurtherNodeDisplacement) {
@@ -66,8 +66,8 @@ bool CPed::FindBestCoordsFromNodes(float fUnusedX, float fUnusedY, float fUnused
 						CPathNode* pNodeFurtherConnected = &THEPATHS->m_AttachedPaths[THEPATHS->m_infoConnectedNodes[k+pNodeFurtherNext->wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY];
 						if(pNodeFurtherConnected != pNextConnectedNode) {
 							CVector2D vecFurtherConnectedNode;
-							vecFurtherConnectedNode.fX = this->m_vecTargetPath.fX - (float)(pNodeFurtherConnected->wX) / 8.0f;
-							vecFurtherConnectedNode.fY = this->m_vecTargetPath.fY - (float)(pNodeFurtherConnected->wY) / 8.0f;
+							vecFurtherConnectedNode.fX = this->vecSeekVehicle.fX - (float)(pNodeFurtherConnected->wX) / 8.0f;
+							vecFurtherConnectedNode.fY = this->vecSeekVehicle.fY - (float)(pNodeFurtherConnected->wY) / 8.0f;
 							float fDistanceFurtherConnected = vecFurtherConnectedNode.fX * vecFurtherConnectedNode.fX + vecFurtherConnectedNode.fY * vecFurtherConnectedNode.fY;
 							if((v2dPedPosRelative.fY * v2dPedPosRelative.fY + v2dPedPosRelative.fX * v2dPedPosRelative.fX) > fDistanceFurtherConnected) {
 								if((v2dClosestPedNodeRel.fX * v2dClosestPedNodeRel.fX + v2dClosestPedNodeRel.fY * v2dClosestPedNodeRel.fY) <= fDistanceFurtherConnected) {
@@ -88,11 +88,11 @@ bool CPed::FindBestCoordsFromNodes(float fUnusedX, float fUnusedY, float fUnused
 		}
 		if(this->m_pNextNode) {
 			CVector vecRandCoors;
-			CPedPath::CalculateRandomCoordinates(&vecRandCoors, this->m_pNextNode, this->__parent.__parent.uiPathMedianRand);
+			CPedPath::CalculateRandomCoordinates(&vecRandCoors, this->m_pNextNode, this->phys.ent.uiPathMedianRand);
 			float fPedRelativeRandX = vecRandCoors.fX - vecPedPosition->fX;
 			float fPedRelativeRandY = vecRandCoors.fY - vecPedPosition->fY;
 			if((fPedRelativeRandX * fPedRelativeRandX + fPedRelativeRandY * fPedRelativeRandY) < (v2dPedPosRelative.fY * v2dPedPosRelative.fY + v2dPedPosRelative.fX * v2dPedPosRelative.fX)) {
-				CPedPath::CalculateRandomCoordinates(&vecRandCoors, this->m_pNextNode, this->__parent.__parent.uiPathMedianRand);
+				CPedPath::CalculateRandomCoordinates(&vecRandCoors, this->m_pNextNode, this->phys.ent.uiPathMedianRand);
 				*vecBestCoords = vecRandCoors;
 				return true;
 			}

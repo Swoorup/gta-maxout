@@ -2,7 +2,7 @@
 #define __CGAMEVARIABLES_H
 
 #include "../stdinc.h"
-#include "CPathFind.h"
+#include "pathfinding.h"
 
 extern CPathFind* pThePaths;
 

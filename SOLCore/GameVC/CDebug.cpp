@@ -21,8 +21,9 @@ void CDebug::Initialize(void){
     m_Font->InitObjects();
 }
 
-void CDebug::DebugAddText(char const*szFormatText, ...){
-    char szDebugText[CDEBUG_MAX_CHARACTERS];
+void CDebug::DebugAddText(char const*szFormatText, ...)
+{
+    /*char szDebugText[CDEBUG_MAX_CHARACTERS];
 
     va_list args;
 	va_start(args, szFormatText);
@@ -52,7 +53,7 @@ void CDebug::DebugAddText(char const*szFormatText, ...){
         else 
         m_szTextBuffer[i] = m_szTextBuffer[i+1];
     }
-    strcpy(m_szTextBuffer[CDEBUG_DISPLAY_LINES - 1], szDebugText);
+    strcpy(m_szTextBuffer[CDEBUG_DISPLAY_LINES - 1], szDebugText);*/
 }
 
 void CDebug::DebugDisplayText(void){

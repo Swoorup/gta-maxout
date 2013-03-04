@@ -7,8 +7,10 @@ class CPathFindHook : public CSingleton <CPathFindHook> {
 private:
     void RemoveHook(void);
 public:
-    CPathFindHook();
-    ~CPathFindHook();
+
+
+	void InitPathBuffer(void);
+	void DeletePathBuffer(void);
 
     void ApplyHook(void);
 };

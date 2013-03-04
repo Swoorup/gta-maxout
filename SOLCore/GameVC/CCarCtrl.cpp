@@ -22,111 +22,127 @@ bool _cdecl CCarCtrl::PickNextNodeToFollowPath(CVehicle* pVehicle) {
         _asm pop eax
     }*/
 
-    int nPreviousNextNodeIndex = pVehicle->Autopilot.m_dwNextNodeIndex;
-    if(!pVehicle->Autopilot.m_nRouteListStep) {
-        THEPATHS->DoPathSearch(0, pVehicle->__parent.__parent.matrix.rwMatrix.vPos.x,
-            pVehicle->__parent.__parent.matrix.rwMatrix.vPos.y,
-            pVehicle->__parent.__parent.matrix.rwMatrix.vPos.z,
-            pVehicle->Autopilot.m_dwNextNodeIndex,
-            pVehicle->Autopilot.m_vecTargetPoint.fX,
-            pVehicle->Autopilot.m_vecTargetPoint.fY,
-            pVehicle->Autopilot.m_vecTargetPoint.fZ,
-            pVehicle->Autopilot.m_pIntermediateRouteList,
-            &pVehicle->Autopilot.m_nRouteListStep,
+    int nPreviousNextNodeIndex = pVehicle->_.stAutopilot.m_dwNextNode;
+	int m_beginRouteStep = pVehicle->_.stAutopilot.m_nRouteListStep;
+    if(pVehicle->_.stAutopilot.m_nRouteListStep == 0) 
+	{
+        THEPATHS->DoPathSearch(0, pVehicle->_.phys.ent.mat.vPos,
+            pVehicle->_.stAutopilot.m_dwNextNode,
+            pVehicle->_.stAutopilot.m_vecTargetPoint,
+            pVehicle->_.stAutopilot.m_pIntermediateRouteList,
+            &pVehicle->_.stAutopilot.m_nRouteListStep,
             8,
             pVehicle,
             0,
             999999.88f,
             -1);
-        if(pVehicle->Autopilot.m_nRouteListStep < 2) {
+
+        if(pVehicle->_.stAutopilot.m_nRouteListStep < 2)
             return true;
-        }
-        pVehicle->Autopilot.RemoveOnePathNode();
+        
+		// remove the first node since it is already known
+        pVehicle->_.stAutopilot.RemoveOnePathNode();
     }
-    pVehicle->Autopilot.m_dwPrevMainNode = pVehicle->Autopilot.m_dwMainNode;
-    pVehicle->Autopilot.m_dwMainNode = pVehicle->Autopilot.m_dwNextNodeIndex;
-    if(pVehicle->Autopilot.m_pIntermediateRouteList[0] < &THEPATHS->m_AttachedPaths[0] || pVehicle->Autopilot.m_pIntermediateRouteList[0] > &THEPATHS->m_AttachedPaths[THEPATHS->m_nAttachedNodes -1]){
+
+    pVehicle->_.stAutopilot.m_dwPrevNode = pVehicle->_.stAutopilot.m_dwCurrentNode;
+    pVehicle->_.stAutopilot.m_dwCurrentNode = pVehicle->_.stAutopilot.m_dwNextNode;
+    /*if(pVehicle->_.stAutopilot.m_pIntermediateRouteList[0] < &THEPATHS->m_AttachedPaths[0] || pVehicle->_.stAutopilot.m_pIntermediateRouteList[0] > &THEPATHS->m_AttachedPaths[THEPATHS->m_nAttachedNodes -1]){
         //sometimes the m_pIntermediateRouteList contains inappropriate value which is below m_AttachedPaths[0] temp fix
         char buf[256];
-        sprintf(buf, "Intermediate Address: 0x%X \nStupidNode: 0x%X", pVehicle->Autopilot.m_pIntermediateRouteList, pVehicle->Autopilot.m_pIntermediateRouteList[0]);
+        sprintf(buf, "Intermediate Address: 0x%X \nStupidNode: 0x%X", pVehicle->_.stAutopilot.m_pIntermediateRouteList, pVehicle->_.stAutopilot.m_pIntermediateRouteList[0]);
         CDebug::DebugAddText(buf);
         //MessageBoxA(NULL, buf, NULL, NULL);
         return false;
-    }
-    pVehicle->Autopilot.m_dwNextNodeIndex = ((uint32_t)pVehicle->Autopilot.m_pIntermediateRouteList[0] - (uint32_t)&THEPATHS->m_AttachedPaths[0])/sizeof(CPathNode);
-    pVehicle->Autopilot.RemoveOnePathNode();
-    pVehicle->Autopilot.m_dwCurrentSpeedScaleFactor += pVehicle->Autopilot.m_dwNextSpeedScaleFactor;
-    pVehicle->Autopilot.m_dwPrevDetachedNodeIndex = pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex;
-    pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex = pVehicle->Autopilot.m_dwNextDetachedNodeIndex;
-    pVehicle->Autopilot.m_bytePrevDirectionScale = pVehicle->Autopilot.m_byteCurrentDirectionScale;
-    pVehicle->Autopilot.m_byteCurrentDirectionScale = pVehicle->Autopilot.m_byteNextDirectionScale;
-    pVehicle->Autopilot.m_byteCurrentLanes = pVehicle->Autopilot.m_byteNextLanes;
+    }*/
 
-    int nMainRouteInfoIndex = THEPATHS->m_AttachedPaths[pVehicle->Autopilot.m_dwMainNode].wRouteInfoIndex;
+	// nextNode is gibberish
+	
+    pVehicle->_.stAutopilot.m_dwNextNode = pVehicle->_.stAutopilot.m_pIntermediateRouteList[0] - &THEPATHS->m_AttachedPaths[0];
+	if (pVehicle->_.stAutopilot.m_dwNextNode <0)
+		
+	{
+		short val = (short)pVehicle->_.stAutopilot.m_pIntermediateRouteList[0];
+		int iVal = (int)pVehicle->_.stAutopilot.m_pIntermediateRouteList[0];
+		char buf[256];
+		sprintf(buf, "ERROR: function began with %d as Steps", m_beginRouteStep);
+		MessageBoxA(NULL, buf, NULL, 0);
+	}
+    pVehicle->_.stAutopilot.RemoveOnePathNode();
+    pVehicle->_.stAutopilot.m_dwCurrentSpeedScaleFactor += pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor;
+    pVehicle->_.stAutopilot.m_dwPrevCarLinkNode = pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode;
+    pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode = pVehicle->_.stAutopilot.m_dwNextCarLinkNode;
+    pVehicle->_.stAutopilot.m_bytePrevDirectionScale = pVehicle->_.stAutopilot.m_byteCurrentDirectionScale;
+    pVehicle->_.stAutopilot.m_byteCurrentDirectionScale = pVehicle->_.stAutopilot.m_byteNextDirectionScale;
+    pVehicle->_.stAutopilot.m_byteCurrentLanes = pVehicle->_.stAutopilot.m_byteNextLanes;
+
+    int nCurrentNodeRouteInfo = THEPATHS->m_AttachedPaths[pVehicle->_.stAutopilot.m_dwCurrentNode].wRouteInfoIndex;
     int nConnectedNodeIndex = 0;
-    while(pVehicle->Autopilot.m_dwNextNodeIndex != (THEPATHS->m_infoConnectedNodes[nMainRouteInfoIndex + nConnectedNodeIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY)) {
-        nConnectedNodeIndex++;
+    
+	/// MAJOR BUG WHAT IF NOT EVER FOUND, COULD GO UP TO HUGE LOOPS
+	while(pVehicle->_.stAutopilot.m_dwNextNode != (THEPATHS->m_infoConnectedNodes[nCurrentNodeRouteInfo + nConnectedNodeIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY)) 
+	{
+        nConnectedNodeIndex++;	
     }
 
-    pVehicle->Autopilot.m_dwNextDetachedNodeIndex = THEPATHS->DetachedPointsInfo[nMainRouteInfoIndex + nConnectedNodeIndex];
+    pVehicle->_.stAutopilot.m_dwNextCarLinkNode = THEPATHS->m_InfoCarPathLinks[nCurrentNodeRouteInfo + nConnectedNodeIndex];
 
     int nRequiredLanes;
-    if(nPreviousNextNodeIndex >= pVehicle->Autopilot.m_dwNextNodeIndex) {
-        pVehicle->Autopilot.m_byteNextDirectionScale = 1;
-        nRequiredLanes = THEPATHS->m_DetachedNodes[pVehicle->Autopilot.m_dwNextDetachedNodeIndex].bitRightLanes;
+    if(nPreviousNextNodeIndex >= pVehicle->_.stAutopilot.m_dwNextNode) {
+        pVehicle->_.stAutopilot.m_byteNextDirectionScale = 1;
+        nRequiredLanes = THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwNextCarLinkNode].bitRightLanes;
     }
     else {
-        pVehicle->Autopilot.m_byteNextDirectionScale = -1;
-        nRequiredLanes = THEPATHS->m_DetachedNodes[pVehicle->Autopilot.m_dwNextDetachedNodeIndex].bitLeftLanes;
+        pVehicle->_.stAutopilot.m_byteNextDirectionScale = -1;
+        nRequiredLanes = THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwNextCarLinkNode].bitLeftLanes;
     }
 
     CVector2D v2dCurrentDirection, v2dNextDirection;
-    int dwCurrentDetachedIndex = pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex;
-    int dwNextDetachedIndex = pVehicle->Autopilot.m_dwNextDetachedNodeIndex;
-    v2dCurrentDirection.fX = (float)pVehicle->Autopilot.m_byteCurrentDirectionScale * (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedIndex].NormalVecX) / 100.0f;
-    v2dCurrentDirection.fY = (float)pVehicle->Autopilot.m_byteCurrentDirectionScale * (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedIndex].NormalVecY) / 100.0f;
-    v2dNextDirection.fX = (float)pVehicle->Autopilot.m_byteNextDirectionScale * (float)(THEPATHS->m_DetachedNodes[dwNextDetachedIndex].NormalVecX) / 100.0f;
-    v2dNextDirection.fY = (float)pVehicle->Autopilot.m_byteNextDirectionScale * (float)(THEPATHS->m_DetachedNodes[dwNextDetachedIndex].NormalVecY) / 100.0f;
+    int dwCurrentDetachedIndex = pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode;
+    int dwNextDetachedIndex = pVehicle->_.stAutopilot.m_dwNextCarLinkNode;
+    v2dCurrentDirection.fX = (float)pVehicle->_.stAutopilot.m_byteCurrentDirectionScale * (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedIndex].NormalVecX) / 100.0f;
+    v2dCurrentDirection.fY = (float)pVehicle->_.stAutopilot.m_byteCurrentDirectionScale * (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedIndex].NormalVecY) / 100.0f;
+    v2dNextDirection.fX = (float)pVehicle->_.stAutopilot.m_byteNextDirectionScale * (float)(THEPATHS->m_CarPathLinks[dwNextDetachedIndex].NormalVecX) / 100.0f;
+    v2dNextDirection.fY = (float)pVehicle->_.stAutopilot.m_byteNextDirectionScale * (float)(THEPATHS->m_CarPathLinks[dwNextDetachedIndex].NormalVecY) / 100.0f;
     CVector2D v2dCurrentPoint, v2dNextPoint;
-    v2dCurrentPoint.fX = (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedIndex].wX) / 8.0f;
-    v2dCurrentPoint.fY = (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedIndex].wY) / 8.0f;
-    v2dNextPoint.fX = (float)(THEPATHS->m_DetachedNodes[dwNextDetachedIndex].wX) / 8.0f;
-    v2dNextPoint.fY = (float)(THEPATHS->m_DetachedNodes[dwNextDetachedIndex].wY) / 8.0f;
+    v2dCurrentPoint.fX = (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedIndex].wX) / 8.0f;
+    v2dCurrentPoint.fY = (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedIndex].wY) / 8.0f;
+    v2dNextPoint.fX = (float)(THEPATHS->m_CarPathLinks[dwNextDetachedIndex].wX) / 8.0f;
+    v2dNextPoint.fY = (float)(THEPATHS->m_CarPathLinks[dwNextDetachedIndex].wY) / 8.0f;
     if(nRequiredLanes >= 0) {
         float fDisplacement = (v2dNextPoint.fY - v2dCurrentPoint.fY) * (v2dNextPoint.fY - v2dCurrentPoint.fY) + (v2dNextPoint.fX - v2dCurrentPoint.fX) * (v2dNextPoint.fX - v2dCurrentPoint.fX);
         if(fDisplacement > 49.0f && !(rand() & 0x600)) {
             bool bRandTest = rand() < CPathFind::em_infoConnectedNodesNODEINDEXONLY;
             if(bRandTest) {
-                pVehicle->Autopilot.m_byteNextLanes++;
+                pVehicle->_.stAutopilot.m_byteNextLanes++;
             }
             else {
-                pVehicle->Autopilot.m_byteNextLanes--;
+                pVehicle->_.stAutopilot.m_byteNextLanes--;
             }
         }
-        if(pVehicle->Autopilot.m_byteNextLanes >= nRequiredLanes - 1) {
-            pVehicle->Autopilot.m_byteNextLanes = nRequiredLanes - 1;
+        if(pVehicle->_.stAutopilot.m_byteNextLanes >= nRequiredLanes - 1) {
+            pVehicle->_.stAutopilot.m_byteNextLanes = nRequiredLanes - 1;
         }
-        if(pVehicle->Autopilot.m_byteNextLanes <= 0) {
-            pVehicle->Autopilot.m_byteNextLanes = 0;
+        if(pVehicle->_.stAutopilot.m_byteNextLanes <= 0) {
+            pVehicle->_.stAutopilot.m_byteNextLanes = 0;
         }
     }
     else {
-        pVehicle->Autopilot.m_byteNextLanes = pVehicle->Autopilot.m_byteCurrentLanes;
+        pVehicle->_.stAutopilot.m_byteNextLanes = pVehicle->_.stAutopilot.m_byteCurrentLanes;
     }
-    if((pVehicle->Autopilot.m_flags >> 3) & 1) {
-        pVehicle->Autopilot.m_byteNextLanes = 0;
+    if((pVehicle->_.stAutopilot.m_flags >> 3) & 1) {
+        pVehicle->_.stAutopilot.m_byteNextLanes = 0;
     }
-    float fCurrentLaneLength = (THEPATHS->m_DetachedNodes[dwCurrentDetachedIndex].CalculateLaneDistance() + (float)(pVehicle->Autopilot.m_byteCurrentLanes)) * 5.0f;
-    float fNextLaneLength = (THEPATHS->m_DetachedNodes[dwNextDetachedIndex].CalculateLaneDistance() + (float)(pVehicle->Autopilot.m_byteNextLanes)) * 5.0f;
+    float fCurrentLaneLength = (THEPATHS->m_CarPathLinks[dwCurrentDetachedIndex].OneWayLaneOffset() + (float)(pVehicle->_.stAutopilot.m_byteCurrentLanes)) * 5.0f;
+    float fNextLaneLength = (THEPATHS->m_CarPathLinks[dwNextDetachedIndex].OneWayLaneOffset() + (float)(pVehicle->_.stAutopilot.m_byteNextLanes)) * 5.0f;
     CVector2D v2dCurrentTest, v2dNextTest;
     v2dCurrentTest.fX = v2dCurrentPoint.fX + v2dCurrentDirection.fY * fCurrentLaneLength;
     v2dCurrentTest.fY = v2dCurrentPoint.fY - v2dCurrentDirection.fX * fCurrentLaneLength;
     v2dNextTest.fX = v2dNextPoint.fX + v2dNextDirection.fY * fNextLaneLength;
     v2dNextTest.fY = v2dNextPoint.fY - v2dNextDirection.fX * fNextLaneLength;
 
-    pVehicle->Autopilot.m_dwNextSpeedScaleFactor = (signed int)(CCurves::CalcSpeedScaleFactor(&v2dCurrentTest, &v2dNextTest, v2dCurrentDirection, v2dNextDirection) * 1000.0f / pVehicle->Autopilot.m_fCurrentSpeed);
-    if(pVehicle->Autopilot.m_dwNextSpeedScaleFactor <= 10) {
-        pVehicle->Autopilot.m_dwNextSpeedScaleFactor = 10;
+    pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor = (signed int)(CCurves::CalcSpeedScaleFactor(&v2dCurrentTest, &v2dNextTest, v2dCurrentDirection, v2dNextDirection) * 1000.0f / pVehicle->_.stAutopilot.m_fCurrentSpeed);
+    if(pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor <= 10) {
+        pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor = 10;
     }
     return false;
 }
@@ -155,8 +171,8 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
         _asm call eax
         _asm pop eax
     }*/
-	int dwMainNode = pVehicle->Autopilot.m_dwMainNode;
-	int dwNextNode = pVehicle->Autopilot.m_dwNextNodeIndex;
+	int dwMainNode = pVehicle->_.stAutopilot.m_dwCurrentNode;
+	int dwNextNode = pVehicle->_.stAutopilot.m_dwNextNode;
 	
 	// the start node vector is taken from the next node
 	CVector vecStart;
@@ -169,12 +185,11 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 	float fNodeDistance;
 	int nNodeWithSmallestDiversion, nFoundConnectedBit;
 	
-	THEPATHS->DoPathSearch(0, vecStart.fX, vecStart.fY, vecStart.fZ, dwNextNode, fTargetX, fTargetY, 0.0f, pInstantRoutes, &sRouteStep, 2, pVehicle, &fNodeDistance, 999999.88f, -1);
+	THEPATHS->DoPathSearch(0, vecStart, dwNextNode, CVector(fTargetX, fTargetY, 0.0f), pInstantRoutes, &sRouteStep, 2, pVehicle, &fNodeDistance, 999999.88f, -1);
 	if(sRouteStep != 1 && sRouteStep != 2 || pInstantRoutes[0] == &THEPATHS->m_AttachedPaths[dwNextNode]) {
 		if(sRouteStep != 2 || pInstantRoutes[1] == &THEPATHS->m_AttachedPaths[dwNextNode]) {
-			CVector2D v2dVehiclePos;
-			v2dVehiclePos.fX = fTargetX - pVehicle->__parent.__parent.matrix.rwMatrix.vPos.x;
-			v2dVehiclePos.fY = fTargetY - pVehicle->__parent.__parent.matrix.rwMatrix.vPos.y;
+			CVector2D v2dVehiclePos(CVector2D(fTargetX, fTargetY) - CVector2D(pVehicle->_.phys.ent.mat.vPos));
+
 			float fTargetAngle = CGeneral::GetATanOfXY(v2dVehiclePos);
 			int nConnectedSets = THEPATHS->m_AttachedPaths[dwNextNode].bitnumberOfNodesConnected;
 			float fPreviousFoundAngle = 10.0f;
@@ -212,76 +227,76 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 		}
 	}
 	
-	pVehicle->Autopilot.m_dwPrevMainNode = pVehicle->Autopilot.m_dwMainNode;
-	pVehicle->Autopilot.m_dwMainNode = pVehicle->Autopilot.m_dwNextNodeIndex;
-	pVehicle->Autopilot.m_dwNextNodeIndex = nNodeWithSmallestDiversion;
-	pVehicle->Autopilot.m_dwCurrentSpeedScaleFactor += pVehicle->Autopilot.m_dwNextSpeedScaleFactor;
-	pVehicle->Autopilot.m_dwPrevDetachedNodeIndex = pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex;
-	pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex = pVehicle->Autopilot.m_dwNextDetachedNodeIndex;
-	pVehicle->Autopilot.m_bytePrevDirectionScale = pVehicle->Autopilot.m_byteCurrentDirectionScale;
-	pVehicle->Autopilot.m_byteCurrentDirectionScale = pVehicle->Autopilot.m_byteNextDirectionScale;
-	pVehicle->Autopilot.m_byteCurrentLanes = pVehicle->Autopilot.m_byteNextLanes;
-	pVehicle->Autopilot.m_dwNextDetachedNodeIndex = THEPATHS->DetachedPointsInfo[nFoundConnectedBit + THEPATHS->m_AttachedPaths[dwNextNode].wRouteInfoIndex];
+	pVehicle->_.stAutopilot.m_dwPrevNode = pVehicle->_.stAutopilot.m_dwCurrentNode;
+	pVehicle->_.stAutopilot.m_dwCurrentNode = pVehicle->_.stAutopilot.m_dwNextNode;
+	pVehicle->_.stAutopilot.m_dwNextNode = nNodeWithSmallestDiversion;
+	pVehicle->_.stAutopilot.m_dwCurrentSpeedScaleFactor += pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor;
+	pVehicle->_.stAutopilot.m_dwPrevCarLinkNode = pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode;
+	pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode = pVehicle->_.stAutopilot.m_dwNextCarLinkNode;
+	pVehicle->_.stAutopilot.m_bytePrevDirectionScale = pVehicle->_.stAutopilot.m_byteCurrentDirectionScale;
+	pVehicle->_.stAutopilot.m_byteCurrentDirectionScale = pVehicle->_.stAutopilot.m_byteNextDirectionScale;
+	pVehicle->_.stAutopilot.m_byteCurrentLanes = pVehicle->_.stAutopilot.m_byteNextLanes;
+	pVehicle->_.stAutopilot.m_dwNextCarLinkNode = THEPATHS->m_InfoCarPathLinks[nFoundConnectedBit + THEPATHS->m_AttachedPaths[dwNextNode].wRouteInfoIndex];
 	
 	int nRequiredLanes;
-	if(dwNextNode >= pVehicle->Autopilot.m_dwNextNodeIndex) {
-		pVehicle->Autopilot.m_byteNextDirectionScale = 1;
-		nRequiredLanes = THEPATHS->m_DetachedNodes[pVehicle->Autopilot.m_dwNextDetachedNodeIndex].bitRightLanes;
+	if(dwNextNode >= pVehicle->_.stAutopilot.m_dwNextNode) {
+		pVehicle->_.stAutopilot.m_byteNextDirectionScale = 1;
+		nRequiredLanes = THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwNextCarLinkNode].bitRightLanes;
 	}
 	else {
-		pVehicle->Autopilot.m_byteNextDirectionScale = -1;
-		nRequiredLanes = THEPATHS->m_DetachedNodes[pVehicle->Autopilot.m_dwNextDetachedNodeIndex].bitLeftLanes;
+		pVehicle->_.stAutopilot.m_byteNextDirectionScale = -1;
+		nRequiredLanes = THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwNextCarLinkNode].bitLeftLanes;
 	}
-	int dwCurrentDetachedNode = pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex;
-	int dwNextDetachedNode = pVehicle->Autopilot.m_dwNextDetachedNodeIndex;
+	int dwCurrentDetachedNode = pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode;
+	int dwNextDetachedNode = pVehicle->_.stAutopilot.m_dwNextCarLinkNode;
 	CVector2D v2dCurrentDirection, v2dNextDirection;
-	v2dCurrentDirection.fX = (float)(pVehicle->Autopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].NormalVecX) / 100.0f;
-	v2dCurrentDirection.fY = (float)(pVehicle->Autopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].NormalVecY) / 100.0f;
-	v2dNextDirection.fX = (float)(pVehicle->Autopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].NormalVecX) / 100.0f;
-	v2dNextDirection.fY = (float)(pVehicle->Autopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].NormalVecY) / 100.0f;
+	v2dCurrentDirection.fX = (float)(pVehicle->_.stAutopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].NormalVecX) / 100.0f;
+	v2dCurrentDirection.fY = (float)(pVehicle->_.stAutopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].NormalVecY) / 100.0f;
+	v2dNextDirection.fX = (float)(pVehicle->_.stAutopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_CarPathLinks[dwNextDetachedNode].NormalVecX) / 100.0f;
+	v2dNextDirection.fY = (float)(pVehicle->_.stAutopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_CarPathLinks[dwNextDetachedNode].NormalVecY) / 100.0f;
 	
 	CVector vecCurrentDetached, vecNextDetached;
-	vecCurrentDetached.fX = (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].wX) / 8.0f;
-	vecCurrentDetached.fY = (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].wY) / 8.0f;
-	vecNextDetached.fX = (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].wX) / 8.0f;
-	vecNextDetached.fY = (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].wY) / 8.0f;
+	vecCurrentDetached.fX = (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].wX) / 8.0f;
+	vecCurrentDetached.fY = (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].wY) / 8.0f;
+	vecNextDetached.fX = (float)(THEPATHS->m_CarPathLinks[dwNextDetachedNode].wX) / 8.0f;
+	vecNextDetached.fY = (float)(THEPATHS->m_CarPathLinks[dwNextDetachedNode].wY) / 8.0f;
 	if(nRequiredLanes >= 0) {
 		float fDetachedDisplacement = (vecNextDetached.fY - vecCurrentDetached.fY) * (vecNextDetached.fY - vecCurrentDetached.fY) + (vecNextDetached.fX - vecCurrentDetached.fX) * (vecNextDetached.fX - vecCurrentDetached.fX);
 		if(fDetachedDisplacement > 49.0f) {
-			int eAutoPilotBehaviour = pVehicle->Autopilot.m_DriverBehaviour;
+			int eAutoPilotBehaviour = pVehicle->_.stAutopilot.m_DriverBehaviour;
 			if(eAutoPilotBehaviour != 2 && eAutoPilotBehaviour != 4 && eAutoPilotBehaviour != 15 && eAutoPilotBehaviour != 17 && !(rand() & 0x600)) {
 				if(rand() < CPathFind::em_infoConnectedNodesNODEINDEXONLY) {
-					pVehicle->Autopilot.m_byteNextLanes++;
+					pVehicle->_.stAutopilot.m_byteNextLanes++;
 				}
 				else {
-					pVehicle->Autopilot.m_byteNextLanes--;
+					pVehicle->_.stAutopilot.m_byteNextLanes--;
 				}
 			}
 		}
-		if(pVehicle->Autopilot.m_byteNextLanes >= (nRequiredLanes - 1)) {
-			pVehicle->Autopilot.m_byteNextLanes = nRequiredLanes - 1;
+		if(pVehicle->_.stAutopilot.m_byteNextLanes >= (nRequiredLanes - 1)) {
+			pVehicle->_.stAutopilot.m_byteNextLanes = nRequiredLanes - 1;
 		}
-		if(pVehicle->Autopilot.m_byteNextLanes <= 0) {
-			pVehicle->Autopilot.m_byteNextLanes = 0;
+		if(pVehicle->_.stAutopilot.m_byteNextLanes <= 0) {
+			pVehicle->_.stAutopilot.m_byteNextLanes = 0;
 		}
 	}
 	else {
-		pVehicle->Autopilot.m_byteNextLanes = pVehicle->Autopilot.m_byteCurrentLanes;
+		pVehicle->_.stAutopilot.m_byteNextLanes = pVehicle->_.stAutopilot.m_byteCurrentLanes;
 	}
-	if((pVehicle->Autopilot.m_flags >> 3) & 1) {
-		pVehicle->Autopilot.m_byteNextLanes = 0;
+	if((pVehicle->_.stAutopilot.m_flags >> 3) & 1) {
+		pVehicle->_.stAutopilot.m_byteNextLanes = 0;
 	}
-	float fCurrentLaneLength = (THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].CalculateLaneDistance() + (float)(pVehicle->Autopilot.m_byteCurrentLanes)) * 5.0f;
-	float fNextLaneLength = (THEPATHS->m_DetachedNodes[dwNextDetachedNode].CalculateLaneDistance() + (float)(pVehicle->Autopilot.m_byteNextLanes)) * 5.0f;
+	float fCurrentLaneLength = (THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].OneWayLaneOffset() + (float)(pVehicle->_.stAutopilot.m_byteCurrentLanes)) * 5.0f;
+	float fNextLaneLength = (THEPATHS->m_CarPathLinks[dwNextDetachedNode].OneWayLaneOffset() + (float)(pVehicle->_.stAutopilot.m_byteNextLanes)) * 5.0f;
 	CVector2D v2dCurrentDetachedTest, v2dNextDetachedTest;
 	v2dCurrentDetachedTest.fX = vecCurrentDetached.fX + v2dCurrentDirection.fY * fCurrentLaneLength;
 	v2dCurrentDetachedTest.fY = vecCurrentDetached.fY - v2dCurrentDirection.fX * fCurrentLaneLength;
 	v2dNextDetachedTest.fX = vecNextDetached.fX + v2dNextDirection.fY * fNextLaneLength;
 	v2dNextDetachedTest.fY = vecNextDetached.fY - v2dNextDirection.fX * fNextLaneLength;
 	
-	pVehicle->Autopilot.m_dwNextSpeedScaleFactor = (signed int)(CCurves::CalcSpeedScaleFactor(&v2dCurrentDetachedTest, &v2dNextDetachedTest, v2dCurrentDirection, v2dNextDirection) * 1000.0f/ pVehicle->Autopilot.m_fCurrentSpeed);
-	if(pVehicle->Autopilot.m_dwNextSpeedScaleFactor <= 10) {
-		pVehicle->Autopilot.m_dwNextSpeedScaleFactor = 10;
+	pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor = (signed int)(CCurves::CalcSpeedScaleFactor(&v2dCurrentDetachedTest, &v2dNextDetachedTest, v2dCurrentDirection, v2dNextDirection) * 1000.0f/ pVehicle->_.stAutopilot.m_fCurrentSpeed);
+	if(pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor <= 10) {
+		pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor = 10;
 	}
 }
 
@@ -305,22 +320,22 @@ void _cdecl CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle) {
         _asm pop eax
     }*/
 	
-	int dwPrevNextNode = pVehicle->Autopilot.m_dwNextNodeIndex;
+	int dwPrevNextNode = pVehicle->_.stAutopilot.m_dwNextNode;
 	int nNextConnectedSets = THEPATHS->m_AttachedPaths[dwPrevNextNode].bitnumberOfNodesConnected;
-	int dwPrevMainNode = pVehicle->Autopilot.m_dwMainNode;
-	int dwNextDetachedNode = pVehicle->Autopilot.m_dwNextDetachedNodeIndex;
+	int dwPrevMainNode = pVehicle->_.stAutopilot.m_dwCurrentNode;
+	int dwNextDetachedNode = pVehicle->_.stAutopilot.m_dwNextCarLinkNode;
 	int nRequiredLanes = 0;
 	bool bIsFirstOtherLaneNull = false;
-	if(THEPATHS->m_DetachedNodes[dwNextDetachedNode].nIndexToAttachedNode == dwPrevNextNode) {
-		nRequiredLanes = THEPATHS->m_DetachedNodes[dwNextDetachedNode].bitLeftLanes;
-		bIsFirstOtherLaneNull = THEPATHS->m_DetachedNodes[dwNextDetachedNode].bitRightLanes == 0 ? true : false;
+	if(THEPATHS->m_CarPathLinks[dwNextDetachedNode].nIndexToAttachedNode == dwPrevNextNode) {
+		nRequiredLanes = THEPATHS->m_CarPathLinks[dwNextDetachedNode].bitLeftLanes;
+		bIsFirstOtherLaneNull = THEPATHS->m_CarPathLinks[dwNextDetachedNode].bitRightLanes == 0 ? true : false;
 	}
 	else {
-		nRequiredLanes = THEPATHS->m_DetachedNodes[dwNextDetachedNode].bitRightLanes;
-		bIsFirstOtherLaneNull = THEPATHS->m_DetachedNodes[dwNextDetachedNode].bitLeftLanes == 0 ? true : false;
+		nRequiredLanes = THEPATHS->m_CarPathLinks[dwNextDetachedNode].bitRightLanes;
+		bIsFirstOtherLaneNull = THEPATHS->m_CarPathLinks[dwNextDetachedNode].bitLeftLanes == 0 ? true : false;
 	}
 	
-	unsigned char byteAutoNextLane = pVehicle->Autopilot.m_byteNextLanes;
+	unsigned char byteAutoNextLane = pVehicle->_.stAutopilot.m_byteNextLanes;
 	unsigned char byteTestPathDirection = 0;
 	if(byteAutoNextLane == 0) {
 		byteTestPathDirection = 4;
@@ -331,31 +346,31 @@ void _cdecl CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle) {
 	if(nRequiredLanes < 3 || byteTestPathDirection == 0) {
 		byteTestPathDirection = 1;
 	}
-	pVehicle->Autopilot.m_dwPrevMainNode = pVehicle->Autopilot.m_dwMainNode;
-	pVehicle->Autopilot.m_dwMainNode = pVehicle->Autopilot.m_dwNextNodeIndex;
+	pVehicle->_.stAutopilot.m_dwPrevNode = pVehicle->_.stAutopilot.m_dwCurrentNode;
+	pVehicle->_.stAutopilot.m_dwCurrentNode = pVehicle->_.stAutopilot.m_dwNextNode;
 	int nLoopConnectedBits = 0;
     int nRandomConnectedBit = 0;
 	while(nLoopConnectedBits < 15) {
 		nRandomConnectedBit = rand() % nNextConnectedSets;
-		pVehicle->Autopilot.m_dwNextNodeIndex = THEPATHS->m_infoConnectedNodes[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
-		unsigned char bytePathDirection = CCarCtrl::FindPathDirection(dwPrevMainNode, dwPrevNextNode, pVehicle->Autopilot.m_dwNextNodeIndex);
+		pVehicle->_.stAutopilot.m_dwNextNode = THEPATHS->m_infoConnectedNodes[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
+		unsigned char bytePathDirection = CCarCtrl::FindPathDirection(dwPrevMainNode, dwPrevNextNode, pVehicle->_.stAutopilot.m_dwNextNode);
 		
 		bool bIsOtherLaneNull = false;
 		bool bIsTestLaneNull = false;
-		int nTestDetachedRoute = THEPATHS->DetachedPointsInfo[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
-		if(THEPATHS->m_DetachedNodes[nTestDetachedRoute].nIndexToAttachedNode == dwPrevNextNode) {
-			bIsOtherLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
-			bIsTestLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitLeftLanes == 0 ? true : false;
+		int nTestDetachedRoute = THEPATHS->m_InfoCarPathLinks[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
+		if(THEPATHS->m_CarPathLinks[nTestDetachedRoute].nIndexToAttachedNode == dwPrevNextNode) {
+			bIsOtherLaneNull = THEPATHS->m_CarPathLinks[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
+			bIsTestLaneNull = THEPATHS->m_CarPathLinks[nTestDetachedRoute].bitLeftLanes == 0 ? true : false;
 		}
 		else {
-			bIsOtherLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitLeftLanes == 0 ? true : false;
-			bIsTestLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
+			bIsOtherLaneNull = THEPATHS->m_CarPathLinks[nTestDetachedRoute].bitLeftLanes == 0 ? true : false;
+			bIsTestLaneNull = THEPATHS->m_CarPathLinks[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
 		}
-		int dwNextDeltaNode = pVehicle->Autopilot.m_dwNextNodeIndex;
+		int dwNextDeltaNode = pVehicle->_.stAutopilot.m_dwNextNode;
 		if(dwPrevMainNode != dwNextDeltaNode && (byteTestPathDirection & bytePathDirection)) {
 			if(!(THEPATHS->m_AttachedPaths[dwNextDeltaNode].bitUnknownFlag3) || THEPATHS->m_AttachedPaths[dwPrevMainNode].bitUnknownFlag3){
 				if((!(THEPATHS->m_AttachedPaths[dwNextDeltaNode].bitIsIgnoredNode) || THEPATHS->m_AttachedPaths[dwPrevMainNode].bitIsIgnoredNode)
-				&& (!((pVehicle->Autopilot.m_flags >> 2) & 1) || !(THEPATHS->m_AttachedPaths[dwNextDeltaNode].bitRestrictedAccess)
+				&& (!((pVehicle->_.stAutopilot.m_flags >> 2) & 1) || !(THEPATHS->m_AttachedPaths[dwNextDeltaNode].bitRestrictedAccess)
 				|| (THEPATHS->m_AttachedPaths[dwPrevMainNode].bitRestrictedAccess)) && bIsOtherLaneNull == false
 				&& (bIsFirstOtherLaneNull == false || bIsTestLaneNull == false)){
 					break;
@@ -367,19 +382,19 @@ void _cdecl CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle) {
 	if(nLoopConnectedBits >= 15) {
 		for(nLoopConnectedBits = 0; nLoopConnectedBits < 15; nLoopConnectedBits++) {
 			nRandomConnectedBit = rand() % nNextConnectedSets;
-			pVehicle->Autopilot.m_dwNextNodeIndex = THEPATHS->m_infoConnectedNodes[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
+			pVehicle->_.stAutopilot.m_dwNextNode = THEPATHS->m_infoConnectedNodes[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
 			bool bIsOtherLaneNull = false;
-			int nTestDetachedRoute = THEPATHS->DetachedPointsInfo[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
-			if(THEPATHS->m_DetachedNodes[nTestDetachedRoute].nIndexToAttachedNode == dwPrevNextNode) {
-				bIsOtherLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
+			int nTestDetachedRoute = THEPATHS->m_InfoCarPathLinks[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
+			if(THEPATHS->m_CarPathLinks[nTestDetachedRoute].nIndexToAttachedNode == dwPrevNextNode) {
+				bIsOtherLaneNull = THEPATHS->m_CarPathLinks[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
 			}
 			else {
-				bIsOtherLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitLeftLanes == 0 ? true : false;
+				bIsOtherLaneNull = THEPATHS->m_CarPathLinks[nTestDetachedRoute].bitLeftLanes == 0 ? true : false;
 			}
-			int dwNextDeltaNode = pVehicle->Autopilot.m_dwNextNodeIndex;
+			int dwNextDeltaNode = pVehicle->_.stAutopilot.m_dwNextNode;
 			if(dwPrevMainNode != dwNextDeltaNode) {
 				if(!(THEPATHS->m_AttachedPaths[dwNextDeltaNode].bitIsIgnoredNode) || THEPATHS->m_AttachedPaths[dwPrevMainNode].bitIsIgnoredNode) {
-					if((!((pVehicle->Autopilot.m_flags >> 2) & 1) || !(THEPATHS->m_AttachedPaths[dwNextDeltaNode].bitRestrictedAccess)
+					if((!((pVehicle->_.stAutopilot.m_flags >> 2) & 1) || !(THEPATHS->m_AttachedPaths[dwNextDeltaNode].bitRestrictedAccess)
 					|| THEPATHS->m_AttachedPaths[dwPrevMainNode].bitRestrictedAccess) && bIsOtherLaneNull == false) {
 						break;
 					}
@@ -389,19 +404,19 @@ void _cdecl CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle) {
 	}
 	if(nLoopConnectedBits >= 15) {
 		for(nRandomConnectedBit = 0; nRandomConnectedBit < nNextConnectedSets; nRandomConnectedBit++) {
-			pVehicle->Autopilot.m_dwNextNodeIndex = THEPATHS->m_infoConnectedNodes[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
+			pVehicle->_.stAutopilot.m_dwNextNode = THEPATHS->m_infoConnectedNodes[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
 			bool bIsTestLaneNull = false;
-			int nTestDetachedRoute = THEPATHS->DetachedPointsInfo[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
-			if(THEPATHS->m_DetachedNodes[nTestDetachedRoute].nIndexToAttachedNode == dwPrevNextNode) {
-				bIsTestLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
+			int nTestDetachedRoute = THEPATHS->m_InfoCarPathLinks[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
+			if(THEPATHS->m_CarPathLinks[nTestDetachedRoute].nIndexToAttachedNode == dwPrevNextNode) {
+				bIsTestLaneNull = THEPATHS->m_CarPathLinks[nTestDetachedRoute].bitRightLanes == 0 ? true : false;
 			}
 			else {
-				bIsTestLaneNull = THEPATHS->m_DetachedNodes[nTestDetachedRoute].bitLeftLanes == 0 ? true : false;
+				bIsTestLaneNull = THEPATHS->m_CarPathLinks[nTestDetachedRoute].bitLeftLanes == 0 ? true : false;
 			}
 			if(bIsTestLaneNull == false) {
-				int dwNextDeltaNode = pVehicle->Autopilot.m_dwNextNodeIndex;
+				int dwNextDeltaNode = pVehicle->_.stAutopilot.m_dwNextNode;
 				if(!(THEPATHS->m_AttachedPaths[dwNextDeltaNode].bitIsIgnoredNode) || THEPATHS->m_AttachedPaths[dwPrevMainNode].bitIsIgnoredNode) {
-					if(!((pVehicle->Autopilot.m_flags >> 2) & 1) || !(THEPATHS->m_AttachedPaths[dwNextDeltaNode].bitRestrictedAccess)
+					if(!((pVehicle->_.stAutopilot.m_flags >> 2) & 1) || !(THEPATHS->m_AttachedPaths[dwNextDeltaNode].bitRestrictedAccess)
 					|| THEPATHS->m_AttachedPaths[dwPrevMainNode].bitRestrictedAccess) {
 						nRandomConnectedBit = 1000;
 					}
@@ -409,83 +424,83 @@ void _cdecl CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle) {
 			}
 		}
 		if(nRandomConnectedBit < 999) {
-			pVehicle->Autopilot.m_dwNextNodeIndex = dwPrevMainNode;
+			pVehicle->_.stAutopilot.m_dwNextNode = dwPrevMainNode;
 		}
 	}
-	if(dwPrevMainNode == pVehicle->Autopilot.m_dwNextNodeIndex) {
-		pVehicle->__parent.__parent.flags = pVehicle->__parent.__parent.flags & 7 | 0x18;
-		pVehicle->Autopilot.m_DriverBehaviour = 1;
-		pVehicle->Autopilot.m_eSimpleAction = 0;
-		pVehicle->Autopilot.m_snGettingNewCommandTimeStamp = CGameVariables::GetTimeInMilliseconds();
-		pVehicle->Autopilot.m_snUnknownTimeStamp = CGameVariables::GetTimeInMilliseconds();
+	if(dwPrevMainNode == pVehicle->_.stAutopilot.m_dwNextNode) {
+		pVehicle->_.phys.ent.bfTypeStatus = pVehicle->_.phys.ent.bfTypeStatus & 7 | 0x18;
+		pVehicle->_.stAutopilot.m_DriverBehaviour = 1;
+		pVehicle->_.stAutopilot.m_eSimpleAction = 0;
+		pVehicle->_.stAutopilot.m_snGettingNewCommandTimeStamp = CGameVariables::GetTimeInMilliseconds();
+		pVehicle->_.stAutopilot.m_snUnknownTimeStamp = CGameVariables::GetTimeInMilliseconds();
 	}
-	pVehicle->Autopilot.m_dwCurrentSpeedScaleFactor += pVehicle->Autopilot.m_dwNextSpeedScaleFactor;
-	pVehicle->Autopilot.m_dwPrevDetachedNodeIndex = pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex;
-	pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex = pVehicle->Autopilot.m_dwNextDetachedNodeIndex;
-	pVehicle->Autopilot.m_bytePrevDirectionScale = pVehicle->Autopilot.m_byteCurrentDirectionScale;
-	pVehicle->Autopilot.m_byteCurrentDirectionScale = pVehicle->Autopilot.m_byteNextDirectionScale;
-	pVehicle->Autopilot.m_byteCurrentLanes = pVehicle->Autopilot.m_byteNextLanes;
-	pVehicle->Autopilot.m_dwNextDetachedNodeIndex = THEPATHS->DetachedPointsInfo[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
+	pVehicle->_.stAutopilot.m_dwCurrentSpeedScaleFactor += pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor;
+	pVehicle->_.stAutopilot.m_dwPrevCarLinkNode = pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode;
+	pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode = pVehicle->_.stAutopilot.m_dwNextCarLinkNode;
+	pVehicle->_.stAutopilot.m_bytePrevDirectionScale = pVehicle->_.stAutopilot.m_byteCurrentDirectionScale;
+	pVehicle->_.stAutopilot.m_byteCurrentDirectionScale = pVehicle->_.stAutopilot.m_byteNextDirectionScale;
+	pVehicle->_.stAutopilot.m_byteCurrentLanes = pVehicle->_.stAutopilot.m_byteNextLanes;
+	pVehicle->_.stAutopilot.m_dwNextCarLinkNode = THEPATHS->m_InfoCarPathLinks[nRandomConnectedBit + THEPATHS->m_AttachedPaths[dwPrevNextNode].wRouteInfoIndex];
 	
 	int dwNextLanes;
-	if(dwPrevNextNode >= pVehicle->Autopilot.m_dwNextNodeIndex) {
-		pVehicle->Autopilot.m_byteNextDirectionScale = 1;
-		dwNextLanes = THEPATHS->m_DetachedNodes[pVehicle->Autopilot.m_dwNextDetachedNodeIndex].bitLeftLanes;
+	if(dwPrevNextNode >= pVehicle->_.stAutopilot.m_dwNextNode) {
+		pVehicle->_.stAutopilot.m_byteNextDirectionScale = 1;
+		dwNextLanes = THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwNextCarLinkNode].bitLeftLanes;
 	}
 	else {
-		pVehicle->Autopilot.m_byteNextDirectionScale = -1;
-		dwNextLanes = THEPATHS->m_DetachedNodes[pVehicle->Autopilot.m_dwNextDetachedNodeIndex].bitRightLanes;
+		pVehicle->_.stAutopilot.m_byteNextDirectionScale = -1;
+		dwNextLanes = THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwNextCarLinkNode].bitRightLanes;
 	}
 	CVector2D v2dCurrentDirection, v2dNextDirection, v2dCurrentDetachedTest, v2dNextDetachedTest;
-	v2dCurrentDirection.fX = (float)(pVehicle->Autopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_DetachedNodes[pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex].NormalVecX) / 100.0f;
-	v2dCurrentDirection.fY = (float)(pVehicle->Autopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_DetachedNodes[pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex].NormalVecY) / 100.0f;
-	v2dNextDirection.fX = (float)(pVehicle->Autopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_DetachedNodes[pVehicle->Autopilot.m_dwNextDetachedNodeIndex].NormalVecX) / 100.0f;
-	v2dNextDirection.fY = (float)(pVehicle->Autopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_DetachedNodes[pVehicle->Autopilot.m_dwNextDetachedNodeIndex].NormalVecY) / 100.0f;
+	v2dCurrentDirection.fX = (float)(pVehicle->_.stAutopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode].NormalVecX) / 100.0f;
+	v2dCurrentDirection.fY = (float)(pVehicle->_.stAutopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode].NormalVecY) / 100.0f;
+	v2dNextDirection.fX = (float)(pVehicle->_.stAutopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwNextCarLinkNode].NormalVecX) / 100.0f;
+	v2dNextDirection.fY = (float)(pVehicle->_.stAutopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwNextCarLinkNode].NormalVecY) / 100.0f;
 	
 	if(dwNextLanes >= 0) {
 		if(!(rand() & 0x600)) {
 			CVector2D v2dCurrentAttached, v2dNextAttached;
-			v2dCurrentAttached.fX = (float)(THEPATHS->m_AttachedPaths[pVehicle->Autopilot.m_dwMainNode].wX) / 8.0f;
-			v2dCurrentAttached.fY = (float)(THEPATHS->m_AttachedPaths[pVehicle->Autopilot.m_dwMainNode].wY) / 8.0f;
-			v2dNextAttached.fX = (float)(THEPATHS->m_AttachedPaths[pVehicle->Autopilot.m_dwNextNodeIndex].wX) / 8.0f;
-			v2dNextAttached.fY = (float)(THEPATHS->m_AttachedPaths[pVehicle->Autopilot.m_dwNextNodeIndex].wY) / 8.0f;
+			v2dCurrentAttached.fX = (float)(THEPATHS->m_AttachedPaths[pVehicle->_.stAutopilot.m_dwCurrentNode].wX) / 8.0f;
+			v2dCurrentAttached.fY = (float)(THEPATHS->m_AttachedPaths[pVehicle->_.stAutopilot.m_dwCurrentNode].wY) / 8.0f;
+			v2dNextAttached.fX = (float)(THEPATHS->m_AttachedPaths[pVehicle->_.stAutopilot.m_dwNextNode].wX) / 8.0f;
+			v2dNextAttached.fY = (float)(THEPATHS->m_AttachedPaths[pVehicle->_.stAutopilot.m_dwNextNode].wY) / 8.0f;
 			
 			float fAttachedNodeDisplacement = (v2dNextAttached.fY - v2dCurrentAttached.fY) * (v2dNextAttached.fY - v2dCurrentAttached.fY) + (v2dNextAttached.fX - v2dCurrentAttached.fX) * (v2dNextAttached.fX - v2dCurrentAttached.fX);
 			if(fAttachedNodeDisplacement >= 196.0f) {
 				if(rand() < CPathFind::em_infoConnectedNodesNODEINDEXONLY) {
-					pVehicle->Autopilot.m_byteNextLanes++;
+					pVehicle->_.stAutopilot.m_byteNextLanes++;
 				}
 				else {
-					pVehicle->Autopilot.m_byteNextLanes--;
+					pVehicle->_.stAutopilot.m_byteNextLanes--;
 				}
 			}
 		}
-		if(pVehicle->Autopilot.m_byteNextLanes >= (dwNextLanes - 1)) {
-			pVehicle->Autopilot.m_byteNextLanes = dwNextLanes - 1;
+		if(pVehicle->_.stAutopilot.m_byteNextLanes >= (dwNextLanes - 1)) {
+			pVehicle->_.stAutopilot.m_byteNextLanes = dwNextLanes - 1;
 		}
-		if(pVehicle->Autopilot.m_byteNextLanes <= 0) {
-			pVehicle->Autopilot.m_byteNextLanes = 0;
+		if(pVehicle->_.stAutopilot.m_byteNextLanes <= 0) {
+			pVehicle->_.stAutopilot.m_byteNextLanes = 0;
 		}
 	}
 	else {
-		pVehicle->Autopilot.m_byteNextLanes = pVehicle->Autopilot.m_byteCurrentLanes;
+		pVehicle->_.stAutopilot.m_byteNextLanes = pVehicle->_.stAutopilot.m_byteCurrentLanes;
 	}
 	
-	if((pVehicle->Autopilot.m_flags >> 3) & 1) {
-		pVehicle->Autopilot.m_byteNextLanes = 0;
+	if((pVehicle->_.stAutopilot.m_flags >> 3) & 1) {
+		pVehicle->_.stAutopilot.m_byteNextLanes = 0;
 	}
-	int dwTestCurrentDetachedNode = pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex;
-	int dwTestNextDetachedNode = pVehicle->Autopilot.m_dwNextDetachedNodeIndex;
-	float fCurrentLaneLength = (THEPATHS->m_DetachedNodes[dwTestCurrentDetachedNode].CalculateLaneDistance() + (float)(pVehicle->Autopilot.m_byteCurrentLanes)) * 5.0f;
-	float fNextLaneLength = (THEPATHS->m_DetachedNodes[dwTestNextDetachedNode].CalculateLaneDistance() + (float)(pVehicle->Autopilot.m_byteNextLanes)) * 5.0f;
-	v2dNextDetachedTest.fX = (float)(THEPATHS->m_DetachedNodes[dwTestNextDetachedNode].wX) / 8.0f + fNextLaneLength;
-	v2dNextDetachedTest.fY = (float)(THEPATHS->m_DetachedNodes[dwTestNextDetachedNode].wY) / 8.0f - v2dNextDirection.fX * fNextLaneLength;
-	v2dCurrentDetachedTest.fX = (float)(THEPATHS->m_DetachedNodes[dwTestCurrentDetachedNode].wX) / 8.0f + fCurrentLaneLength;
-	v2dCurrentDetachedTest.fY = (float)(THEPATHS->m_DetachedNodes[dwTestCurrentDetachedNode].wY) / 8.0f - v2dCurrentDirection.fX * fCurrentLaneLength;
+	int dwTestCurrentDetachedNode = pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode;
+	int dwTestNextDetachedNode = pVehicle->_.stAutopilot.m_dwNextCarLinkNode;
+	float fCurrentLaneLength = (THEPATHS->m_CarPathLinks[dwTestCurrentDetachedNode].OneWayLaneOffset() + (float)(pVehicle->_.stAutopilot.m_byteCurrentLanes)) * 5.0f;
+	float fNextLaneLength = (THEPATHS->m_CarPathLinks[dwTestNextDetachedNode].OneWayLaneOffset() + (float)(pVehicle->_.stAutopilot.m_byteNextLanes)) * 5.0f;
+	v2dNextDetachedTest.fX = (float)(THEPATHS->m_CarPathLinks[dwTestNextDetachedNode].wX) / 8.0f + fNextLaneLength;
+	v2dNextDetachedTest.fY = (float)(THEPATHS->m_CarPathLinks[dwTestNextDetachedNode].wY) / 8.0f - v2dNextDirection.fX * fNextLaneLength;
+	v2dCurrentDetachedTest.fX = (float)(THEPATHS->m_CarPathLinks[dwTestCurrentDetachedNode].wX) / 8.0f + fCurrentLaneLength;
+	v2dCurrentDetachedTest.fY = (float)(THEPATHS->m_CarPathLinks[dwTestCurrentDetachedNode].wY) / 8.0f - v2dCurrentDirection.fX * fCurrentLaneLength;
 	
-	pVehicle->Autopilot.m_dwNextSpeedScaleFactor = (signed int)(CCurves::CalcSpeedScaleFactor(&v2dCurrentDetachedTest, &v2dNextDetachedTest, v2dCurrentDirection, v2dNextDirection) * 1000.0f / pVehicle->Autopilot.m_fCurrentSpeed);
-	if(pVehicle->Autopilot.m_dwNextSpeedScaleFactor <= 10){
-		pVehicle->Autopilot.m_dwNextSpeedScaleFactor = 10;
+	pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor = (signed int)(CCurves::CalcSpeedScaleFactor(&v2dCurrentDetachedTest, &v2dNextDetachedTest, v2dCurrentDirection, v2dNextDirection) * 1000.0f / pVehicle->_.stAutopilot.m_fCurrentSpeed);
+	if(pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor <= 10){
+		pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor = 10;
 		CDebug::DebugAddText("fout\n");
 	}
 }
@@ -533,8 +548,8 @@ byte _cdecl CCarCtrl::FindPathDirection(int nPreviousMainNode, int nCurrentNode,
  */
  //422A10h
 bool _cdecl CCarCtrl::PickNextNodeAccordingStrategy(CVehicle* pVehicle) {
-	pVehicle->Autopilot.m_byteSpeedLimit = THEPATHS->m_AttachedPaths[pVehicle->Autopilot.m_dwNextNodeIndex].bitSpeedLimit;
-	switch(pVehicle->Autopilot.m_DriverBehaviour) {
+	pVehicle->_.stAutopilot.m_byteSpeedLimit = THEPATHS->m_AttachedPaths[pVehicle->_.stAutopilot.m_dwNextNode].bitSpeedLimit;
+	switch(pVehicle->_.stAutopilot.m_DriverBehaviour) {
 		case 2:
 		case 4:
         {
@@ -547,7 +562,7 @@ bool _cdecl CCarCtrl::PickNextNodeAccordingStrategy(CVehicle* pVehicle) {
         }
 		case 15:
 		case 17:
-			PickNextNodeToChaseCar(pVehicle, pVehicle->Autopilot.m_pTargetVehicle->__parent.__parent.matrix.rwMatrix.vPos.x, pVehicle->Autopilot.m_pTargetVehicle->__parent.__parent.matrix.rwMatrix.vPos.y, pVehicle->Autopilot.m_pTargetVehicle);
+			PickNextNodeToChaseCar(pVehicle, pVehicle->_.pVehicleToRam->_.phys.ent.mat.vPos.fX, pVehicle->_.pVehicleToRam->_.phys.ent.mat.vPos.fY, pVehicle->_.pVehicleToRam);
 			return false;
 			break;
 		case 8:
@@ -557,9 +572,9 @@ bool _cdecl CCarCtrl::PickNextNodeAccordingStrategy(CVehicle* pVehicle) {
 		default:
         {
 			PickNextNodeRandomly(pVehicle);
-			if(THEPATHS->m_AttachedPaths[pVehicle->Autopilot.m_dwNextNodeIndex].bitHaveUnrandomizedVehClass) {
-				if(pVehicle->__parent.__parent.modelIndex == BOAT_RIO || pVehicle->__parent.__parent.modelIndex == BOAT_TROPIC || pVehicle->__parent.__parent.modelIndex == BOAT_MARQUIS) {
-					pVehicle->Autopilot.m_nMaxSpeed = 0;
+			if(THEPATHS->m_AttachedPaths[pVehicle->_.stAutopilot.m_dwNextNode].bitHaveUnrandomizedVehClass) {
+				if(pVehicle->_.phys.ent.nModelIndex == BOAT_RIO || pVehicle->_.phys.ent.nModelIndex == BOAT_TROPIC || pVehicle->_.phys.ent.nModelIndex == BOAT_MARQUIS) {
+					pVehicle->_.stAutopilot.m_nMaxSpeed = 0;
 				}
 			}
 			return false;
@@ -576,40 +591,40 @@ bool _cdecl CCarCtrl::PickNextNodeAccordingStrategy(CVehicle* pVehicle) {
  */
 //425BF0h
 void _cdecl CCarCtrl::UpdateCarOnRails(CVehicle* pVehicle) {
-	if(pVehicle->Autopilot.m_eSimpleAction == 1) {
-		pVehicle->__parent.velocity.x = 0.0f;
-		pVehicle->__parent.velocity.y = 0.0f;
-		pVehicle->__parent.velocity.z = 0.0f;
-		pVehicle->Autopilot.ModifySpeed(0.0f);
-		if(CGameVariables::GetTimeInMilliseconds() > pVehicle->Autopilot.m_simple_action_time) {
-			pVehicle->Autopilot.m_eSimpleAction = 0;
-			pVehicle->Autopilot.m_snGettingNewCommandTimeStamp = CGameVariables::GetTimeInMilliseconds();
-			pVehicle->Autopilot.m_snUnknownTimeStamp = CGameVariables::GetTimeInMilliseconds();
+	if(pVehicle->_.stAutopilot.m_eSimpleAction == 1) {
+		pVehicle->_.phys.vecMoveSpeed.fX = 0.0f;
+		pVehicle->_.phys.vecMoveSpeed.fY = 0.0f;
+		pVehicle->_.phys.vecMoveSpeed.fZ = 0.0f;
+		pVehicle->_.stAutopilot.ModifySpeed(0.0f);
+		if(CGameVariables::GetTimeInMilliseconds() > pVehicle->_.stAutopilot.m_simple_action_time) {
+			pVehicle->_.stAutopilot.m_eSimpleAction = 0;
+			pVehicle->_.stAutopilot.m_snGettingNewCommandTimeStamp = CGameVariables::GetTimeInMilliseconds();
+			pVehicle->_.stAutopilot.m_snUnknownTimeStamp = CGameVariables::GetTimeInMilliseconds();
 		}
 	}
 	else {
 		SlowCarOnRailsDownForTrafficAndLights(pVehicle);
-		if(CGameVariables::GetTimeInMilliseconds() >= (int64_t)(pVehicle->Autopilot.m_dwNextSpeedScaleFactor + pVehicle->Autopilot.m_dwCurrentSpeedScaleFactor)) {
+		if(CGameVariables::GetTimeInMilliseconds() >= (int64_t)(pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor + pVehicle->_.stAutopilot.m_dwCurrentSpeedScaleFactor)) {
 			PickNextNodeAccordingStrategy(pVehicle);
 		}
-		if((pVehicle->__parent.__parent.flags >> 3) != 3) {
-			float fTimeDelta = (float)(uint32_t)(CGameVariables::GetTimeInMilliseconds() - pVehicle->Autopilot.m_dwCurrentSpeedScaleFactor) / (float)(pVehicle->Autopilot.m_dwNextSpeedScaleFactor);
-			int dwCurrentDetachedNode = pVehicle->Autopilot.m_dwCurrentDetachedNodeIndex;
+		if((pVehicle->_.phys.ent.bfTypeStatus >> 3) != 3) {
+			float fTimeDelta = (float)(uint32_t)(CGameVariables::GetTimeInMilliseconds() - pVehicle->_.stAutopilot.m_dwCurrentSpeedScaleFactor) / (float)(pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor);
+			int dwCurrentDetachedNode = pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode;
 			CVector2D vecCurrentDirection, vecNextDirection;
-			vecCurrentDirection.fX = (float)(pVehicle->Autopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].NormalVecX) / 100.0f;
-			vecCurrentDirection.fY = (float)(pVehicle->Autopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].NormalVecY) / 100.0f;
-			int dwNextDetachedNode = pVehicle->Autopilot.m_dwNextDetachedNodeIndex;
-			vecNextDirection.fX = (float)(pVehicle->Autopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].NormalVecX) / 100.0f;
-			vecNextDirection.fY = (float)(pVehicle->Autopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].NormalVecY) / 100.0f;
+			vecCurrentDirection.fX = (float)(pVehicle->_.stAutopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].NormalVecX) / 100.0f;
+			vecCurrentDirection.fY = (float)(pVehicle->_.stAutopilot.m_byteCurrentDirectionScale) * (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].NormalVecY) / 100.0f;
+			int dwNextDetachedNode = pVehicle->_.stAutopilot.m_dwNextCarLinkNode;
+			vecNextDirection.fX = (float)(pVehicle->_.stAutopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_CarPathLinks[dwNextDetachedNode].NormalVecX) / 100.0f;
+			vecNextDirection.fY = (float)(pVehicle->_.stAutopilot.m_byteNextDirectionScale) * (float)(THEPATHS->m_CarPathLinks[dwNextDetachedNode].NormalVecY) / 100.0f;
 			
-			float fCurrentLane = (THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].CalculateLaneDistance() + (float)(pVehicle->Autopilot.m_byteCurrentLanes)) * 5.0f;
-			float fNextLane = (THEPATHS->m_DetachedNodes[dwNextDetachedNode].CalculateLaneDistance() + (float)(pVehicle->Autopilot.m_byteNextLanes)) * 5.0f;
+			float fCurrentLane = (THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].OneWayLaneOffset() + (float)(pVehicle->_.stAutopilot.m_byteCurrentLanes)) * 5.0f;
+			float fNextLane = (THEPATHS->m_CarPathLinks[dwNextDetachedNode].OneWayLaneOffset() + (float)(pVehicle->_.stAutopilot.m_byteNextLanes)) * 5.0f;
 			
 			CVector2D vecCurrentLane, vecNextLane;
-			vecCurrentLane.fX = (double)(((dwCurrentDetachedNode + pVehicle->__parent.__parent.uiPathMedianRand) & 7) - 3) * 0.0089999996f;
-			vecCurrentLane.fY = (double)((((dwCurrentDetachedNode + pVehicle->__parent.__parent.uiPathMedianRand) >> 3) & 7) -3) * 0.0089999996f;
-			vecNextLane.fX = (double)(((dwNextDetachedNode + pVehicle->__parent.__parent.uiPathMedianRand) & 7) - 3) * 0.0089999996f;
-			vecNextLane.fY = (double)((((dwNextDetachedNode + pVehicle->__parent.__parent.uiPathMedianRand) >> 3) & 7) - 3) * 0.0089999996f;
+			vecCurrentLane.fX = (double)(((dwCurrentDetachedNode + pVehicle->_.phys.ent.uiPathMedianRand) & 7) - 3) * 0.0089999996f;
+			vecCurrentLane.fY = (double)((((dwCurrentDetachedNode + pVehicle->_.phys.ent.uiPathMedianRand) >> 3) & 7) -3) * 0.0089999996f;
+			vecNextLane.fX = (double)(((dwNextDetachedNode + pVehicle->_.phys.ent.uiPathMedianRand) & 7) - 3) * 0.0089999996f;
+			vecNextLane.fY = (double)((((dwNextDetachedNode + pVehicle->_.phys.ent.uiPathMedianRand) >> 3) & 7) - 3) * 0.0089999996f;
 			
 			vecCurrentLane.fX += vecCurrentDirection.fX;
 			vecCurrentLane.fY += vecCurrentDirection.fY;
@@ -623,19 +638,19 @@ void _cdecl CCarCtrl::UpdateCarOnRails(CVehicle* pVehicle) {
 			vecCurrentDetachedTest.fZ = 0.0f;
 			vecNextDetachedTest.fZ = 0.0f;
 			
-			vecCurrentDetachedTest.fX = (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].wX) / 8.0f + vecCurrentDirection.fY * fCurrentLane;
-			vecCurrentDetachedTest.fY = (float)(THEPATHS->m_DetachedNodes[dwCurrentDetachedNode].wY) / 8.0f - vecCurrentDirection.fX * fCurrentLane;
-			vecNextDetachedTest.fX = (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].wX) / 8.0f + vecNextDirection.fY * fNextLane;
-			vecNextDetachedTest.fY = (float)(THEPATHS->m_DetachedNodes[dwNextDetachedNode].wY) / 8.0f - vecNextDirection.fX * fNextLane;
+			vecCurrentDetachedTest.fX = (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].wX) / 8.0f + vecCurrentDirection.fY * fCurrentLane;
+			vecCurrentDetachedTest.fY = (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].wY) / 8.0f - vecCurrentDirection.fX * fCurrentLane;
+			vecNextDetachedTest.fX = (float)(THEPATHS->m_CarPathLinks[dwNextDetachedNode].wX) / 8.0f + vecNextDirection.fY * fNextLane;
+			vecNextDetachedTest.fY = (float)(THEPATHS->m_CarPathLinks[dwNextDetachedNode].wY) / 8.0f - vecNextDirection.fX * fNextLane;
 			
 			CVector vecGotoPoint, vecRequiredVelocity;
-			CCurves::CalcCurvePoint(&vecCurrentDetachedTest, &vecNextDetachedTest, &vecCurrentLane, &vecNextLane, fTimeDelta, pVehicle->Autopilot.m_dwNextSpeedScaleFactor, &vecGotoPoint, &vecRequiredVelocity);
+			CCurves::CalcCurvePoint(&vecCurrentDetachedTest, &vecNextDetachedTest, &vecCurrentLane, &vecNextLane, fTimeDelta, pVehicle->_.stAutopilot.m_dwNextSpeedScaleFactor, &vecGotoPoint, &vecRequiredVelocity);
 			vecGotoPoint.fZ = 15.0f;
 			DragCarToPoint(pVehicle, &vecGotoPoint);
 			vecRequiredVelocity *= 0.016666668f;
-			pVehicle->__parent.velocity.x = vecRequiredVelocity.fX;
-			pVehicle->__parent.velocity.y = vecRequiredVelocity.fY;
-			pVehicle->__parent.velocity.z = vecRequiredVelocity.fZ;
+			pVehicle->_.phys.vecMoveSpeed.fX = vecRequiredVelocity.fX;
+			pVehicle->_.phys.vecMoveSpeed.fY = vecRequiredVelocity.fY;
+			pVehicle->_.phys.vecMoveSpeed.fZ = vecRequiredVelocity.fZ;
 		}
 	}
 }

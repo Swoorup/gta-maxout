@@ -6,9 +6,16 @@
 
 class CMatrix {
 public:
-  RwMatrix rwMatrix;
-  void *matrixPtr;
-  int haveRwMatrix;
+  CVector vLookRight;
+  int __fxpad01;
+  CVector vLookAt;
+  int __fxpad02;
+  CVector vLookUp;
+  int __fxpad03;
+  CVector vPos;
+  int __fxpad04;
+  int pAttached;
+  int bDeleteOnDetach;
 };
 
 #pragma pack(pop)

@@ -5,14 +5,14 @@
 #pragma pack(push, 1)
 class CAutoPilot {
 public: 
-  int m_dwMainNode;
-  int m_dwNextNodeIndex;
-  int m_dwPrevMainNode;
+  int m_dwCurrentNode;
+  int m_dwNextNode;
+  int m_dwPrevNode;
   int m_dwCurrentSpeedScaleFactor;
   int m_dwNextSpeedScaleFactor;
-  int m_dwCurrentDetachedNodeIndex;
-  int m_dwNextDetachedNodeIndex;
-  int m_dwPrevDetachedNodeIndex;
+  int m_dwCurrentCarLinkNode;
+  int m_dwNextCarLinkNode;
+  int m_dwPrevCarLinkNode;
   int m_snGettingNewCommandTimeStamp;
   int m_snUnknownTimeStamp;
   char m_bytePrevDirectionScale;
@@ -36,7 +36,6 @@ public:
   CPathNode* m_pIntermediateRouteList[8];
   short m_nRouteListStep;
   char m_gap_72[2];
-  CVehicle* m_pTargetVehicle;
   
   void RemoveOnePathNode(void);
   void ModifySpeed(float fModSpeed);

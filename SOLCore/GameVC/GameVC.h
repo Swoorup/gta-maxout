@@ -418,6 +418,6 @@ extern FindPlayerPed_t FindPlayerPed;
 extern LoadingScreen_t LoadingScreen;
 extern FindPlayerVehicle_t FindPlayerVehicle;
 extern FindPlayerCoors_t FindPlayerCoors;
-extern CCamera& TheCamera;
+extern CCameraVC& TheCamera;
 
 #endif

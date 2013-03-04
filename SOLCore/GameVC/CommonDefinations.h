@@ -7,7 +7,8 @@ typedef struct CVehicle CVehicle;
 typedef class CMatrix CMatrix;
 
 #pragma pack(push, 1)
-struct CEntity__vtbl
+
+struct CEntity_vtbl
 {
   void *m0;
   void *m4;
@@ -27,87 +28,74 @@ struct CEntity__vtbl
   void *m3C;
   void *RemoveFromVehicle;
 };
-#pragma pack(pop)
 
 
-#pragma pack(push, 1)
-struct CEntity
+
+struct CEntityR
 {
-  CEntity__vtbl *__vmt;
-  CMatrix matrix;
-  void *rwObject;
-  unsigned __int8 flags;
-  char type;
-  char field_52;
-  char field_53;
-  char field_54;
-  char field_55;
+  CMatrix mat;
+  int pClump;
+  unsigned __int8 bfTypeStatus;
+  char bfFlagsA;
+  char bfFlagsB;
+  char bfFlagsC;
+  char bfFlagsD;
+  char bfFlagsE;
   char gap_56[2];
   __int16 field_58;
   __int16 uiPathMedianRand;
-  __int16 modelIndex;
-  char buildingIsland;
-  char interior;
-  int pReference;
+  __int16 nModelIndex;
+  char byteLevel;
+  char byteInterios;
+  int pFirstRef;
 };
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-struct CPhysical
+struct CEntity
 {
-  CEntity __parent;
-  int audioID;
-  int field_68;
-  int field_6C;
-  RwV3d velocity;
-  RwV3d angularVelocity;
-  int field_88;
-  int field_8C;
-  int field_90;
-  int field_94;
-  int field_98;
-  int field_9C;
-  int field_A0;
-  int field_A4;
-  int field_A8;
-  int field_AC;
-  int field_B0;
-  int field_B4;
+	int pfnVMT;
+	CEntityR _;
+};
+struct CPhysicalR
+{
+  CEntityR ent;
+  int uAudioEntityId;
+  char __f0004[8];
+  CVector vecMoveSpeed;
+  CVector vecTurnSpeed;
+  CVector vecShiftVector1;
+  CVector vecShiftVector2;
+  CVector vecShiftVector3;
+  CVector vecShiftVector4;
   float fMass;
   float fTurnMass;
-  int field_C0;
-  float AirResistance;
-  float Elasticy;
-  int PercentSubmerged;
-  RwV3d CenterOfMass;
-  int field_DC;
-  void *ptrNode;
-  char field_E4;
-  char field_E5;
-  char field_E6;
-  char field_E7;
-  int field_E8;
-  int field_EC;
-  int field_F0;
-  int field_F4;
-  int field_F8;
-  int field_FC;
-  int field_100;
-  int field_104;
-  int field_108;
-  int field_10C;
-  int field_110;
-  int field_114;
-  __int16 field_118;
-  char field_11A;
-  char field_11B;
-  char field_11C;
-  char islandNo;
+  int fForceMultiplier;
+  float fAirResistance;
+  float fElasticy;
+  int fPercentSubmerged;
+  CVector vecCenterOfMass;
+  int pEntryInfoNode;
+  void *pMovingListNode;
+  char __f00E0[2];
+  char uCollidingNum;
+  char __fx00E3;
+  int pCollisionRecords[6];
+  int fTotSpeed;
+  int fCollisionPower;
+  int pPhysColling;
+  CVector vecCollisionPower;
+  __int16 wComponentCol;
+  char byteMoveFlags;
+  char byteCollFlags;
+  char byteLastCollType;
+  char byteZoneLevel;
   __int16 __padding;
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1)
+struct CPhysical
+{
+	int pfnVMT;
+	CPhysicalR _;
+};
+
 struct CPedIK
 {
   int pPed;
@@ -121,9 +109,7 @@ struct CPedIK
   int field_20;
   int field_24;
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1)
 struct CWeaponSlot {
   int m_nWeaponId; // 0-4
 	//ID of the weapon in this slot
@@ -139,9 +125,7 @@ struct CWeaponSlot {
 	//related to camera mode
 	_pad(__fxpad00, 3); // 21-24
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1)
 struct CTransmissionData
 {
   char nDriveType;
@@ -151,9 +135,8 @@ struct CTransmissionData
   int fEngineAcceleration;
   int fMaxVelocity;
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1)
+
 struct CHandlingVehicle
 {
   int ID;
@@ -192,77 +175,153 @@ struct CHandlingVehicle
   char rear_lights;
   __int16 __padding;
 };
-#pragma pack(pop)
+
+struct CCollPoly
+{
+	CVector vecColPolyPoint1;
+	CVector vecColPolyPoint2;
+	CVector vecColPolyPoint3;
+	char bIsValidCollision;
+	char __fx0025[3];
+};
 
 #include "CAutoPilot.h"
 #include "CPed.h"
 
-#pragma pack(push, 1)
-struct CVehicle
+
+
+struct CVehicleR
 {
-  CPhysical __parent;
-  CHandlingVehicle *pVehicleHandling;
-  void *pFlyingHandling;
-  CAutoPilot Autopilot;
-  char primaryColor;
-  char secondaryColor;
-  char tertiaryColor;
-  char quaternaryColor;
-  __int16 field_1A4;
-  __int16 field_1A6;
+  CPhysicalR phys;
+  CHandlingVehicle *pHandling;
+  void *pAeroHandling;
+  CAutoPilot stAutopilot;
+  CVehicle* pVehicleToRam;
+  char uMainColour;
+  char uExtraColour;
+  char nSpecialPanel1;
+  char nSpecialPanel2;
+  __int16 uWantedStarsOnEnter;
+  __int16 wMissionValue;
   CPed *pDriver;
   int passangers[8];
-  char numOfPassangers;
-  char field_1CD;
-  char field_1CE;
-  char field_1CF;
-  char maxPassangers;
-  char gap_1D1[19];
-  int field_1E4;
-  int fire;
-  int field_1EC;
-  int field_1F0;
-  int field_1F4;
-  char reference;
-  char flags;
-  char flags2;
-  char modelFlags;
-  char field_1FC;
-  char field_1FD;
-  char field_1FE;
-  char field_1FF;
-  char field_200;
-  char field_201;
-  char gap_202[2];
-  int health;
-  int field_208;
-  int field_20C;
-  int field_210;
-  int field_214;
-  int field_218;
-  int field_21C;
-  __int16 field_220;
-  __int16 field_222;
-  int field_224;
-  int field_228;
-  int field_22C;
-  int doorStatus;
-  char lastDamageType;
-  char gap_235[3];
-  int field_238;
-  char field_23C;
-  char field_23D;
-  char field_23E;
-  char gap_23F[1];
-  int horn;
-  char field_244;
-  char sirenOn;
-  char field_246;
-  char field_247;
-  char field_248[80];
-  int field_298;
-  int carType;
+  char nPassengerCount;
+  char nNumEntering;
+  char uEnterSlotsFlags;
+  char uExitSlotsFlags;
+  char nMaxPassangers;
+   char __f01CD[3];
+  int nUnusedOne;
+  CVector vecUnusedTwo;
+  int pColRoad;
+  int pFire;
+  int fSteerAngle;
+  int fAcceleratorPedal;
+  int fBrakePedal;
+  char uControlState;
+  char bfVehFlagsA;
+  char bfVehFlagsB;
+  char bfVehFlagsC;
+  char bfVehFlagsD;
+  char bfVehFlagsE;
+  char __p01FA[6];
+  int fHealth;
+  char nCurrentGear;
+  char __f0205[3];
+  char __p0208[36];
+  int uDoorLockedFlags;
+  char nDamageType;
+  char __f0231[3];
+  int pLastDamEntity;
+  int nRadio;
+  char bHornEnabled;
+  char __p023D[4];
+  char bSirenEnabled;
+  char nSirenExtra;
+  char __p0243;
+  CCollPoly polyCreatedAt;
+  CCollPoly polyCreatedAtCopy;
+  int fSteerRatio;
+  int nVehicleType;
 };
+
+struct CVehicle
+{
+	int pfnVMT;
+	CVehicleR _;
+};
+struct CDamageManager
+{
+  int uDamId;
+  char bStates[12];
+  int uLightBits;
+  int uPanelBits;
+};
+
+struct CDoor
+{
+  int fAngleInPosOne;
+  int fAngleInPosTwo;
+  char nAxisDirection;
+  char nAxis;
+  char nState;
+  char __f000B;
+  int fAngle;
+  int fPrevAngle;
+  int fVelAngle;
+  CVector vecVelocity;
+};
+
+struct CWheel
+{
+  CVector vecWheelPos;
+  char __p000C[4];
+  CVector vecWheelAngle;
+  char __p001C[12];
+};
+
+struct CAutomobileR
+{
+  CVehicleR veh;
+  CDamageManager stDamage;
+  char bDamSwitch;
+  char __f02B5[3];
+  CDoor stDoors[6];
+  int pVehComponents[20];
+  CWheel stWheels[4];
+  int fWheelSuspDist[4];
+  int fWheelSuspDistSoft[4];
+  int fWheelContactRate[4];
+  char __p04B0[28];
+  int fWheelTotalRot[4];
+  int fWheelRot[4];
+  char __p04EC[4];
+  int fNegSpeed;
+  char __p04F4[9];
+  char bfFlagsX;
+  char __p04FE[46];
+  int fWheelAngleMul;
+  int fAIGripMultiplier;
+  char __p0534[120];
+  int fSpecialWepRotH;
+  int fSpecialWepRotV;
+  int fSpecialSteering;
+  int fSpecialMoveState;
+  int uUnusedX;
+  char nWheelsOnGround;
+  char nRearWheelsOnGround;
+  char bytePrevRearWheelsOnGround;
+  char __f05C3;
+  int fSkidMarkDensity;
+  int nTireFriction[4];
+};
+
+struct CAutomobile
+{
+  int pfnVMT;
+  CAutomobileR _;
+};
+
 #pragma pack(pop)
 
 

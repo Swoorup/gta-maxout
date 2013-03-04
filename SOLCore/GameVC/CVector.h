@@ -20,9 +20,7 @@
 
 #define FLOAT_EPSILON 0.0001f
 
-/**
- * CVector Structure used to store a 3D vertex.
- */
+
 class CVector
 {
 public:
@@ -106,6 +104,11 @@ public:
     {
         return CVector ( fX / vecRight.fX, fY / vecRight.fY, fZ / vecRight.fZ );
     }
+
+	CVector operator / ( float fRight) const
+	{
+		return CVector ( fX / fRight, fY / fRight, fZ / fRight );
+	}
 
     CVector operator - () const
     {

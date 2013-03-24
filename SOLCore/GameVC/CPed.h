@@ -160,7 +160,7 @@ public:
 	char byteDeadBleeding;
     char byteBodyPartBleeding;
 	char __f0567;
-	int pNearPeds[10];
+	CPed* pNearPeds[10];
 	__int16 nNearPeds;
 	__int16 wPedMoney;
     int lastDamageType;

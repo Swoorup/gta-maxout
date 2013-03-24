@@ -409,7 +409,7 @@ namespace CoronaType
 #include "CommonDefinations.h"
 typedef RwV3d* (__cdecl *FindPlayerCentreOfWorld_NoSniperShift_t)(void);  
 typedef void (__cdecl *LoadingScreen_t)(char const *szGameStateText, char const *szLoadingStageText, char const *szUnusedStr);
-typedef int (__cdecl *FindPlayerPed_t)(void);
+typedef CPed* (__cdecl *FindPlayerPed_t)(void);
 typedef CVehicle* (__cdecl *FindPlayerVehicle_t)(void);
 typedef void (_cdecl *FindPlayerCoors_t)(CVector*);
 

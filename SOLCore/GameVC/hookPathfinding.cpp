@@ -79,86 +79,6 @@ void _declspec(naked) HookGenEmerCarGetAttachedZCoorsOne(void) {
     ASMJMP(41C6EBh)
 }
 
-// This is a hook inside CCarCtrl::FindLinksToGoWithTheseNodes.
-// It replaces the entire original function by jump to this 
-// right after the function starts. This function seems to get 
-// loaded when the a chasing cop car stops right near the player.
-// To-Do: Change into a grid type setup
-
-//41CC20
-void _cdecl HookFindLinksToGoWithTheseNodes(CVehicle* pVehicle) {
-    _dwHookArgOne = pVehicle->_.wMissionValue;
-    CDebug::DebugAddText("HookFindLinksToGoWithTheseNodes");
-
-    //unnecessary R* leftover?
-    if (_dwHookArgOne) {
-        _asm mov eax, _dwHookArgOne
-        _asm push eax
-        _asm mov eax, 649A30h
-        _asm call eax
-        _asm pop eax
-    }
-    
-    int nConnectedPointInfo = pThePaths->m_AttachedPaths[pVehicle->_.stAutopilot.m_dwCurrentNode].wRouteInfoIndex;
-    int _nLoop = 0;
-
-    for(int _nLoop = 0; _nLoop < 12 && pVehicle->_.stAutopilot.m_dwNextNode != (pThePaths->m_infoConnectedNodes[_nLoop + nConnectedPointInfo] & CPathFind::em_infoConnectedNodesNODEINDEXONLY); _nLoop++);
-    pVehicle->_.stAutopilot.m_dwNextCarLinkNode = pThePaths->m_InfoCarPathLinks[_nLoop + nConnectedPointInfo];
-    if(pVehicle->_.stAutopilot.m_dwCurrentNode >= pVehicle->_.stAutopilot.m_dwNextNode) {
-        pVehicle->_.stAutopilot.m_byteNextDirectionScale = 1;
-    }
-    else {
-        pVehicle->_.stAutopilot.m_byteNextDirectionScale = -1;
-    }
-
-    int nStartNode = pVehicle->_.stAutopilot.m_dwCurrentNode;
-    int nFoundNode, nFoundDetachedNode;
-
-    if(pThePaths->m_AttachedPaths[nStartNode].bitnumberOfNodesConnected == 1) {
-        nFoundNode = 0;
-        nFoundDetachedNode = pThePaths->m_InfoCarPathLinks[pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex];
-    }
-    else {
-        nFoundNode = -1;
-        float fPrevCoefficient = 999999.88f;
-        CPathNode* pPathNodeStart = &pThePaths->m_AttachedPaths[nStartNode];
-        CVector vecStartNode((float)(pPathNodeStart->wX) / 8.0f, (float)(pPathNodeStart->wY) / 8.0f, (float)(pPathNodeStart->wZ) / 8.0f);
-
-        for(int j = 0; j < pThePaths->m_AttachedPaths[nStartNode].bitnumberOfNodesConnected; j++) {
-            int nConnectedNextNode = pThePaths->m_infoConnectedNodes[j+ pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
-            if(nConnectedNextNode == pVehicle->_.stAutopilot.m_dwNextNode) {
-                continue;
-            }
-            
-            CVector vecNextConnectedNode = pThePaths->m_AttachedPaths[nConnectedNextNode].Form3DVector();
-  
-            float fCurrentCoefficient;
-            CVector* vPosADDR = &pVehicle->_.phys.ent.mat.vPos;
-            _asm mov eax, vPosADDR
-            _asm push eax
-            _asm lea eax, [vecNextConnectedNode]
-            _asm push eax
-            _asm lea eax, [vecStartNode]
-            _asm push eax
-            _asm mov eax, 414090h
-            _asm call eax
-            _asm fstp fCurrentCoefficient
-            if(fCurrentCoefficient < fPrevCoefficient) {
-                nFoundNode = j;
-                fPrevCoefficient = fCurrentCoefficient;
-            }
-        }
-        nFoundDetachedNode = pThePaths->m_InfoCarPathLinks[nFoundNode + pPathNodeStart->wRouteInfoIndex];
-    }
-    pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode = nFoundDetachedNode;
-    if((pThePaths->m_infoConnectedNodes[nFoundNode + pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY) >= nStartNode) {
-        pVehicle->_.stAutopilot.m_byteCurrentDirectionScale = 1;
-    }
-    else {
-        pVehicle->_.stAutopilot.m_byteCurrentDirectionScale = -1;
-    }
-}
-
 //-----------------------------------------------------------------------
 // This is a hook inside CCarCtrl::JoinCarWithRoadSystemGotoCoors.
 // It fixes the instructions which subtracts the pathnode with the first
@@ -188,72 +108,6 @@ void _declspec(naked) HookJoinCarWithRoadFixPathPointerSubtract(void) {
     _asm popad
     _asm mov ecx, _nHookAttachedNodeIndex
     ASMJMP(41CF97h)
-}
-
-/* 
- * This is a direct replacement hook for CCarCtrl::JoinCarWithRoadSystem.
- * This function is usually loaded when a wander system is initiated for
- * vehicles. 
- */
-
-//41D000
-void _cdecl HookJoinCarWithRoadSystem(CVehicle* pVehicle) {
-    CDebug::DebugAddText("JoinCarWithRoadSystem working .....................");
-	pVehicle->_.stAutopilot.m_dwNextNode = 0;
-	pVehicle->_.stAutopilot.m_dwCurrentNode = 0;
-	pVehicle->_.stAutopilot.m_dwPrevNode = 0;
-	pVehicle->_.stAutopilot.m_dwNextCarLinkNode = 0;
-	pVehicle->_.stAutopilot.m_dwPrevCarLinkNode = 0;
-	pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode = 0;
-	
-	int nNodeClosestToDirection = pThePaths->FindNodeClosestToCoorsFavourDirection(pVehicle->_.phys.ent.mat.vPos,
-																		0,
-																		CVector2D(pVehicle->_.phys.ent.mat.vLookAt));
-																		
-	float fnodeDirClosestX = (float)(pThePaths->m_AttachedPaths[nNodeClosestToDirection].wX) / 8.0f;
-	float fnodeDirClosestY = (float)(pThePaths->m_AttachedPaths[nNodeClosestToDirection].wY) / 8.0f;
-	
-	int nClosestNode = -1;
-	float fPreviousSearchCoefficient = 999999.88f;
-	for(int i = 0; i < pThePaths->m_AttachedPaths[nNodeClosestToDirection].bitnumberOfNodesConnected; i++) {
-		int nNextConnectedNode = pThePaths->m_infoConnectedNodes[i + pThePaths->m_AttachedPaths[nNodeClosestToDirection].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
-		float fnextnodeX = (float)(pThePaths->m_AttachedPaths[nNextConnectedNode].wX) / 8.0f;
-		float fnextnodeY = (float)(pThePaths->m_AttachedPaths[nNextConnectedNode].wY) / 8.0f;
-		
-		float fCurrentLength = sqrt((fnextnodeY - fnodeDirClosestY) * (fnextnodeY - fnodeDirClosestY) + (fnextnodeX - fnodeDirClosestX) * (fnextnodeX - fnodeDirClosestX));
-		if(fCurrentLength < fPreviousSearchCoefficient) {
-			fPreviousSearchCoefficient = fCurrentLength;
-			nClosestNode = nNextConnectedNode;
-		}
-	}
-	
-	if (nClosestNode < 0) {
-		return;
-	}
-	
-	float fLookAtX = pVehicle->_.phys.ent.mat.vLookAt.fX;
-	float fLookAtY = pVehicle->_.phys.ent.mat.vLookAt.fY;
-	
-	if(fLookAtX == 0.0f && fLookAtY == 0.0f) {
-		fLookAtX = 1.0f;
-	}
-	
-	float fClosestFoundX = (float)(pThePaths->m_AttachedPaths[nClosestNode].wX) / 8.0f;
-	float fClosestFoundY = (float)(pThePaths->m_AttachedPaths[nClosestNode].wY) / 8.0f;
-	
-	if(((fnodeDirClosestY - fClosestFoundY) * fLookAtY + (fnodeDirClosestX - fClosestFoundX) * fLookAtX) < 0.0f) {
-		int nTempIndex = nClosestNode;
-		nClosestNode = nNodeClosestToDirection;
-		nNodeClosestToDirection = nTempIndex;
-	}
-	
-	pVehicle->_.stAutopilot.m_dwPrevNode = 0;
-	pVehicle->_.stAutopilot.m_dwCurrentNode = nClosestNode;
-	pVehicle->_.stAutopilot.m_dwNextNode = nNodeClosestToDirection;
-	pVehicle->_.stAutopilot.m_nRouteListStep = 0;
-	HookFindLinksToGoWithTheseNodes(pVehicle);
-	pVehicle->_.stAutopilot.m_byteCurrentLanes = 0;
-	pVehicle->_.stAutopilot.m_byteNextLanes = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1539,6 +1393,14 @@ float _stdcall _classTrampoline_CCarPathLink_OneWayLaneOffset(void)
 	return pCarPathLink->OneWayLaneOffset();
 }
 
+void _stdcall _classTrampoline_CAutomobile_PlayHornIfNecessary(void)
+{
+	CAutomobile* pAutomobile;
+	_asm mov pAutomobile, ecx
+
+	return pAutomobile->PlayHornIfNecessary();
+}
+
 /*
  * List Of Functions Hooked
  * 1.  CPathFind::Init                 -FINE GRAINED
@@ -1608,24 +1470,12 @@ void CPathFindHook::ApplyHook()
 
     CMemory::InstallCallHook(0x434EB0, _classTrampoline_CCarPathLink_OneWayLaneOffset, ASM_JMP);
 
-    CMemory::InstallCallHook(0x435140, &CPedPath::CalculateBestRandomCoors, ASM_JMP);
-    CMemory::InstallCallHook(0x4351C0, &CPedPath::CalculateRandomCoordinates, ASM_JMP);
+    CMemory::InstallCallHook(0x435140, CPathFind::TakeWidthIntoAccountForCoors, ASM_JMP);
+    CMemory::InstallCallHook(0x4351C0, CPathFind::TakeWidthIntoAccountForWandering, ASM_JMP);
 
 
 
     // hooks inside CAutopilot::ModifySpeed
-    //CMemory::InstallCallHook(0x418D48, HookModSpeedGetDetachedNormalXOne, ASM_JMP);
-    //CMemory::InstallCallHook(0x418D68, HookModSpeedGetDetachedYCoorOne, ASM_JMP);
-    //CMemory::InstallCallHook(0x418DAA, HookModSpeedGetDetachedNormalXTwo, ASM_JMP);
-    //CMemory::InstallCallHook(0x418DCB, HookModSpeedGetDetachedXCoorOne, ASM_JMP);
-    //CMemory::InstallCallHook(0x418DEF, HookModSpeedGetDetachedNormalYOne, ASM_JMP);
-    //CMemory::InstallCallHook(0x418E21, HookModSpeedGetDetachedYCoorTwo, ASM_JMP);
-    //CMemory::InstallCallHook(0x418E48, HookModSpeedGetDetachedXCoorTwo, ASM_JMP);
-    //CMemory::InstallCallHook(0x418E7C, HookModSpeedGetDetachedNormalYTwo, ASM_JMP);
-    //CMemory::InstallCallHook(0x418EB8, HookModSpeedGetDetachedNormalYThree, ASM_JMP);
-    //CMemory::InstallCallHook(0x418EE9, HookModSpeedGetDetachedNormalXThree, ASM_JMP);
-    //CMemory::InstallCallHook(0x418F15, HookModSpeedGetDetachedNormalYFour, ASM_JMP);
-    //CMemory::InstallCallHook(0x418F45, HookModSpeedGetDetachedNormalXFour, ASM_JMP);
     void (CAutoPilot::*pCAutoPilot_ModifySpeed)(float fModSpeed);
     pCAutoPilot_ModifySpeed = &CAutoPilot::ModifySpeed;
     CMemory::InstallCallHook(0x418CD0, (void*&)pCAutoPilot_ModifySpeed, ASM_JMP);
@@ -1637,7 +1487,7 @@ void CPathFindHook::ApplyHook()
     CMemory::InstallPatch<CPathFind*>(0x41C4BD, pThePaths);
 
     //whole function replacement hook for CCarCtrl::FindLinksToGoWithTheseNodes
-    CMemory::InstallCallHook(0x41CC20, HookFindLinksToGoWithTheseNodes, ASM_JMP);
+    CMemory::InstallCallHook(0x41CC20, CCarCtrl::FindLinksToGoWithTheseNodes, ASM_JMP);
 
     //hooks inside CCarCtrl::JoinCarWithRoadSystemGotoCoors
     CMemory::InstallPatch<CPathFind*>(0x41CECF, pThePaths);
@@ -1645,7 +1495,7 @@ void CPathFindHook::ApplyHook()
     CMemory::InstallCallHook(0x41CF52, HookJoinCarWithRoadFixPathPointerSubtract, ASM_JMP);
 
     //whole function replacement hook for CCarCtrl::JoinCarWithRoadSystems
-    CMemory::InstallCallHook(0x41D000, HookJoinCarWithRoadSystem, ASM_JMP);
+    CMemory::InstallCallHook(0x41D000, CCarCtrl::JoinCarWithRoadSystem, ASM_JMP);
 
     //hooks inside CCarCtrl::SteerAICarWithPhysicsFollowPath
     CMemory::InstallCallHook(0x41EF70, HookSteerAICarFixDetachedNodeMultiplierOne, ASM_JMP);
@@ -1813,14 +1663,13 @@ void CPathFindHook::ApplyHook()
     CMemory::InstallCallHook(0x53C37B, HookAddToPopulationIndexArithmetic, ASM_JMP);
 
     //TEMPORARY HOOK DISABLE FOR PED PATH TESTING
-    CMemory::InstallPatch<unsigned char>(0x444280, 0xC3);
-    CMemory::InstallPatch<unsigned char>(0x463F90, 0xC3);
-    CMemory::InstallPatch<unsigned char>(0x465C10, 0x30); //CTrafficLights::ShouldCarStopForLights
-    CMemory::InstallPatch<byte>(0x465C11, 0xC0);
-    CMemory::InstallPatch<byte>(0x465C12, 0xC3);
+    CMemory::InstallPatch<unsigned char>(0x444280, 0xC3); // CRoadBlocks::GenerateRoadBlocks
+    //CMemory::InstallPatch<unsigned char>(0x463F90, 0xC3); // CTraffilights::DisplayActualLight
+	// the above function was just producing a false alert because of multipiliers
 
-    CMemory::InstallPatch<unsigned char>(0x4661C0, 0xC3);
-    CMemory::InstallPatch<unsigned char>(0x5881F0, 0xC3);
+    CMemory::InstallCallHook(0x465C10, CTrafficLights::ShouldCarStopForLightN, ASM_JMP); //CTrafficLights::ShouldCarStopForLights
+    CMemory::InstallCallHook(0x4661C0, CTrafficLights::ScanForLightsOnMapN, ASM_JMP); //CTrafficLights::ScanForLightsOnMap
+	CMemory::InstallCallHook(0x5881F0, _classTrampoline_CAutomobile_PlayHornIfNecessary, ASM_JMP);
 }
 
 void CPathFindHook::RemoveHook(){

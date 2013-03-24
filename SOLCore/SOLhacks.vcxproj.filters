@@ -45,9 +45,6 @@
     <ClCompile Include="GameVC\CTxdStore.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
-    <ClCompile Include="GameVC\RenderWare.cpp">
-      <Filter>Source Files\GameVC</Filter>
-    </ClCompile>
     <ClCompile Include="GameVC\CFont.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
@@ -84,15 +81,6 @@
     <ClCompile Include="VehicleLimitPatch.cpp">
       <Filter>Source Files\GameHooks</Filter>
     </ClCompile>
-    <ClCompile Include="IDirect3DDevice8Hook.cpp">
-      <Filter>Source Files\D3D8Hook</Filter>
-    </ClCompile>
-    <ClCompile Include="IDirect3D8Hook.cpp">
-      <Filter>Source Files\D3D8Hook</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D8Hook.cpp">
-      <Filter>Source Files\D3D8Hook</Filter>
-    </ClCompile>
     <ClCompile Include="GameVC\CGameHookManager.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
@@ -108,16 +96,7 @@
     <ClCompile Include="GameVC\CCullZones.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
-    <ClCompile Include="GameVC\CPathFind.cpp">
-      <Filter>Source Files\GameVC</Filter>
-    </ClCompile>
-    <ClCompile Include="GameVC\CPathFindHook.cpp">
-      <Filter>Source Files\GameVC</Filter>
-    </ClCompile>
     <ClCompile Include="GameVC\CSprite2D.cpp">
-      <Filter>Source Files\GameVC</Filter>
-    </ClCompile>
-    <ClCompile Include="GameVC\CWorld.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
     <ClCompile Include="GameVC\CGameVariables.cpp">
@@ -138,11 +117,41 @@
     <ClCompile Include="GameVC\CPed.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
+    <ClCompile Include="GameVC\hookPathfinding.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\pathfinding.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\automobile.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\vehicle.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\entity.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\renderware.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\world.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\trafficlights.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\timer.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVC\weather.cpp">
+      <Filter>Source Files\GameVC</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D8System.cpp">
+      <Filter>Source Files\D3D8Hook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameVC\RenderWare.h">
-      <Filter>Header Files\GameVC</Filter>
-    </ClInclude>
     <ClInclude Include="GameVC\GameVC.h">
       <Filter>Header Files\GameVC</Filter>
     </ClInclude>
@@ -161,23 +170,11 @@
     <ClInclude Include="main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IDirect3DDevice8Hook.h">
-      <Filter>D3D8Hook</Filter>
-    </ClInclude>
-    <ClInclude Include="IDirect3D8Hook.h">
-      <Filter>D3D8Hook</Filter>
-    </ClInclude>
     <ClInclude Include="..\loader\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D3D8Hook.h">
-      <Filter>D3D8Hook</Filter>
-    </ClInclude>
     <ClInclude Include="CSingleton.h">
       <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="StdInc.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CMemory.h">
       <Filter>Header Files\Core</Filter>
@@ -206,16 +203,7 @@
     <ClInclude Include="GameVC\CCullZones.h">
       <Filter>Header Files\GameVC</Filter>
     </ClInclude>
-    <ClInclude Include="GameVC\CPathFind.h">
-      <Filter>Header Files\GameVC</Filter>
-    </ClInclude>
     <ClInclude Include="GameVC\CPathFindHook.h">
-      <Filter>Header Files\GameVC</Filter>
-    </ClInclude>
-    <ClInclude Include="Utilities.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GameVC\CWorld.h">
       <Filter>Header Files\GameVC</Filter>
     </ClInclude>
     <ClInclude Include="GameVC\CCamera.h">
@@ -250,6 +238,45 @@
     </ClInclude>
     <ClInclude Include="GameVC\CPed.h">
       <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\pathfinding.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\automobile.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\vehicle.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\entity.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\renderwaretypes.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\renderware.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="stdinc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\world.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\timer.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\weather.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVC\trafficlights.h">
+      <Filter>Header Files\GameVC</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D8System.h">
+      <Filter>D3D8Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

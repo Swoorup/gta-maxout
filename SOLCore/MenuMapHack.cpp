@@ -6,11 +6,13 @@
 
 CSprite2d MapMenuTexStore[TOTAL_TILES];
 
+
 //============================================================================
 DWORD TXDSLOT_FRONTEND3 = NULL;
 char MenuMapName[12];
 void _declspec(naked) HookCMenuManager__LoadTextures() {
     __asm push ebx
+	
     CTxdStore::PushCurrentTxd();
     TXDSLOT_FRONTEND3 = CTxdStore::FindTxdSlot("frontend3");
     if (TXDSLOT_FRONTEND3 == -1)
@@ -18,7 +20,8 @@ void _declspec(naked) HookCMenuManager__LoadTextures() {
     CTxdStore::LoadTxd(TXDSLOT_FRONTEND3, "MODELS/FRONTEN3.TXD");
     CTxdStore::AddRef(TXDSLOT_FRONTEND3);
     CTxdStore::SetCurrentTxd(TXDSLOT_FRONTEND3);
-    for (int i = 0; i < TOTAL_TILES; i++){
+    for (int i = 0; i < TOTAL_TILES; i++)
+	{
         sprintf(MenuMapName, "menuMap%02d", i);
         MapMenuTexStore[i].SetTexture(MenuMapName);
         MapMenuTexStore[i].SetAddressing(rwTEXTUREADDRESSBORDER);
@@ -112,16 +115,12 @@ void HookNew_CMenuManager__DrawMapTextures()
 
 void PatchMapMenu(){
     ZeroMemory(MapMenuTexStore, sizeof(MapMenuTexStore));
-    CMemory::UnProtect(0x4A2CC2,5);
     CMemory::InstallCallHook(0x4A2CC2,&HookNew_CMenuManager__DrawMapTextures, ASM_CALL);
 
-    CMemory::UnProtect(0x4A273A,5);
     CMemory::InstallCallHook(0x4A273A,&HookNew_CMenuManager__DrawMapTextures, ASM_CALL);
     
-    CMemory::UnProtect(0x4A3BB1, 5);
     CMemory::InstallCallHook(0x4A3BB1, &HookCMenuManager__LoadTextures, ASM_CALL);
     
-    CMemory::UnProtect(0x4A39F2,5);
     CMemory::InstallCallHook(0x4A39F2,&HookCMenuManager__UnloadTextures, ASM_JMP);
 
     CMemory::InstallPatch<float>(0x68FD10,0.0028070009f); //Adjust X Center of Menu Map

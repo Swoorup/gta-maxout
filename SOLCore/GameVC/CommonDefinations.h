@@ -5,6 +5,7 @@
 typedef class CPathNode CPathNode;
 typedef struct CVehicle CVehicle;
 typedef class CMatrix CMatrix;
+typedef class CEntity CEntity;
 
 #pragma pack(push, 1)
 
@@ -29,12 +30,12 @@ struct CEntity_vtbl
   void *RemoveFromVehicle;
 };
 
-
+#include "CMatrix.h"
 
 struct CEntityR
 {
   CMatrix mat;
-  int pClump;
+  RpClump* pClump;
   unsigned __int8 bfTypeStatus;
   char bfFlagsA;
   char bfFlagsB;
@@ -49,11 +50,7 @@ struct CEntityR
   char byteInterios;
   int pFirstRef;
 };
-struct CEntity
-{
-	int pfnVMT;
-	CEntityR _;
-};
+
 struct CPhysicalR
 {
   CEntityR ent;
@@ -245,11 +242,6 @@ struct CVehicleR
   int nVehicleType;
 };
 
-struct CVehicle
-{
-	int pfnVMT;
-	CVehicleR _;
-};
 struct CDamageManager
 {
   int uDamId;
@@ -316,11 +308,78 @@ struct CAutomobileR
   int nTireFriction[4];
 };
 
-struct CAutomobile
+struct CAutomobile_vtbl
 {
-  int pfnVMT;
-  CAutomobileR _;
+	unsigned int CPhysical_Add;	//0
+	unsigned int CPhysical_Remove; //4h
+	unsigned int SCALAR_DELETING_DESCTRUCTOR; //8h
+	unsigned int SetModelIndex;//ch
+	unsigned int CEntity_SetModelIndexNoCreate;//
+	unsigned int CEntity_CreateRwObject;
+	unsigned int CEntity_DeleteRwObject;
+	unsigned int CPhysical_GetBoundRect;
+	unsigned int CAutomobile_ProcessControl;
+	unsigned int CPhysical_ProcessCollision;
+	unsigned int CPhysical_ProcessShift;
+	unsigned int CAutomobile_Teleport;
+	unsigned int CAutomobile_PreRender;
+	unsigned int CAutomobile_Render;
+	unsigned int CVehicle_SetupLighting;
+	unsigned int CVehicle_RemoveLighting;
+	unsigned int CVehicle_FlagToDestroyWhenNextProcessed;
+	unsigned int CAutomobile_ProcessEntityCollision;
+	unsigned int CAutomobile_ProcessControlInputs;
+	unsigned int CAutomobile_GetComponentWorldPosition;
+	unsigned int CAutomobile_IsComponentPresent;
+	unsigned int CAutomobile_SetComponentRotation;
+	unsigned int CAutomobile_OpenDoor;
+	unsigned int CAutomobile_ProcessOpenDoor;
+	unsigned int CAutomobile_IsDoorReady;
+	unsigned int CAutomobile_IsDoorFullyOpen;
+	unsigned int CAutomobile_IsDoorClosed;
+	unsigned int CAutomobile_IsDoorMissing;
+	unsigned int CAutomobile_IsDoorReady2;
+	unsigned int CAutomobile_IsDoorMissing2;
+	unsigned int CAutomobile_IsOpenTopCar;
+	unsigned int CAutomobile_RemoveRefsToVehicle;
+	unsigned int CAutomobile_BlowUpCar;
+	unsigned int CAutomobile_SetUpWheelColModel;
+	unsigned int CAutomobile_BurstTyre;
+	unsigned int CAutomobile_IsRoomForPedToLeaveCar;
+	unsigned int CVehicle_IsClearToDriveAway;
+	unsigned int CAutomobile_GetHeightAboveRoad;
+	unsigned int CAutomobile_PlayCarHorn;
 };
+//80
+
+class CPtrNode 
+{
+public:
+ CPtrNode(CEntity* pEntity);
+
+ //void* operator new(size_t uSize, bool bInternal);
+ //void operator delete(void* pMem, bool bInternal);
+ //void operator delete(void* pMem);
+
+ CEntity* pEntity; // 0-4
+ //entity of this linked element
+ CPtrNode* pPrev; // 4-8
+ //previous item in the list
+ CPtrNode* pNext; // 8-12
+ //next item in the list
+};
+
+class CPtrList 
+{
+public:
+ //void Insert(CPtrNode* pNode);
+ //void Remove(CPtrNode* pNode);
+
+ CPtrNode* pStart; // 0-4
+ //pointer to the first list element
+};
+
+
 
 #pragma pack(pop)
 

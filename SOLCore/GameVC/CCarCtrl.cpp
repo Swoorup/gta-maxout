@@ -24,7 +24,7 @@ bool _cdecl CCarCtrl::PickNextNodeToFollowPath(CVehicle* pVehicle) {
 
     int nPreviousNextNodeIndex = pVehicle->_.stAutopilot.m_dwNextNode;
 	int m_beginRouteStep = pVehicle->_.stAutopilot.m_nRouteListStep;
-    if(pVehicle->_.stAutopilot.m_nRouteListStep == 0) 
+    //if(pVehicle->_.stAutopilot.m_nRouteListStep == 0)  // SOMEFUNCTIONS CAUSES THE ERROR DOWN BELOW
 	{
         THEPATHS->DoPathSearch(0, pVehicle->_.phys.ent.mat.vPos,
             pVehicle->_.stAutopilot.m_dwNextNode,
@@ -175,10 +175,7 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 	int dwNextNode = pVehicle->_.stAutopilot.m_dwNextNode;
 	
 	// the start node vector is taken from the next node
-	CVector vecStart;
-	vecStart.fX = (float)(THEPATHS->m_AttachedPaths[dwNextNode].wX) / 8.0f;
-	vecStart.fY = (float)(THEPATHS->m_AttachedPaths[dwNextNode].wY) / 8.0f;
-	vecStart.fZ = (float)(THEPATHS->m_AttachedPaths[dwNextNode].wZ) / 8.0f;
+	CVector vecStart = THEPATHS ->m_AttachedPaths[dwNextNode].Form3DVector();
 	
 	CPathNode* pInstantRoutes[2];
 	short sRouteStep;
@@ -186,8 +183,10 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 	int nNodeWithSmallestDiversion, nFoundConnectedBit;
 	
 	THEPATHS->DoPathSearch(0, vecStart, dwNextNode, CVector(fTargetX, fTargetY, 0.0f), pInstantRoutes, &sRouteStep, 2, pVehicle, &fNodeDistance, 999999.88f, -1);
-	if(sRouteStep != 1 && sRouteStep != 2 || pInstantRoutes[0] == &THEPATHS->m_AttachedPaths[dwNextNode]) {
-		if(sRouteStep != 2 || pInstantRoutes[1] == &THEPATHS->m_AttachedPaths[dwNextNode]) {
+	if(sRouteStep != 1 && sRouteStep != 2 || pInstantRoutes[0] == &THEPATHS->m_AttachedPaths[dwNextNode]) 
+	{
+		if(sRouteStep != 2 || pInstantRoutes[1] == &THEPATHS->m_AttachedPaths[dwNextNode]) 
+		{
 			CVector2D v2dVehiclePos(CVector2D(fTargetX, fTargetY) - CVector2D(pVehicle->_.phys.ent.mat.vPos));
 
 			float fTargetAngle = CGeneral::GetATanOfXY(v2dVehiclePos);
@@ -201,7 +200,8 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 					v2dDeltaRelativeCarNode.fY = (float)(THEPATHS->m_AttachedPaths[nNext].wY) / 8.0f - vecStart.fY;
 					float fTestAngle = CGeneral::GetATanOfXY(v2dDeltaRelativeCarNode);
 					float fCurrentAngleDiff = utl::abs<float>(utl::AdjustLimitsToAngle(fTestAngle - fTargetAngle, -M_PI, M_PI));
-					if(fCurrentAngleDiff <= fPreviousFoundAngle) {
+					if(fCurrentAngleDiff <= fPreviousFoundAngle) 
+					{
 						fPreviousFoundAngle = fCurrentAngleDiff;
 						nNodeWithSmallestDiversion = nNext;
 						nFoundConnectedBit = i;
@@ -209,7 +209,8 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 				}
 			}
 		}
-		else {
+		else 
+		{
 			nNodeWithSmallestDiversion = pInstantRoutes[1] - &THEPATHS->m_AttachedPaths[0];
 			nFoundConnectedBit = 0;
 			int nNextNodeRouteIndex = THEPATHS->m_AttachedPaths[dwNextNode].wRouteInfoIndex;
@@ -239,11 +240,13 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 	pVehicle->_.stAutopilot.m_dwNextCarLinkNode = THEPATHS->m_InfoCarPathLinks[nFoundConnectedBit + THEPATHS->m_AttachedPaths[dwNextNode].wRouteInfoIndex];
 	
 	int nRequiredLanes;
-	if(dwNextNode >= pVehicle->_.stAutopilot.m_dwNextNode) {
+	if(dwNextNode >= pVehicle->_.stAutopilot.m_dwNextNode) 
+	{
 		pVehicle->_.stAutopilot.m_byteNextDirectionScale = 1;
 		nRequiredLanes = THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwNextCarLinkNode].bitRightLanes;
 	}
-	else {
+	else 
+	{
 		pVehicle->_.stAutopilot.m_byteNextDirectionScale = -1;
 		nRequiredLanes = THEPATHS->m_CarPathLinks[pVehicle->_.stAutopilot.m_dwNextCarLinkNode].bitLeftLanes;
 	}
@@ -260,30 +263,38 @@ void _cdecl CCarCtrl::PickNextNodeToChaseCar(CVehicle* pVehicle, float fTargetX,
 	vecCurrentDetached.fY = (float)(THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].wY) / 8.0f;
 	vecNextDetached.fX = (float)(THEPATHS->m_CarPathLinks[dwNextDetachedNode].wX) / 8.0f;
 	vecNextDetached.fY = (float)(THEPATHS->m_CarPathLinks[dwNextDetachedNode].wY) / 8.0f;
-	if(nRequiredLanes >= 0) {
+	if(nRequiredLanes >= 0) 
+	{
 		float fDetachedDisplacement = (vecNextDetached.fY - vecCurrentDetached.fY) * (vecNextDetached.fY - vecCurrentDetached.fY) + (vecNextDetached.fX - vecCurrentDetached.fX) * (vecNextDetached.fX - vecCurrentDetached.fX);
-		if(fDetachedDisplacement > 49.0f) {
+		if(fDetachedDisplacement > 49.0f) 
+		{
 			int eAutoPilotBehaviour = pVehicle->_.stAutopilot.m_DriverBehaviour;
 			if(eAutoPilotBehaviour != 2 && eAutoPilotBehaviour != 4 && eAutoPilotBehaviour != 15 && eAutoPilotBehaviour != 17 && !(rand() & 0x600)) {
-				if(rand() < CPathFind::em_infoConnectedNodesNODEINDEXONLY) {
+				if(rand() < CPathFind::em_infoConnectedNodesNODEINDEXONLY) 
+				{
 					pVehicle->_.stAutopilot.m_byteNextLanes++;
 				}
-				else {
+				else 
+				{
 					pVehicle->_.stAutopilot.m_byteNextLanes--;
 				}
 			}
 		}
-		if(pVehicle->_.stAutopilot.m_byteNextLanes >= (nRequiredLanes - 1)) {
+		if(pVehicle->_.stAutopilot.m_byteNextLanes >= (nRequiredLanes - 1)) 
+		{
 			pVehicle->_.stAutopilot.m_byteNextLanes = nRequiredLanes - 1;
 		}
-		if(pVehicle->_.stAutopilot.m_byteNextLanes <= 0) {
+		if(pVehicle->_.stAutopilot.m_byteNextLanes <= 0) 
+		{
 			pVehicle->_.stAutopilot.m_byteNextLanes = 0;
 		}
 	}
-	else {
+	else 
+	{
 		pVehicle->_.stAutopilot.m_byteNextLanes = pVehicle->_.stAutopilot.m_byteCurrentLanes;
 	}
-	if((pVehicle->_.stAutopilot.m_flags >> 3) & 1) {
+	if((pVehicle->_.stAutopilot.m_flags >> 3) & 1) 
+	{
 		pVehicle->_.stAutopilot.m_byteNextLanes = 0;
 	}
 	float fCurrentLaneLength = (THEPATHS->m_CarPathLinks[dwCurrentDetachedNode].OneWayLaneOffset() + (float)(pVehicle->_.stAutopilot.m_byteCurrentLanes)) * 5.0f;
@@ -656,6 +667,153 @@ void _cdecl CCarCtrl::UpdateCarOnRails(CVehicle* pVehicle) {
 }
 
 #endif
+
+// This is a hook inside CCarCtrl::FindLinksToGoWithTheseNodes.
+// It replaces the entire original function by jump to this 
+// right after the function starts. This function seems to get 
+// loaded when the a chasing cop car stops right near the player.
+// To-Do: Change into a grid type setup
+
+//41CC20
+void _cdecl CCarCtrl::FindLinksToGoWithTheseNodes(CVehicle* pVehicle) 
+{
+    DWORD _dwHookArgOne = pVehicle->_.wMissionValue; // seedvalue
+    CDebug::DebugAddText("HookFindLinksToGoWithTheseNodes");
+
+    //unnecessary R* leftover?
+    if (_dwHookArgOne) {
+        _asm mov eax, _dwHookArgOne
+        _asm push eax
+        _asm mov eax, 649A30h
+        _asm call eax
+        _asm pop eax
+    }
+    
+    int nConnectedPointInfo = pThePaths->m_AttachedPaths[pVehicle->_.stAutopilot.m_dwCurrentNode].wRouteInfoIndex;
+    int _nLoop = 0;
+
+    for(int _nLoop = 0; _nLoop < 12 && pVehicle->_.stAutopilot.m_dwNextNode != (pThePaths->m_infoConnectedNodes[_nLoop + nConnectedPointInfo] & CPathFind::em_infoConnectedNodesNODEINDEXONLY); _nLoop++);
+    pVehicle->_.stAutopilot.m_dwNextCarLinkNode = pThePaths->m_InfoCarPathLinks[_nLoop + nConnectedPointInfo];
+    if(pVehicle->_.stAutopilot.m_dwCurrentNode >= pVehicle->_.stAutopilot.m_dwNextNode) {
+        pVehicle->_.stAutopilot.m_byteNextDirectionScale = 1;
+    }
+    else {
+        pVehicle->_.stAutopilot.m_byteNextDirectionScale = -1;
+    }
+
+    int nStartNode = pVehicle->_.stAutopilot.m_dwCurrentNode;
+    int nFoundNode, nFoundDetachedNode;
+
+    if(pThePaths->m_AttachedPaths[nStartNode].bitnumberOfNodesConnected == 1) {
+        nFoundNode = 0;
+        nFoundDetachedNode = pThePaths->m_InfoCarPathLinks[pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex];
+    }
+    else {
+        nFoundNode = -1;
+        float fPrevCoefficient = 999999.88f;
+        CPathNode* pPathNodeStart = &pThePaths->m_AttachedPaths[nStartNode];
+        CVector vecStartNode((float)(pPathNodeStart->wX) / 8.0f, (float)(pPathNodeStart->wY) / 8.0f, (float)(pPathNodeStart->wZ) / 8.0f);
+
+        for(int j = 0; j < pThePaths->m_AttachedPaths[nStartNode].bitnumberOfNodesConnected; j++) {
+            int nConnectedNextNode = pThePaths->m_infoConnectedNodes[j+ pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
+            if(nConnectedNextNode == pVehicle->_.stAutopilot.m_dwNextNode) {
+                continue;
+            }
+            
+            CVector vecNextConnectedNode = pThePaths->m_AttachedPaths[nConnectedNextNode].Form3DVector();
+  
+            float fCurrentCoefficient;
+            CVector* vPosADDR = &pVehicle->_.phys.ent.mat.vPos;
+            _asm mov eax, vPosADDR
+            _asm push eax
+            _asm lea eax, [vecNextConnectedNode]
+            _asm push eax
+            _asm lea eax, [vecStartNode]
+            _asm push eax
+            _asm mov eax, 414090h
+            _asm call eax
+            _asm fstp fCurrentCoefficient
+            if(fCurrentCoefficient < fPrevCoefficient) {
+                nFoundNode = j;
+                fPrevCoefficient = fCurrentCoefficient;
+            }
+        }
+        nFoundDetachedNode = pThePaths->m_InfoCarPathLinks[nFoundNode + pPathNodeStart->wRouteInfoIndex];
+    }
+    pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode = nFoundDetachedNode;
+    if((pThePaths->m_infoConnectedNodes[nFoundNode + pThePaths->m_AttachedPaths[nStartNode].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY) >= nStartNode) {
+        pVehicle->_.stAutopilot.m_byteCurrentDirectionScale = 1;
+    }
+    else {
+        pVehicle->_.stAutopilot.m_byteCurrentDirectionScale = -1;
+    }
+}
+
+/* 
+ * This is a direct replacement hook for CCarCtrl::JoinCarWithRoadSystem.
+ * This function is usually loaded when a wander system is initiated for
+ * vehicles. 
+ */
+
+//41D000
+void _cdecl CCarCtrl::JoinCarWithRoadSystem(CVehicle* pVehicle) {
+    CDebug::DebugAddText("JoinCarWithRoadSystem working .....................");
+	pVehicle->_.stAutopilot.m_dwNextNode = 0;
+	pVehicle->_.stAutopilot.m_dwCurrentNode = 0;
+	pVehicle->_.stAutopilot.m_dwPrevNode = 0;
+	pVehicle->_.stAutopilot.m_dwNextCarLinkNode = 0;
+	pVehicle->_.stAutopilot.m_dwPrevCarLinkNode = 0;
+	pVehicle->_.stAutopilot.m_dwCurrentCarLinkNode = 0;
+	
+	int nNodeClosestToDirection = pThePaths->FindNodeClosestToCoorsFavourDirection(pVehicle->_.phys.ent.mat.vPos,
+																		0,
+																		CVector2D(pVehicle->_.phys.ent.mat.vLookAt));
+																		
+	float fnodeDirClosestX = (float)(pThePaths->m_AttachedPaths[nNodeClosestToDirection].wX) / 8.0f;
+	float fnodeDirClosestY = (float)(pThePaths->m_AttachedPaths[nNodeClosestToDirection].wY) / 8.0f;
+	
+	int nClosestNode = -1;
+	float fPreviousSearchCoefficient = 999999.88f;
+	for(int i = 0; i < pThePaths->m_AttachedPaths[nNodeClosestToDirection].bitnumberOfNodesConnected; i++) {
+		int nNextConnectedNode = pThePaths->m_infoConnectedNodes[i + pThePaths->m_AttachedPaths[nNodeClosestToDirection].wRouteInfoIndex] & CPathFind::em_infoConnectedNodesNODEINDEXONLY;
+		float fnextnodeX = (float)(pThePaths->m_AttachedPaths[nNextConnectedNode].wX) / 8.0f;
+		float fnextnodeY = (float)(pThePaths->m_AttachedPaths[nNextConnectedNode].wY) / 8.0f;
+		
+		float fCurrentLength = sqrt((fnextnodeY - fnodeDirClosestY) * (fnextnodeY - fnodeDirClosestY) + (fnextnodeX - fnodeDirClosestX) * (fnextnodeX - fnodeDirClosestX));
+		if(fCurrentLength < fPreviousSearchCoefficient) {
+			fPreviousSearchCoefficient = fCurrentLength;
+			nClosestNode = nNextConnectedNode;
+		}
+	}
+	
+	if (nClosestNode < 0) {
+		return;
+	}
+	
+	float fLookAtX = pVehicle->_.phys.ent.mat.vLookAt.fX;
+	float fLookAtY = pVehicle->_.phys.ent.mat.vLookAt.fY;
+	
+	if(fLookAtX == 0.0f && fLookAtY == 0.0f) {
+		fLookAtX = 1.0f;
+	}
+	
+	float fClosestFoundX = (float)(pThePaths->m_AttachedPaths[nClosestNode].wX) / 8.0f;
+	float fClosestFoundY = (float)(pThePaths->m_AttachedPaths[nClosestNode].wY) / 8.0f;
+	
+	if(((fnodeDirClosestY - fClosestFoundY) * fLookAtY + (fnodeDirClosestX - fClosestFoundX) * fLookAtX) < 0.0f) {
+		int nTempIndex = nClosestNode;
+		nClosestNode = nNodeClosestToDirection;
+		nNodeClosestToDirection = nTempIndex;
+	}
+	
+	pVehicle->_.stAutopilot.m_dwPrevNode = 0;
+	pVehicle->_.stAutopilot.m_dwCurrentNode = nClosestNode;
+	pVehicle->_.stAutopilot.m_dwNextNode = nNodeClosestToDirection;
+	pVehicle->_.stAutopilot.m_nRouteListStep = 0;
+	FindLinksToGoWithTheseNodes(pVehicle);
+	pVehicle->_.stAutopilot.m_byteCurrentLanes = 0;
+	pVehicle->_.stAutopilot.m_byteNextLanes = 0;
+}
 
 //4254C0h
 void CCarCtrl::SlowCarOnRailsDownForTrafficAndLights(CVehicle *pVehicle) {

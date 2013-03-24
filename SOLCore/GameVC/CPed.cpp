@@ -88,11 +88,11 @@ bool CPed::FindBestCoordsFromNodes(float fUnusedX, float fUnusedY, float fUnused
 		}
 		if(this->m_pNextNode) {
 			CVector vecRandCoors;
-			CPedPath::CalculateRandomCoordinates(&vecRandCoors, this->m_pNextNode, this->phys.ent.uiPathMedianRand);
+			CPathFind::TakeWidthIntoAccountForWandering(&vecRandCoors, this->m_pNextNode, this->phys.ent.uiPathMedianRand);
 			float fPedRelativeRandX = vecRandCoors.fX - vecPedPosition->fX;
 			float fPedRelativeRandY = vecRandCoors.fY - vecPedPosition->fY;
 			if((fPedRelativeRandX * fPedRelativeRandX + fPedRelativeRandY * fPedRelativeRandY) < (v2dPedPosRelative.fY * v2dPedPosRelative.fY + v2dPedPosRelative.fX * v2dPedPosRelative.fX)) {
-				CPedPath::CalculateRandomCoordinates(&vecRandCoors, this->m_pNextNode, this->phys.ent.uiPathMedianRand);
+				CPathFind::TakeWidthIntoAccountForWandering(&vecRandCoors, this->m_pNextNode, this->phys.ent.uiPathMedianRand);
 				*vecBestCoords = vecRandCoors;
 				return true;
 			}

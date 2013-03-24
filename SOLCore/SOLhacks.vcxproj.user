@@ -4,10 +4,12 @@
     <LocalDebuggerCommand>D:\modding\gtavicecity\gta-vc.exe</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>D:\modding\gtavicecity</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>-window</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>D:\modding\gtavicecity\gta-vc.exe</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>D:\modding\gtavicecity\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>-window</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

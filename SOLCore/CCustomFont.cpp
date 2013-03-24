@@ -155,11 +155,11 @@ HRESULT CCustomFont::InitObjects()
     }
 
     // Create a new texture for the font
-    m_pRaster = RwRasterCreate(m_dwTexWidth, m_dwTexHeight,NULL,rwRASTERTYPETEXTURE|rwRASTERFORMAT4444); //Put here 8888 to have 8888 sized
+    //m_pRaster = RwRasterCreate(m_dwTexWidth, m_dwTexHeight,NULL,rwRASTERTYPETEXTURE|rwRASTERFORMAT4444); //Put here 8888 to have 8888 sized
 
     // Lock the surface and write the alpha values for the set pixels
-    RwRasterLock(m_pRaster,0,rwRASTERLOCKWRITE);
-    BYTE* pDstRow = (BYTE*)m_pRaster->cpPixels;
+    //RwRasterLock(m_pRaster,0,rwRASTERLOCKWRITE);
+    BYTE* pDstRow = (BYTE*)m_pRaster->pPixels;
     WORD* pDst16;
     BYTE bAlpha; // 4-bit measure of pixel intensity
 
@@ -191,7 +191,7 @@ HRESULT CCustomFont::InitObjects()
                 *pDst16++ = 0x0000;
             }
         }
-        pDstRow += m_pRaster->stride;
+        pDstRow += m_pRaster->nStride;
     }
     
     // Done updating texture, so clean up used objects

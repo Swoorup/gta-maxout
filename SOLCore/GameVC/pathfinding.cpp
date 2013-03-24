@@ -401,7 +401,7 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
 							m_CarPathLinks[m_nCarPathLinks].nIndexToAttachedNode = i;
 							m_CarPathLinks[m_nCarPathLinks].bitLeftLanes = pTempNode[j].byteLeftLanes;
 							m_CarPathLinks[m_nCarPathLinks].bitRightLanes = pTempNode[j].byteRightLanes;
-							m_CarPathLinks[m_nCarPathLinks].byteTrafficFlags &= 0xFC;
+							m_CarPathLinks[m_nCarPathLinks].bitTrafficLight = 0;
 							m_CarPathLinks[m_nCarPathLinks].sbMedianWidth = pTempNode[j].sbMedianWidth;
 							m_InfoCarPathLinks[m_nConnectedNodes] = m_nCarPathLinks;
 							m_nCarPathLinks++;
@@ -501,7 +501,7 @@ void CPathFind::PreparePathDataForType( unsigned char bytePathDataFor, CTempNode
 								m_CarPathLinks[m_nCarPathLinks].nIndexToAttachedNode = i;
 								m_CarPathLinks[m_nCarPathLinks].bitLeftLanes = 7; //Max value
 								m_CarPathLinks[m_nCarPathLinks].bitRightLanes = 7;
-								m_CarPathLinks[m_nCarPathLinks].byteTrafficFlags &= 0xFC;
+								m_CarPathLinks[m_nCarPathLinks].bitTrafficLight = 0;
 								if ((unsigned __int8)m_AttachedPaths[nNodesInCurrentGroup].sbMedianWidth <= m_AttachedPaths[i].sbMedianWidth)
 									m_CarPathLinks[m_nCarPathLinks].sbMedianWidth = m_AttachedPaths[i].sbMedianWidth;
 								else
@@ -1110,7 +1110,8 @@ bool CPathFind::NewGenerateCarCreationCoors(CVector2D& pos2DCoors, CVector2D& v2
 // immediately.
 //----------------------------------------------------------------------------
 
-bool CPathFind::GeneratePedCreationCoors(CVector2D& pos2dCoors, float fMinRange, float fMaxRange, float fSecMinRange, float fSecMaxRange, CVector *pvecSpawnPos, int *pStartNodeIndex, int *pNextNodeIndex, float *fRandomByte, RwMatrix *rwTransformationMatrix) {
+bool CPathFind::GeneratePedCreationCoors(CVector2D& pos2dCoors, float fMinRange, float fMaxRange, float fSecMinRange, float fSecMaxRange, CVector *pvecSpawnPos, int *pStartNodeIndex, int *pNextNodeIndex, float *fRandomByte, RwMatrix *rwTransformationMatrix) 
+{
     static bool staticPedNodeCheck = false;
     static int staticPedNodesCount;
     if (staticPedNodeCheck == false) {
@@ -1396,7 +1397,7 @@ float CCarPathLink::OneWayLaneOffset() {
 	return fdistance;
 }
 
-void _cdecl CPedPath::CalculateBestRandomCoors(CPathNode* pPathNodeA, CPathNode* pPathNodeB, short sRand, float* fX, float* fY) {
+void _cdecl CPathFind::TakeWidthIntoAccountForCoors(CPathNode* pPathNodeA, CPathNode* pPathNodeB, short sRand, float* fX, float* fY) {
     char uiMedian = pPathNodeA->sbMedianWidth;
 
     if (uiMedian > pPathNodeB->sbMedianWidth) {
@@ -1406,7 +1407,7 @@ void _cdecl CPedPath::CalculateBestRandomCoors(CPathNode* pPathNodeA, CPathNode*
     *fY = (float)((((sRand >> 4) & 15) - 7) * uiMedian) * 0.0077499999f + *fY;
 }
 
-CVector* _cdecl CPedPath::CalculateRandomCoordinates(CVector* pvecPosition, CPathNode* pPathNode, short sRand) {
+CVector* _cdecl CPathFind::TakeWidthIntoAccountForWandering(CVector* pvecPosition, CPathNode* pPathNode, short sRand) {
     pvecPosition->fX = (float)(pPathNode->sbMedianWidth * ((sRand & 15) - 7)) * 0.0077499999f + (float)(pPathNode->wX) / 8.0f;
     pvecPosition->fY = (float)(pPathNode->sbMedianWidth * (((sRand >> 4) & 15) - 7)) * 0.0077499999f + (float)(pPathNode->wY) / 8.0f;
     pvecPosition->fZ = (float)(pPathNode->wZ) / 8.0f;

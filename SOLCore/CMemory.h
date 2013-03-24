@@ -2,6 +2,7 @@
 #define CMEMORY_H
 
 #include <windows.h>
+#include<vector>
 
 #define ASM_CALL 0xE8
 #define ASM_JMP  0xE9
@@ -25,4 +26,7 @@ public:
 void UnProtect(DWORD dwAddress, DWORD dwUnProtectBytes);
 void InstallHook(DWORD dwAddress, DWORD dwFunctionAddr, DWORD dwFunctionAddrPtr, BYTE* bCode, int iCodeSize);
 void InstallMethodHook(DWORD dwAddress, DWORD dwFunctionAddr);
+
+
+
 #endif

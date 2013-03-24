@@ -92,7 +92,7 @@ public:
     //median gap between left and right lanes
 	unsigned char ucFloodColor; // 27-28
 
-	//bits are inversed. Lowest bit starts from the right side. That is 76543210
+	//bits are inversed. Lowest bit starts from the right side. That is 76543210 the first is checked by & 15
 	unsigned char bitnumberOfNodesConnected:4; // 16.0-16.4
     //number of nodes attached with the current one
     unsigned char bitUnknownFlag3:1; // 16.4-16.5
@@ -155,10 +155,17 @@ public:
     signed char NormalVecY; // 7-8
     unsigned char bitLeftLanes:3; // 8.0-8.3
 	unsigned char bitRightLanes:3; // 8.3-8.6
-	unsigned char padTwoBits:2; // 8.6-9.0
-    unsigned char byteTrafficFlags; // 9-10
+	unsigned char bitTrafficUnknown:1; // 8.6-9.0
+	unsigned char _padOneBit:1; // 8.7 - 9.0
+	unsigned char bitTrafficLight:2; // 9.0 - 9.3
+    unsigned char _bitpadding:6; // 9.3 - 10
     signed char sbMedianWidth; // 10-11
     _pad(__fxpad00, 1); // 11-12
+
+	CVector2D GetPos()
+	{
+		return CVector2D(((float)wX) / 8.0f, ((float)wY) / 8.0f);
+	}
 
     CCarPathLink();
     float OneWayLaneOffset();
@@ -222,7 +229,8 @@ public:
     static CTempDetachedNode* s_pTempExternalNodes;
     static void __stdcall StoreNodeInfoCar(int iNodeInfo_InternalNodesCount, uint8_t eNodeType, int8_t iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, uint8_t nLeftLanes, uint8_t nRightLanes, bool bIsIgnoredNode, bool bIsRestrictedAccess, uint8_t bSpeedLimit, bool bIsPoliceRoadBlock, uint8_t nVehicleType, uint32_t dwSpawnRate, uint8_t bUnknown);
     static void __stdcall StoreNodeInfoPed(int iNodeInfo_InternalNodesCount, uint8_t eNodeType, int8_t iNextNode, float fNodeX, float fNodeY, float fNodeZ, float fMedianWidth, uint8_t iNode_unknown, bool bIsIgnoredNode, bool bIsRestrictedAccess, uint32_t dwSpawnRate);
-
+	static void _cdecl TakeWidthIntoAccountForCoors(CPathNode* pPathNodeA, CPathNode* pPathNodeB, short sRand, float* fX, float* fY);
+    static CVector* TakeWidthIntoAccountForWandering(CVector* pvecPosition, CPathNode* pPathNode, short sRand);
 
 	//inlined functions
 	// both functions make a two way from list to index and vice versa
@@ -251,12 +259,6 @@ public:
 		
 		return index;
 	}
-};
-
-class CPedPath {
-public:
-    static void _cdecl CalculateBestRandomCoors(CPathNode* pPathNodeA, CPathNode* pPathNodeB, short sRand, float* fX, float* fY);
-    static CVector* CPedPath::CalculateRandomCoordinates(CVector* pvecPosition, CPathNode* pPathNode, short sRand);
 };
 
 #pragma pack(pop)

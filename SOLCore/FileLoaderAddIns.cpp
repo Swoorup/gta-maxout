@@ -1,9 +1,10 @@
 #include "StdInc.h"
 
+using namespace HookSystem;
 char szSOLScenePath[] = "SOL\\Scene.dat";
 
 void prevChange(){
-    CMemory::NoOperation(0x48D95E,2);
+    InstallNOPs(0x48D95E,2);
 }
 
 void nextChange(){
@@ -103,8 +104,8 @@ void _declspec (naked) HookReadLineCARS(){
 }
 
 void AddIPLSections(){
-    CMemory::NoOperation(0x48B1C0, 8);
-    CMemory::InstallCallHook(0x48B1C0, &Hook_48B1C0, ASM_JMP);
+    InstallNOPs(0x48B1C0, 8);
+    InstallFnByJump(0x48B1C0, &Hook_48B1C0);
 
     //Patch the comparision limit
     CMemory::InstallPatch<byte> (0x48B20E, 0x07);
@@ -132,8 +133,8 @@ void InstallFileLoaderHooks(void){
 		
 	fclose(fCheckDAT);
         
-    CMemory::NoOperation(0x4A4C9F, 7);
-    CMemory::InstallCallHook(0x4A4C9F, &Hook_CGameInitialize, ASM_CALL);
+    InstallNOPs(0x4A4C9F, 7);
+    InstallFnByCall(0x4A4C9F, &Hook_CGameInitialize);
 
     // The following function adds new section called 'cars' in CFileLoader::LoadScene
     AddIPLSections();

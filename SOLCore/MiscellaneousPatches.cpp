@@ -1,6 +1,7 @@
 #include "main.h"
 #include "StdInc.h"
 
+using namespace HookSystem;
 //Patches of this section are loaded through PatchMiscData()
 
 
@@ -71,11 +72,11 @@ void PatchLoadingBarDisplayOnly()
   CMemory::InstallPatch<byte>(0x4A6C2E, 113);//G
   CMemory::InstallPatch<byte>(0x4A6C33, 47); //R
 
-  CMemory::NoOperation(0x4A6A83, 5);
-  CMemory::InstallCallHook(0x4A6A83, &GetLoadingScreenMsg,ASM_JMP);
+  InstallNOPs(0x4A6A83, 5);
+  InstallFnByJump(0x4A6A83, &GetLoadingScreenMsg);
 
-  CMemory::NoOperation(0x4A6D47, 5);
-  CMemory::InstallCallHook(0x4A6D47, &DisplayLoadingScreenMsg, ASM_CALL);
+  InstallNOPs(0x4A6D47, 5);
+  InstallFnByCall(0x4A6D47, &DisplayLoadingScreenMsg);
 }
 
 //=======================End of Elvis's patches===================================
@@ -125,10 +126,11 @@ void PatchCarGeneratorLimit() {
     pNewCarGeneratorBuffer = (CCarGenerator*)malloc(0x2C * MAXPARKEDCARS);
   
     for (int i = 0; i<ARRLEN(dwCarGeneratorDataRefs); i++){
-        DWORD dwPrevProt = CMemory::UnProtect(dwCarGeneratorDataRefs[i], 4);
+        DWORD dwPrevProt;
+		VirtualProtect((void*)dwCarGeneratorDataRefs[i], 4, PAGE_EXECUTE_READWRITE, &dwPrevProt);
         *((uint32_t*)dwCarGeneratorDataRefs[i]) -= 0xA0DC94;
         *((uint32_t*)dwCarGeneratorDataRefs[i]) += (uint32_t)pNewCarGeneratorBuffer;
-        CMemory::RestoreProtection(dwCarGeneratorDataRefs[i], 4, dwPrevProt);
+        VirtualProtect((void*)dwCarGeneratorDataRefs[i], 4, dwPrevProt, &dwPrevProt);
     }
 
     // Patch cmp instruction in CreateCarGenerator
@@ -146,8 +148,8 @@ void PatchCarGeneratorLimit() {
     CMemory::UnProtect(0x5A6BF1, sizeof(HookCCarGeneratorsInitBuffer));
     memcpy((void*)0x005A6BF1, HookCCarGeneratorsInitBuffer, sizeof(HookCCarGeneratorsInitBuffer));
       
-    CMemory::NoOperation(0x005A6C97, 6);
-    CMemory::InstallCallHook(0x005A6C97, &HookCTheCarGenerators4bCounter, ASM_JMP);
+    InstallNOPs(0x005A6C97, 6);
+    InstallFnByJump(0x005A6C97, &HookCTheCarGenerators4bCounter);
 }
 //-----------------------------------------------------------------------------
 
@@ -169,9 +171,9 @@ void PatchMiscData(){
     //CMemory::InstallPatch<DWORD>(0x94DD54, 1024 * 1024 * 1024);
 
     // These patches allow us to have a custom horizon, replacing the "ugly grey" color.
-	//CMemory::NoOperation(0x53F4AC, 0x05);
-	//CMemory::NoOperation(0x53F4DE, 0x05);
-	//CMemory::NoOperation(0x53F514, 0x05);
-	//CMemory::NoOperation(0x53F519, 0x07);
+	//InstallNOPs(0x53F4AC, 0x05);
+	//InstallNOPs(0x53F4DE, 0x05);
+	//InstallNOPs(0x53F514, 0x05);
+	//InstallNOPs(0x53F519, 0x07);
 	//CMemory::InstallPatch<DWORD>(0x978574, 0xFF646464);
 }

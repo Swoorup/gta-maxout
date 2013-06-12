@@ -87,7 +87,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CCustomFont.cpp" />
-    <ClCompile Include="CMemory.cpp" />
+    <ClCompile Include="hooksystem.cpp" />
     <ClCompile Include="D3D8System.cpp" />
     <ClCompile Include="GameVC\automobile.cpp" />
     <ClCompile Include="GameVC\CAutoPilot.cpp" />
@@ -127,7 +127,7 @@
   <ItemGroup>
     <ClInclude Include="..\loader\resource.h" />
     <ClInclude Include="CCustomFont.h" />
-    <ClInclude Include="CMemory.h" />
+    <ClInclude Include="hooksystem.h" />
     <ClInclude Include="CSingleton.h" />
     <ClInclude Include="D3D8System.h" />
     <ClInclude Include="GameVC\automobile.h" />

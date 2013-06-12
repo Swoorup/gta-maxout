@@ -18,7 +18,7 @@
 
 // utilies directives for general usuage
 #include "CSingleton.h"
-#include "CMemory.h"
+#include "hooksystem.h"
 #include "utils.h"
 #include "D3D8System.h"
 #include "CCustomFont.h"

@@ -1,6 +1,7 @@
 #include "main.h"
 #include "StdInc.h"
 
+using namespace HookSystem;
 #define TILES_IN_SECTION 9
 #define TOTAL_TILES 81
 
@@ -115,13 +116,13 @@ void HookNew_CMenuManager__DrawMapTextures()
 
 void PatchMapMenu(){
     ZeroMemory(MapMenuTexStore, sizeof(MapMenuTexStore));
-    CMemory::InstallCallHook(0x4A2CC2,&HookNew_CMenuManager__DrawMapTextures, ASM_CALL);
+    InstallFnByCall(0x4A2CC2,&HookNew_CMenuManager__DrawMapTextures);
 
-    CMemory::InstallCallHook(0x4A273A,&HookNew_CMenuManager__DrawMapTextures, ASM_CALL);
+    InstallFnByCall(0x4A273A,&HookNew_CMenuManager__DrawMapTextures);
     
-    CMemory::InstallCallHook(0x4A3BB1, &HookCMenuManager__LoadTextures, ASM_CALL);
+    InstallFnByCall(0x4A3BB1, &HookCMenuManager__LoadTextures);
     
-    CMemory::InstallCallHook(0x4A39F2,&HookCMenuManager__UnloadTextures, ASM_JMP);
+    InstallFnByJump(0x4A39F2,&HookCMenuManager__UnloadTextures);
 
     CMemory::InstallPatch<float>(0x68FD10,0.0028070009f); //Adjust X Center of Menu Map
     CMemory::InstallPatch<float>(0x68FD1C,-0.0009999993f); //Adjust Y Center of Menu Map
@@ -130,17 +131,17 @@ void PatchMapMenu(){
     //Patch for Max zoom in and zoom out
     
     CMemory::InstallPatch<float>(0x68D4A8,3200.0f); //Adjust MaxScale
-    UnProtect(0x497918, 4);
+    CMemory::UnProtect(0x497918, 4);
     *(PFLOAT)0x497918 = 3200.0f;
 
     CMemory::InstallPatch<float>(0x68D4B0,1000.0f); //Adjust MinScale
-    UnProtect(0x497B54,4);
+    CMemory::UnProtect(0x497B54,4);
     *(PFLOAT)0x497B54 = 1000.0f;
 
-    UnProtect(0x497AB4,4);
+    CMemory::UnProtect(0x497AB4,4);
     *(PFLOAT)0x497AB4 = 1000.0f;
 
     //Adjust default Scale
-    UnProtect(0x4A3CEC, 4);
+    CMemory::UnProtect(0x4A3CEC, 4);
     *(PFLOAT)0x4A3CEC = 1000.0f;
 }

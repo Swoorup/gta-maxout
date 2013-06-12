@@ -2,6 +2,7 @@
 #include "StdInc.h"
 #include <iostream>
 
+using namespace HookSystem;
 
 //============================================================================
 #define RADAR_TXD_LIMIT 1296
@@ -61,44 +62,44 @@ void Patch_RadarGrid(void) {
     
     // Patches for Relating World Cordinates to Radar Cordinates. Not needed as Map Width and TXD has been adjusted according to the original value
     //.text:004C1D82 178 69 D2 F4 01 00 00                          imul    edx, 500        ; Signed Multiply
-    //UnProtect(0x4C1D84,2);
+    //CMemory::UnProtect(0x4C1D84,2);
     //*(PSHORT)0x4C1D84 = (short)(MapWidth/(float)RadarTXDLimit);
 
     //.text:004C1D8E 178 69 C0 F4 01 00 00                          imul    eax, 500        ; Signed Multiply
-    //UnProtect(0x4C1D90,2);
+    //CMemory::UnProtect(0x4C1D90,2);
     //*(PSHORT)0x4C1D90 = (short)(MapWidth/(float)RadarTXDLimit);
 
     //.text:004C1D94 178 69 FF F4 01 00 00                          imul    edi, 500        ; Signed Multiply
-    //UnProtect(0x4C1D96,2);
+    //CMemory::UnProtect(0x4C1D96,2);
     //*(PSHORT)0x4C1D96 = (short)(MapWidth/(float)RadarTXDLimit);
 
     //.text:004C1D9A 178 69 C9 F4 01 00 00                          imul    ecx, 500        ; Signed Multiply
-    //UnProtect(0x4C1D9C,2);
+    //CMemory::UnProtect(0x4C1D9C,2);
     //*(PSHORT)0x4C1D9C = (short)(MapWidth/(float)RadarTXDLimit);
 
     /*Patches done for proper calculation of Rows and Coloumns of Radar*/
     // CRadar::DrawRadarSection
 
     //.text:004C1E08 178 83 FE 07                                   cmp     esi, 7          ; Compare Two Operands 
-	UnProtect(0x4C1E0A, 1);
+	CMemory::UnProtect(0x4C1E0A, 1);
     *(PBYTE)0x4C1E0A = RadarTXDLimit - 1;
     //.text:004C1E0D 178 BE 07 00 00 00                             mov     esi, 7
-	UnProtect(0x4C1E0E, 1);
+	CMemory::UnProtect(0x4C1E0E, 1);
     *(PBYTE)0x4C1E0E = RadarTXDLimit - 1;
 	//.text:004C1E18 178 83 FD 07                                   cmp     ebp, 7          ; Compare Two Operands
-    UnProtect(0x4C1E1A, 1);
+    CMemory::UnProtect(0x4C1E1A, 1);
     *(PBYTE)0x4C1E1A = RadarTXDLimit - 1;
 	//.text:004C1E1D 178 BD 07 00 00 00                             mov     ebp, 7
-    UnProtect(0x4C1E1E, 1);
+    CMemory::UnProtect(0x4C1E1E, 1);
     *(PBYTE)0x4C1E1E = RadarTXDLimit - 1;
     //.text:004C1D7D 178 B9 03 00 00 00                             mov     ecx, 3
-    UnProtect(0x4C1D7E, 1);
+    CMemory::UnProtect(0x4C1D7E, 1);
     *(PBYTE)0x4C1D7E = (RadarTXDLimit / 2) - 1;
 	//.text:004C1F91 178 B9 08 00 00 00                             mov     ecx, 8
-    UnProtect(0x4C1F92, 1);
+    CMemory::UnProtect(0x4C1F92, 1);
     *(PBYTE)0x4C1F92 = RadarTXDLimit;
     //.text:004C1D71 178 8D 7E FC                                   lea     edi, [esi-4]    ; Load Effective Address
-	UnProtect(0x4C1D73, 1);
+	CMemory::UnProtect(0x4C1D73, 1);
 	*(PBYTE)0x4C1D73 = 0x100 - (RadarTXDLimit / 2);	
     
 
@@ -107,47 +108,47 @@ void Patch_RadarGrid(void) {
     //.text:004C28DA 010 83 FA 07                                   cmp     edx, 7          ; Compare Two Operands
     CMemory::InstallPatch <BYTE> (0x4C28DC, RadarTXDLimit - 1);
     //.text:004C28DF 010 BA 07 00 00 00                             mov     edx, 7
-	UnProtect(0x4C28E0, 1);
+	CMemory::UnProtect(0x4C28E0, 1);
     *(PBYTE)0x4C28E0 = RadarTXDLimit - 1;
     //.text:004C28EA 010 83 F9 07                                   cmp     ecx, 7          ; Compare Two Operands
-	UnProtect(0x4C28EC, 1);
+	CMemory::UnProtect(0x4C28EC, 1);
     *(PBYTE)0x4C28EC = RadarTXDLimit - 1;
     //.text:004C28EF 010 B9 07 00 00 00                             mov     ecx, 7
-	UnProtect(0x4C28F0, 1);
+	CMemory::UnProtect(0x4C28F0, 1);
     *(PBYTE)0x4C28F0 = RadarTXDLimit - 1;
     //.text:004C28A8 010 83 FD 07                                   cmp     ebp, 7          ; Compare Two Operands
-	UnProtect(0x4C28AA, 1);
+	CMemory::UnProtect(0x4C28AA, 1);
     *(PBYTE)0x4C28AA = RadarTXDLimit - 1;
 	//.text:004C28B1 010 83 FE 07                                   cmp     esi, 7          ; Compare Two Operands
-    UnProtect(0x4C28B3, 1);
+    CMemory::UnProtect(0x4C28B3, 1);
     *(PBYTE)0x4C28B3 = RadarTXDLimit - 1;
     //.text:004C2914 010 83 C7 08                                   add     edi, 8          ; Add
-	UnProtect(0x4C2916, 1);
+	CMemory::UnProtect(0x4C2916, 1);
     *(PBYTE)0x4C2916 = RadarTXDLimit;
 	//.text:004C2917 010 83 FE 08                                   cmp     esi, 8          ; Compare Two Operands
-    UnProtect(0x4C2919, 1);
+    CMemory::UnProtect(0x4C2919, 1);
     *(PBYTE)0x4C2919 = RadarTXDLimit;
 	//.text:004C2921 010 83 FD 08                                   cmp     ebp, 8          ; Compare Two Operands
-    UnProtect(0x4C2923, 1);
+    CMemory::UnProtect(0x4C2923, 1);
     *(PBYTE)0x4C2923 = RadarTXDLimit;
     
     // CRadar::RemoveRadarSection Patches
     
     //.text:004C2944 00C 83 FB 07                                   cmp     ebx, 7          ; Compare Two Operands
-    UnProtect(0x4C2946, 1);
+    CMemory::UnProtect(0x4C2946, 1);
     *(PBYTE)0x4C2946 = RadarTXDLimit - 1;
     //.text:004C294D 00C 83 FD 07                                   cmp     ebp, 7          ; Compare Two Operands
-    UnProtect(0x4C294F,1);
+    CMemory::UnProtect(0x4C294F,1);
     *(PBYTE)0x4C294F = RadarTXDLimit - 1;
 
     //.text:004C2966 00C 83 C6 08                                   add     esi, 8          ; Add
-    UnProtect(0x4C2968, 1);
+    CMemory::UnProtect(0x4C2968, 1);
     *(PBYTE)0x4C2968 = RadarTXDLimit;
     //.text:004C2969 00C 83 FD 08                                   cmp     ebp, 8          ; Compare Two Operands
-    UnProtect(0x4C296B, 1);
+    CMemory::UnProtect(0x4C296B, 1);
     *(PBYTE)0x4C296B = RadarTXDLimit; 
     //.text:004C296F 00C 83 FB 08                                   cmp     ebx, 8          ; Compare Two Operands
-    UnProtect(0x4C2971, 1);
+    CMemory::UnProtect(0x4C2971, 1);
     *(PBYTE)0x4C2971 = RadarTXDLimit;
 }
 
@@ -246,18 +247,18 @@ void PatchRadar(bool bdebugMsg) {
 	memset(RadarTXDStore, 0, RADAR_TXD_LIMIT * sizeof(DWORD));
 
 	// Install the hook to customly allocate the array for radar images. Function is hooked at CRadar::Initialise(void)
-	CMemory::NoOperation(0x4C62C0, 0x1B);
-	CMemory::InstallCallHook(0x4C62C0, Hook_CRadar_Init, ASM_CALL);
+	InstallNOPs(0x4C62C0, 0x1B);
+	InstallFnByCall(0x4C62C0, Hook_CRadar_Init);
 
 	// Install the hook to Stream the radar textures. Function is hooked at CRadar::StreamRadarSections
-	InstallHook(0x4C28F4, (DWORD)Hook_ChangeRadarStreamTile, 0x4C2611, RadarStreamTile_HookJmpCode, sizeof(RadarStreamTile_HookJmpCode));
+	CMemory::InstallHook(0x4C28F4, (DWORD)Hook_ChangeRadarStreamTile, 0x4C2611, RadarStreamTile_HookJmpCode, sizeof(RadarStreamTile_HookJmpCode));
 
     // Install the hooks to change the dimensional calls to the size of the radar grid. Function is hooked at CRadar::DrawRadarSection
-    CMemory::NoOperation(0x4C1E3A, 0x07);
-	CMemory::InstallCallHook(0x4C1E3A, Hook_ChangeRadarTileFormula, ASM_CALL);
+    InstallNOPs(0x4C1E3A, 0x07);
+	InstallFnByCall(0x4C1E3A, Hook_ChangeRadarTileFormula);
     // Debugging Message for Radar(Optional)
     if(bdebugMsg == true) {
         CMemory::UnProtect(0x4C186F, 5);
-        CMemory::InstallCallHook(0x4C186F,&DEBUGHook_CRadar__DrawRadarMap, ASM_CALL);
+        InstallFnByCall(0x4C186F,&DEBUGHook_CRadar__DrawRadarMap);
     }
 }

@@ -20,10 +20,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,
 		{
             //g_pGameHooks = new CGameHookManager();
            // g_pGameHooks->ApplyHook();
-            SetGameWindowName("Hey Bud! You suck");
-			CPathFindHook* pathFindHook = new CPathFindHook();
-			pathFindHook->InitPathBuffer();
-			pathFindHook->ApplyHook();
+			//CPathFindHook* pathFindHook = new CPathFindHook();
+			//pathFindHook->InitPathBuffer();
+			//pathFindHook->ApplyHook();
 
             //if ( IconHandle != NULL) SetClassLong(pPresentationParameters->hDeviceWindow, GCL_HICON, (LONG)IconHandle);
 
@@ -33,7 +32,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,
             //PatchVehicleLimits();
             //PatchMiscData();//PASSED
             //PatchRadar(FALSE);//PASSED
-            //PatchWater();//PASSED MINOR REVISION NEEDED
+            PatchWater();//PASSED MINOR REVISION NEEDED
             //PatchMapMenu(); 
             
             //ApplyCustomPathPatch();

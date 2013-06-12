@@ -69,9 +69,6 @@
     <ClCompile Include="WaterHack.cpp">
       <Filter>Source Files\GameHooks</Filter>
     </ClCompile>
-    <ClCompile Include="CMemory.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
     <ClCompile Include="GameVC\CTheCarGenerators.cpp">
       <Filter>Source Files\GameVC</Filter>
     </ClCompile>
@@ -150,6 +147,9 @@
     <ClCompile Include="D3D8System.cpp">
       <Filter>Source Files\D3D8Hook</Filter>
     </ClCompile>
+    <ClCompile Include="hooksystem.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameVC\GameVC.h">
@@ -174,9 +174,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CSingleton.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="CMemory.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="GameVC\CGameHookManager.h">
@@ -276,6 +273,9 @@
       <Filter>D3D8Hook</Filter>
     </ClInclude>
     <ClInclude Include="utils.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="hooksystem.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>

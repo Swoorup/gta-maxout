@@ -1,4 +1,5 @@
 #include "StdInc.h"
+#include <vector>
 
 bool bWindowedMode;
 
@@ -25,11 +26,11 @@ void CEvents::RegisterFn(void (*fn)(void))
 
 void CEvents::RunEvent()
 {
-	std::vector<void (*)(void)>::iterator itr;
+	/*std::vector<void (*)(void)>::iterator itr;
 	for(itr = fnList.begin; itr != fnList.end(); itr++)
 	{
 		(*itr)();
-	}
+	}*/
 }
 
 class CEventsManager 

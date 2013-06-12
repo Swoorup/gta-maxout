@@ -1,4 +1,5 @@
 #include "../StdInc.h"
+using namespace HookSystem;
 
 template<> CPathFindHook * CSingleton<CPathFindHook>::m_pSingleton = NULL;
 CPathFind* pThePaths = NULL;
@@ -1437,144 +1438,144 @@ void CPathFindHook::ApplyHook()
 {
 
 	// Hooked in CFileLoader::LoadLevel
-    CMemory::InstallCallHook( 0x48DD5D, &CFileLoader::LoadScene, ASM_CALL);
+    InstallFnByCall( 0x48DD5D, &CFileLoader::LoadScene);
 
     // CCarPathLink::OneWayLaneOffset - REVISION NEEDED
 
     // Disable Unused CPathFind Treadables in CFileLoader::LoadObjectInstance
-    CMemory::NoOperation(0x48AE30, 44);
+    InstallNOPs(0x48AE30, 44);
 
     // Hooks in CGame::Init
-    CMemory::InstallCallHook(0x4A4C0C, _classTrampoline_CPathFind_Init, ASM_CALL);
-    CMemory::NoOperation(0x4A4C16, 5); // Remove One Unused Parameter
+    InstallFnByCall(0x4A4C0C, _classTrampoline_CPathFind_Init);
+    InstallNOPs(0x4A4C16, 5); // Remove One Unused Parameter
 
-    CMemory::InstallCallHook(0x4A4C1B, _classTrampoline_CPathFind_AllocatePathFindInfoMem, ASM_CALL);    
-    CMemory::InstallCallHook(0x4A4CE7, _classTrampoline_CPathFind_PreparePathData, ASM_CALL);
+    InstallFnByCall(0x4A4C1B, _classTrampoline_CPathFind_AllocatePathFindInfoMem);    
+    InstallFnByCall(0x4A4CE7, _classTrampoline_CPathFind_PreparePathData);
     // Install PreparePathDataHook
-    CMemory::InstallCallHook(0x43BF3C, _classTrampoline_CPathFind_PreparePathDataForType, ASM_CALL);
-    CMemory::InstallCallHook(0x43BF74, _classTrampoline_CPathFind_PreparePathDataForType, ASM_CALL);
+    InstallFnByCall(0x43BF3C, _classTrampoline_CPathFind_PreparePathDataForType);
+    InstallFnByCall(0x43BF74, _classTrampoline_CPathFind_PreparePathDataForType);
 
-    CMemory::InstallCallHook(0x439070, _classTrampoline_CPathFind_DoPathSearch, ASM_JMP);
-    CMemory::InstallCallHook(0x437150, _classTrampoline_CPathFind_FindNodeClosestToCoors, ASM_JMP);
-    CMemory::InstallCallHook(0x437330, _classTrampoline_CPathFind_AddNodeToList, ASM_JMP);
-    CMemory::InstallCallHook(0x4375C0, _classTrampoline_CPathFind_RemoveNodeFromList, ASM_JMP);
-    CMemory::InstallCallHook(0x438F90, _classTrampoline_CPathFind_RemoveBadStartNode , ASM_JMP);
-    CMemory::InstallCallHook(0x4386D0, _classTrampoline_CPathFind_FindNextNodeWandering, ASM_JMP);
-    CMemory::InstallCallHook(0x4382B0, _classTrampoline_CPathFind_NewGenerateCarCreationCoors, ASM_JMP);
-    CMemory::InstallCallHook(0x437B10, _classTrampoline_CPathFind_GeneratePedCreationCoors, ASM_JMP);
-    CMemory::InstallCallHook(0x437A40, _classTrampoline_CPathFind_TestCoorsCloseness, ASM_JMP);
-    CMemory::InstallCallHook(0x4377F0, _classTrampoline_CPathFind_CalcRoadDensity, ASM_JMP);
-    CMemory::InstallCallHook(0x436E40, _classTrampoline_CPathFind_FindNodeClosestToCoorsFavourDirection, ASM_JMP);
-    CMemory::InstallCallHook(0x4354E0, _classTrampoline_CPathFind_TestCrossesRoad, ASM_JMP);
-    CMemory::InstallCallHook(0x4356B0, _classTrampoline_CPathFind_TestForPedTrafficLight, ASM_JMP);
+    InstallFnByJump(0x439070, _classTrampoline_CPathFind_DoPathSearch);
+    InstallFnByJump(0x437150, _classTrampoline_CPathFind_FindNodeClosestToCoors);
+    InstallFnByJump(0x437330, _classTrampoline_CPathFind_AddNodeToList);
+    InstallFnByJump(0x4375C0, _classTrampoline_CPathFind_RemoveNodeFromList);
+    InstallFnByJump(0x438F90, _classTrampoline_CPathFind_RemoveBadStartNode );
+    InstallFnByJump(0x4386D0, _classTrampoline_CPathFind_FindNextNodeWandering);
+    InstallFnByJump(0x4382B0, _classTrampoline_CPathFind_NewGenerateCarCreationCoors);
+    InstallFnByJump(0x437B10, _classTrampoline_CPathFind_GeneratePedCreationCoors);
+    InstallFnByJump(0x437A40, _classTrampoline_CPathFind_TestCoorsCloseness);
+    InstallFnByJump(0x4377F0, _classTrampoline_CPathFind_CalcRoadDensity);
+    InstallFnByJump(0x436E40, _classTrampoline_CPathFind_FindNodeClosestToCoorsFavourDirection);
+    InstallFnByJump(0x4354E0, _classTrampoline_CPathFind_TestCrossesRoad);
+    InstallFnByJump(0x4356B0, _classTrampoline_CPathFind_TestForPedTrafficLight);
 
-    CMemory::InstallCallHook(0x434EB0, _classTrampoline_CCarPathLink_OneWayLaneOffset, ASM_JMP);
+    InstallFnByJump(0x434EB0, _classTrampoline_CCarPathLink_OneWayLaneOffset);
 
-    CMemory::InstallCallHook(0x435140, CPathFind::TakeWidthIntoAccountForCoors, ASM_JMP);
-    CMemory::InstallCallHook(0x4351C0, CPathFind::TakeWidthIntoAccountForWandering, ASM_JMP);
+    InstallFnByJump(0x435140, CPathFind::TakeWidthIntoAccountForCoors);
+    InstallFnByJump(0x4351C0, CPathFind::TakeWidthIntoAccountForWandering);
 
 
 
     // hooks inside CAutopilot::ModifySpeed
     void (CAutoPilot::*pCAutoPilot_ModifySpeed)(float fModSpeed);
     pCAutoPilot_ModifySpeed = &CAutoPilot::ModifySpeed;
-    CMemory::InstallCallHook(0x418CD0, (void*&)pCAutoPilot_ModifySpeed, ASM_JMP);
+    InstallFnByJump(0x418CD0, (void*&)pCAutoPilot_ModifySpeed);
 	
 
     //hooks inside CCarCtrl::GenerateOneEmergencyServicesCar
-    CMemory::InstallCallHook(0x41C4F1, HookGenEmerCarCheckVehicleType, ASM_JMP);
-    CMemory::InstallCallHook(0x41C6A5, HookGenEmerCarGetAttachedZCoorsOne, ASM_JMP);
+    InstallFnByJump(0x41C4F1, HookGenEmerCarCheckVehicleType);
+    InstallFnByJump(0x41C6A5, HookGenEmerCarGetAttachedZCoorsOne);
     CMemory::InstallPatch<CPathFind*>(0x41C4BD, pThePaths);
 
     //whole function replacement hook for CCarCtrl::FindLinksToGoWithTheseNodes
-    CMemory::InstallCallHook(0x41CC20, CCarCtrl::FindLinksToGoWithTheseNodes, ASM_JMP);
+    InstallFnByJump(0x41CC20, CCarCtrl::FindLinksToGoWithTheseNodes);
 
     //hooks inside CCarCtrl::JoinCarWithRoadSystemGotoCoors
     CMemory::InstallPatch<CPathFind*>(0x41CECF, pThePaths);
     CMemory::InstallPatch<CPathFind*>(0x41CF21, pThePaths);
-    CMemory::InstallCallHook(0x41CF52, HookJoinCarWithRoadFixPathPointerSubtract, ASM_JMP);
+    InstallFnByJump(0x41CF52, HookJoinCarWithRoadFixPathPointerSubtract);
 
     //whole function replacement hook for CCarCtrl::JoinCarWithRoadSystems
-    CMemory::InstallCallHook(0x41D000, CCarCtrl::JoinCarWithRoadSystem, ASM_JMP);
+    InstallFnByJump(0x41D000, CCarCtrl::JoinCarWithRoadSystem);
 
     //hooks inside CCarCtrl::SteerAICarWithPhysicsFollowPath
-    CMemory::InstallCallHook(0x41EF70, HookSteerAICarFixDetachedNodeMultiplierOne, ASM_JMP);
+    InstallFnByJump(0x41EF70, HookSteerAICarFixDetachedNodeMultiplierOne);
     CMemory::InstallPatch<signed char*>(0x41EF7E, &pThePaths->m_CarPathLinks[0].NormalVecX);
     CMemory::InstallPatch<signed char*>(0x41EFAA, &pThePaths->m_CarPathLinks[0].NormalVecY);
-    CMemory::InstallCallHook(0x41EFEB, HookSteerAICarFixDetachedNodeMultiplierTwo, ASM_JMP);
+    InstallFnByJump(0x41EFEB, HookSteerAICarFixDetachedNodeMultiplierTwo);
     CMemory::InstallPatch<signed char*>(0x41EFF8, &pThePaths->m_CarPathLinks[0].NormalVecX);
     CMemory::InstallPatch<CPathFind*>(0x41F015, pThePaths);
     CMemory::InstallPatch<signed char*>(0x41F02B, &pThePaths->m_CarPathLinks[0].NormalVecY);
     CMemory::InstallPatch<uint32_t>(0x41F045, OFFSETOF(CPathFind, m_CarPathLinks[0]));
-    CMemory::InstallCallHook(0x41F088, HookSteerAICarFixDetachedPreGetLaneDistanceOne, ASM_JMP);
-    CMemory::InstallCallHook(0x41F0C8, HookSteerCarAIGetDetachedNodeXYCoorsOne, ASM_JMP);
-    CMemory::InstallCallHook(0x41F130, HookSteerCarAIGetDetachedNodeXYCoorsTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x41F346, HookSteerCarAIFixDetachedPreGetLaneDistanceTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x41F386, HookSteerCarAIGetDetachedNodeXYCoorsThree, ASM_JMP);
-    CMemory::InstallCallHook(0x41F440, HookSteerCarAIFixDetachedNodeMultiplierThree, ASM_JMP);
+    InstallFnByJump(0x41F088, HookSteerAICarFixDetachedPreGetLaneDistanceOne);
+    InstallFnByJump(0x41F0C8, HookSteerCarAIGetDetachedNodeXYCoorsOne);
+    InstallFnByJump(0x41F130, HookSteerCarAIGetDetachedNodeXYCoorsTwo);
+    InstallFnByJump(0x41F346, HookSteerCarAIFixDetachedPreGetLaneDistanceTwo);
+    InstallFnByJump(0x41F386, HookSteerCarAIGetDetachedNodeXYCoorsThree);
+    InstallFnByJump(0x41F440, HookSteerCarAIFixDetachedNodeMultiplierThree);
     CMemory::InstallPatch<signed char*>(0x41F44E, &pThePaths->m_CarPathLinks[0].NormalVecX);
     CMemory::InstallPatch<signed char*>(0x41F47A, &pThePaths->m_CarPathLinks[0].NormalVecY);
-    CMemory::InstallCallHook(0x41F4BB, HookSteerCarAIFixDetachedNodeMultiplierFour, ASM_JMP);
+    InstallFnByJump(0x41F4BB, HookSteerCarAIFixDetachedNodeMultiplierFour);
     CMemory::InstallPatch<signed char*>(0x41F4C8, &pThePaths->m_CarPathLinks[0].NormalVecX);
     CMemory::InstallPatch<signed char*>(0x41F4F4, &pThePaths->m_CarPathLinks[0].NormalVecY);
-    CMemory::InstallCallHook(0x41F525, HookSteerCarAIGetDetachedNodeXYCoorsFour, ASM_JMP);
-    CMemory::InstallCallHook(0x41F838, HookSteerCarAIFixDetachedPreGetLaneDistanceThree, ASM_JMP);
-    CMemory::InstallCallHook(0x41F87B, HookSteerCarAIGetDetachedNodeXYCoorsFive, ASM_JMP);
+    InstallFnByJump(0x41F525, HookSteerCarAIGetDetachedNodeXYCoorsFour);
+    InstallFnByJump(0x41F838, HookSteerCarAIFixDetachedPreGetLaneDistanceThree);
+    InstallFnByJump(0x41F87B, HookSteerCarAIGetDetachedNodeXYCoorsFive);
 
     //hook for CCarCtrl::PickNextNodeToFollowPath
-    CMemory::InstallCallHook(0x420D50, CCarCtrl::PickNextNodeToFollowPath, ASM_JMP);
-    CMemory::InstallCallHook(0x4213A0, CCarCtrl::PickNextNodeToChaseCar, ASM_JMP);
+    InstallFnByJump(0x420D50, CCarCtrl::PickNextNodeToFollowPath);
+    InstallFnByJump(0x4213A0, CCarCtrl::PickNextNodeToChaseCar);
 
     //june 28, 2012
-    CMemory::InstallCallHook(0x421F70, CCarCtrl::PickNextNodeRandomly, ASM_JMP);
-    CMemory::InstallCallHook(0x421DC0, CCarCtrl::FindPathDirection, ASM_JMP);
+    InstallFnByJump(0x421F70, CCarCtrl::PickNextNodeRandomly);
+    InstallFnByJump(0x421DC0, CCarCtrl::FindPathDirection);
 
     //hook CCarCtrl::PickNextNodeAccordingStrategy
-    CMemory::InstallCallHook(0x422A10, CCarCtrl::PickNextNodeAccordingStrategy, ASM_JMP);
+    InstallFnByJump(0x422A10, CCarCtrl::PickNextNodeAccordingStrategy);
 
     //hook CCarCtrl::UpdateCarOnRails
-    CMemory::InstallCallHook(0x425BF0, CCarCtrl::UpdateCarOnRails, ASM_JMP);
+    InstallFnByJump(0x425BF0, CCarCtrl::UpdateCarOnRails);
 
     //hooks in CCarCtrl::GenerateOneRandomCar
     CMemory::InstallPatch<CPathFind*>(0x4272F0, pThePaths);
-    CMemory::InstallCallHook(0x42733C, HookGenOneRandomCarCompareSpawnRate, ASM_JMP);
-    CMemory::InstallCallHook(0x427380, HookGenOneRandomCarCheckBoat, ASM_JMP);
-    CMemory::InstallCallHook(0x42752A, HookGenOneRandomCarCheckVehClass, ASM_JMP);
+    InstallFnByJump(0x42733C, HookGenOneRandomCarCompareSpawnRate);
+    InstallFnByJump(0x427380, HookGenOneRandomCarCheckBoat);
+    InstallFnByJump(0x42752A, HookGenOneRandomCarCheckVehClass);
     CMemory::InstallPatch<CPathFind*>(0x4275DF, pThePaths);
-    CMemory::InstallCallHook(0x427623, HookGenOneRandomCarGetProperLaneOne, ASM_JMP); //Hardest function of all times
-    CMemory::InstallCallHook(0x427B07, HookGenOneRandomCarGetXYsOne, ASM_JMP);
-    CMemory::InstallCallHook(0x427CC6, HookGenRandomCarPathsGeneric, ASM_JMP);
+    InstallFnByJump(0x427623, HookGenOneRandomCarGetProperLaneOne); //Hardest function of all times
+    InstallFnByJump(0x427B07, HookGenOneRandomCarGetXYsOne);
+    InstallFnByJump(0x427CC6, HookGenRandomCarPathsGeneric);
 
-    CMemory::InstallCallHook(0x427DB5, HookGenOneRandomCarGetXYZsTwo, ASM_JMP);
+    InstallFnByJump(0x427DB5, HookGenOneRandomCarGetXYZsTwo);
     CMemory::InstallPatch<CPathFind*>(0x427F5D, pThePaths);
-    CMemory::InstallCallHook(0x427FA4, HookGenOneRandomCarGetDetachedNodeOffsetOne, ASM_JMP);
+    InstallFnByJump(0x427FA4, HookGenOneRandomCarGetDetachedNodeOffsetOne);
     CMemory::InstallPatch<signed char*>(0x427FB1, &(pThePaths->m_CarPathLinks[0].NormalVecX));
     CMemory::InstallPatch<unsigned int>(0x427FC7, OFFSETOF(CPathFind, m_CarPathLinks[0]));
     CMemory::InstallPatch<signed char*>(0x427FE5, &(pThePaths->m_CarPathLinks[0].NormalVecY));
-    CMemory::InstallCallHook(0x428026, HookGenOneRandomCarGetDetachedNodeOffsetTwo, ASM_JMP);
+    InstallFnByJump(0x428026, HookGenOneRandomCarGetDetachedNodeOffsetTwo);
     CMemory::InstallPatch<signed char*>(0x428033, &(pThePaths->m_CarPathLinks[0].NormalVecX));
     CMemory::InstallPatch<signed char*>(0x42805F, &(pThePaths->m_CarPathLinks[0].NormalVecY));
-    CMemory::InstallCallHook(0x4280B4, HookGenOneRandomCarGetDetachedNodeOne, ASM_JMP);
-    CMemory::InstallCallHook(0x42810A, HookGenOneRandomCarGetDetachedNodeXYOne, ASM_JMP);
-    CMemory::InstallCallHook(0x428198, HookGenOneRandomCarGetDetachedNodeXYTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x428236, HookGenRandomCarGetDetachedNodeTwo, ASM_JMP);
+    InstallFnByJump(0x4280B4, HookGenOneRandomCarGetDetachedNodeOne);
+    InstallFnByJump(0x42810A, HookGenOneRandomCarGetDetachedNodeXYOne);
+    InstallFnByJump(0x428198, HookGenOneRandomCarGetDetachedNodeXYTwo);
+    InstallFnByJump(0x428236, HookGenRandomCarGetDetachedNodeTwo);
     CMemory::InstallPatch<signed char*>(0x428243, &(pThePaths->m_CarPathLinks[0].NormalVecY));
     CMemory::InstallPatch<signed char*>(0x428275, &(pThePaths->m_CarPathLinks[0].NormalVecX));
-    CMemory::InstallCallHook(0x4282B0, HookGenRandomCarGetDetachedNodeThree, ASM_JMP);
+    InstallFnByJump(0x4282B0, HookGenRandomCarGetDetachedNodeThree);
     CMemory::InstallPatch<signed char*>(0x4282BD, &(pThePaths->m_CarPathLinks[0].NormalVecY));
     CMemory::InstallPatch<signed char*>(0x4282EF, &(pThePaths->m_CarPathLinks[0].NormalVecX));
-    CMemory::InstallCallHook(0x42846B, HookGenRandomCarGetDetachedNodeXYThree, ASM_JMP);
-    CMemory::InstallCallHook(0x4284E2, HookGenRandomCarGetDetachedNodeXYFour, ASM_JMP);
-    CMemory::InstallCallHook(0x428585, HookGenOneRandomCarGetXYZsThree, ASM_JMP);
-    CMemory::InstallCallHook(0x4286C0, HookGenRandomCarGetNodeZsOnly, ASM_JMP);
+    InstallFnByJump(0x42846B, HookGenRandomCarGetDetachedNodeXYThree);
+    InstallFnByJump(0x4284E2, HookGenRandomCarGetDetachedNodeXYFour);
+    InstallFnByJump(0x428585, HookGenOneRandomCarGetXYZsThree);
+    InstallFnByJump(0x4286C0, HookGenRandomCarGetNodeZsOnly);
 
     //patches in CRestart::FindClosestPoliceRestartPoint
     CMemory::InstallPatch<CPathFind*>(0x442BB7, pThePaths);
-    CMemory::InstallCallHook(0x442BD8, HookRestartForPoliceGetXYZ, ASM_JMP);
+    InstallFnByJump(0x442BD8, HookRestartForPoliceGetXYZ);
 
     //patches in CRestart::FindClosestHospitalRestartPoint
     CMemory::InstallPatch<CPathFind*>(0x442E79, pThePaths);
-    CMemory::InstallCallHook(0x442E9C, HookRestartForHospitalGetXYZ, ASM_JMP);
+    InstallFnByJump(0x442E9C, HookRestartForHospitalGetXYZ);
 
     //patches in CFileLoader::LoadInstance
     CMemory::InstallPatch<CPathFind*>(0x48AE89, pThePaths);
@@ -1586,7 +1587,7 @@ void CPathFindHook::ApplyHook()
 
     //hooks in CarCheatSpawner
     CMemory::InstallPatch<CPathFind*>(0x4AE993, pThePaths);
-    CMemory::InstallCallHook(0x4AE9DD, HookCarCheatSpawner, ASM_JMP);
+    InstallFnByJump(0x4AE9DD, HookCarCheatSpawner);
     
     //patches in CPlayerInfo::Process
     CMemory::InstallPatch<CPathFind*> (0x4BD66D, pThePaths);
@@ -1595,27 +1596,27 @@ void CPathFindHook::ApplyHook()
 
     //hooks in CWorld::RemoveFallenCars
     CMemory::InstallPatch<CPathFind*>(0x4D4945, pThePaths);
-    CMemory::InstallCallHook(0x4D4966, HookRemoveFallenCarsGetXYZ, ASM_JMP);
+    InstallFnByJump(0x4D4966, HookRemoveFallenCarsGetXYZ);
 
     //hooks in CWorld::RemoveFallenPeds
     CMemory::InstallPatch<CPathFind*>(0x4D4AD1, pThePaths);
-    CMemory::InstallCallHook(0x4D4AF2, HookRemoveFallenPedsGetXYZ, ASM_JMP);
+    InstallFnByJump(0x4D4AF2, HookRemoveFallenPedsGetXYZ);
 
     //hooks in CPed::FollowPath
-    CMemory::InstallCallHook(0x4F7800, HookPedFollowPathGetXY, ASM_JMP);
+    InstallFnByJump(0x4F7800, HookPedFollowPathGetXY);
 
     //hook in sub_4F99F0
     CMemory::InstallPatch<CPathFind*>(0x4F9BB5, pThePaths);
-    CMemory::InstallCallHook(0x4F9D47, HookSub4F99F0GetXYZ, ASM_JMP);
+    InstallFnByJump(0x4F9D47, HookSub4F99F0GetXYZ);
 
     //This hook is inside CPed::SeekFollowingPath
-    CMemory::InstallCallHook(0x4FA201, HookSeekFollowingPathGetXYZ, ASM_JMP);
+    InstallFnByJump(0x4FA201, HookSeekFollowingPathGetXYZ);
 
     //These hook are inside CPed:WanderPath
     CMemory::InstallPatch<CPathFind*>(0x4FA8EA , pThePaths);
-    CMemory::InstallCallHook(0x4FA946, HookWanderPathGetXYZOne, ASM_JMP);
+    InstallFnByJump(0x4FA946, HookWanderPathGetXYZOne);
     CMemory::InstallPatch<CPathFind*>(0x4FAB49, pThePaths);
-    CMemory::InstallCallHook(0x4FABA6, HookWanderPathGetXYZTwo, ASM_JMP);
+    InstallFnByJump(0x4FABA6, HookWanderPathGetXYZTwo);
     CMemory::InstallPatch<CPathFind*>(0x4FAC36, pThePaths);
     CMemory::InstallPatch<CPathFind*>(0x4FAC5D, pThePaths);
     
@@ -1628,12 +1629,12 @@ void CPathFindHook::ApplyHook()
 
     //These hooks are inside CPed::ProcessControl
     CMemory::InstallPatch<CPathFind*>(0x506F47, pThePaths);
-    CMemory::InstallCallHook(0x507184, HookPedProcessControlGetXYZOne, ASM_JMP);
-    CMemory::InstallCallHook(0x5072D5, HookPedProcessControlGetPathNodeOne, ASM_JMP);
-    CMemory::InstallCallHook(0x507347, HookPedProcessControlGetXYZTwo, ASM_JMP);
-    CMemory::InstallCallHook(0x5073D0, HookPedProcessControlGetXYZThree, ASM_JMP);
-    CMemory::InstallCallHook(0x507460, HookPedProcessControlGetXYZFour, ASM_JMP);
-    CMemory::InstallCallHook(0x5074E4, HookPedProcessControlGetXYZFive, ASM_JMP);
+    InstallFnByJump(0x507184, HookPedProcessControlGetXYZOne);
+    InstallFnByJump(0x5072D5, HookPedProcessControlGetPathNodeOne);
+    InstallFnByJump(0x507347, HookPedProcessControlGetXYZTwo);
+    InstallFnByJump(0x5073D0, HookPedProcessControlGetXYZThree);
+    InstallFnByJump(0x507460, HookPedProcessControlGetXYZFour);
+    InstallFnByJump(0x5074E4, HookPedProcessControlGetXYZFive);
 
     
     //This hook is in CPed::WillChat
@@ -1641,35 +1642,35 @@ void CPathFindHook::ApplyHook()
     
     //These hooks are inside CPed::PositionPedOutOfCollision
     CMemory::InstallPatch<CPathFind*>(0x51228C, pThePaths);
-    CMemory::InstallCallHook(0x5122BB, HookPedOutCollisionGetXYZ, ASM_JMP);
+    InstallFnByJump(0x5122BB, HookPedOutCollisionGetXYZ);
 
     // hooks for CPed::FindBestCoordsFromNodes
     bool (CPed::*pFindBestCoordsFromNodes)(float fUnusedX, float fUnusedY, float fUnusedZ, CVector* vecBestCoords);
     pFindBestCoordsFromNodes = &CPed::FindBestCoordsFromNodes;
-    CMemory::InstallCallHook(0x513DF0, (void*&)pFindBestCoordsFromNodes, ASM_JMP);
+    InstallFnByJump(0x513DF0, (void*&)pFindBestCoordsFromNodes);
 
     // These hooks are inside CPed::ProcessObjective
     CMemory::InstallPatch<CPathFind*>(0x51F6F8, pThePaths);
-    CMemory::InstallCallHook(0x51F726, HookProcessObjectiveGetXYZOne, ASM_JMP);
+    InstallFnByJump(0x51F726, HookProcessObjectiveGetXYZOne);
     CMemory::InstallPatch<CPathFind*>(0x51F859, pThePaths);
 
     void (CPathNode::*pGetNodeCoors)(CVector* vecNodePosition);
     pGetNodeCoors = &CPathNode::GetNodeCoors;
-    CMemory::InstallCallHook(0x520E90, (void*&)pGetNodeCoors, ASM_JMP);
+    InstallFnByJump(0x520E90, (void*&)pGetNodeCoors);
 
     //These hooks are inside CPopulation::AddToPopulation
     CMemory::InstallPatch<CPathFind*>(0x53C2C0, pThePaths);
-    CMemory::InstallCallHook(0x53C31A, HookAddToPopulationCompareSpawnRate, ASM_JMP);
-    CMemory::InstallCallHook(0x53C37B, HookAddToPopulationIndexArithmetic, ASM_JMP);
+    InstallFnByJump(0x53C31A, HookAddToPopulationCompareSpawnRate);
+    InstallFnByJump(0x53C37B, HookAddToPopulationIndexArithmetic);
 
     //TEMPORARY HOOK DISABLE FOR PED PATH TESTING
     CMemory::InstallPatch<unsigned char>(0x444280, 0xC3); // CRoadBlocks::GenerateRoadBlocks
     //CMemory::InstallPatch<unsigned char>(0x463F90, 0xC3); // CTraffilights::DisplayActualLight
 	// the above function was just producing a false alert because of multipiliers
 
-    CMemory::InstallCallHook(0x465C10, CTrafficLights::ShouldCarStopForLightN, ASM_JMP); //CTrafficLights::ShouldCarStopForLights
-    CMemory::InstallCallHook(0x4661C0, CTrafficLights::ScanForLightsOnMapN, ASM_JMP); //CTrafficLights::ScanForLightsOnMap
-	CMemory::InstallCallHook(0x5881F0, _classTrampoline_CAutomobile_PlayHornIfNecessary, ASM_JMP);
+    InstallFnByJump(0x465C10, CTrafficLights::ShouldCarStopForLightN); //CTrafficLights::ShouldCarStopForLights
+    InstallFnByJump(0x4661C0, CTrafficLights::ScanForLightsOnMapN); //CTrafficLights::ScanForLightsOnMap
+	InstallFnByJump(0x5881F0, _classTrampoline_CAutomobile_PlayHornIfNecessary);
 }
 
 void CPathFindHook::RemoveHook(){

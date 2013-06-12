@@ -1,6 +1,8 @@
 #include "GamePatches.h"
 #include "main.h"
 
+using namespace HookSystem;
+
 // Create the vehicle model store array.
 /*DWORD	IDEVehicleLimit = 1000;
 BYTE	NewVehicleStore[4 + (1000 * 372)];
@@ -65,9 +67,9 @@ void PatchVehicleModelInfo(void) {
 	}
 	// Overwrite the code to allocate the array.
 	NoOperation(0x55FF3E, 0x1B);
-	CMemory::InstallCallHook(0x55FF3E, (DWORD)Hook_AllocateObjectTypeLimitArray, ASM_CALL);
+	InstallFnByCall(0x55FF3E, (DWORD)Hook_AllocateObjectTypeLimitArray);
 	NoOperation(0x5601E1, 0x1A);
-	CMemory::InstallCallHook(0x5601E1, (DWORD)Hook_DeallocateObjectTypeLimitArray, ASM_CALL);
+	InstallFnByCall(0x5601E1, (DWORD)Hook_DeallocateObjectTypeLimitArray);
 }*/
 //===============================================================================
 #define MAX_VEHICLES 400
@@ -135,20 +137,20 @@ void PatchVehicleLimits()
         CMemory::RestoreProtection(dwVehicleModelInfoDataRefs[i], 4, dwPrevProtect);
     }
 
-    CMemory::NoOperation(0x55FFB6, 7);
-    CMemory::InstallCallHook(0x55FFB6, &HookConstructVehicleModelInfoArray, ASM_JMP);
+    InstallNOPs(0x55FFB6, 7);
+    InstallFnByJump(0x55FFB6, &HookConstructVehicleModelInfoArray);
 
-    CMemory::NoOperation(0x560156, 7);
-    CMemory::InstallCallHook(0x560156, &HookDestructVehicleModelInfoArray, ASM_JMP);
+    InstallNOPs(0x560156, 7);
+    InstallFnByJump(0x560156, &HookDestructVehicleModelInfoArray);
 
-    CMemory::NoOperation(0x4C02E4, 7);
-    CMemory::InstallCallHook(0x4C02E4, &HookConstructVehiclePool, ASM_JMP);
+    InstallNOPs(0x4C02E4, 7);
+    InstallFnByJump(0x4C02E4, &HookConstructVehiclePool);
     
     // Patches in CCarCtrl Car Arrays and Car Ratings
     memset(&TotalNumOfCarsOfRating, NULL, sizeof(TotalNumOfCarsOfRating));
     memset(&CarArrays, NULL, sizeof(CarArrays));
 
     CMemory::InstallPatch<void*>(0x4294C6, &TotalNumOfCarsOfRating);
-    CMemory::InstallCallHook( 0x426A30, &ChooseCarModel, ASM_JMP);
-    CMemory::InstallCallHook( 0x426820, &AddToCarArray, ASM_JMP);
+    InstallFnByJump( 0x426A30, &ChooseCarModel);
+    InstallFnByJump( 0x426820, &AddToCarArray);
 }

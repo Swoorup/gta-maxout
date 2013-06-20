@@ -843,6 +843,7 @@ void CPathFind::DoPathSearch(int iPathDataFor, CVector& posOrigin, int iFirstNod
 
             pIntermediateNodeList[*pSteps] = &m_AttachedPaths[iOriginNodeIndex];
 			*pSteps = *pSteps + 1;
+			//[HANGS] for some reason using SA paths near mount chilliad, *pSteps never seems to step up?
             while (*pSteps < sMaxSteps && pNodeTransverseToDest != pDestinationNode)
 			{
                 for (int i = 0; i < pNodeTransverseToDest->bitnumberOfNodesConnected; i++)
@@ -855,7 +856,7 @@ void CPathFind::DoPathSearch(int iPathDataFor, CVector& posOrigin, int iFirstNod
                         pIntermediateNodeList[*pSteps] = pNodeTransverseToDest;
 						*pSteps = *pSteps + 1;
 						
-						// My safeguard function
+						// [MIGHT NEED TO REMOVE THIS PIECE OF SHIT] My safeguard function
 						if(*pSteps == sMaxSteps) 
 						{
 							*pSteps = *pSteps - 1;

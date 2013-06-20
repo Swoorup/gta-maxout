@@ -733,6 +733,9 @@ void _cdecl CCarCtrl::FindLinksToGoWithTheseNodes(CVehicle* pVehicle)
             _asm mov eax, 414090h
             _asm call eax
             _asm fstp fCurrentCoefficient
+			_asm add esp, 0Ch
+			// oops we missed to clear the stack
+			// why was not this noticed before :(
             if(fCurrentCoefficient < fPrevCoefficient) {
                 nFoundNode = j;
                 fPrevCoefficient = fCurrentCoefficient;

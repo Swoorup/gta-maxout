@@ -1665,7 +1665,7 @@ void CPathFindHook::ApplyHook()
 
     //TEMPORARY HOOK DISABLE FOR PED PATH TESTING
     CMemory::InstallPatch<unsigned char>(0x444280, 0xC3); // CRoadBlocks::GenerateRoadBlocks
-    //CMemory::InstallPatch<unsigned char>(0x463F90, 0xC3); // CTraffilights::DisplayActualLight
+	//CMemory::InstallPatch<unsigned char>(0x463F90, 0xC3); // CTraffilights::DisplayActualLight
 	// the above function was just producing a false alert because of multipiliers
 
     InstallFnByJump(0x465C10, CTrafficLights::ShouldCarStopForLightN); //CTrafficLights::ShouldCarStopForLights

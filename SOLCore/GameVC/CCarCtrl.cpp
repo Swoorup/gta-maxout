@@ -607,7 +607,7 @@ void _cdecl CCarCtrl::UpdateCarOnRails(CVehicle* pVehicle) {
 		pVehicle->_.phys.vecMoveSpeed.fY = 0.0f;
 		pVehicle->_.phys.vecMoveSpeed.fZ = 0.0f;
 		pVehicle->_.stAutopilot.ModifySpeed(0.0f);
-		if(CGameVariables::GetTimeInMilliseconds() > pVehicle->_.stAutopilot.m_simple_action_time) {
+		if((int)CGameVariables::GetTimeInMilliseconds() > pVehicle->_.stAutopilot.m_simple_action_time) {
 			pVehicle->_.stAutopilot.m_eSimpleAction = 0;
 			pVehicle->_.stAutopilot.m_snGettingNewCommandTimeStamp = CGameVariables::GetTimeInMilliseconds();
 			pVehicle->_.stAutopilot.m_snUnknownTimeStamp = CGameVariables::GetTimeInMilliseconds();

@@ -17,13 +17,14 @@ void CDebug::Initialize(void){
     }
     FILE* m_File = fopen("sol_log.txt", "w");
     if(m_File) fclose(m_File);
-    m_Font = new CCustomFont("Calibri", 8, NULL);
-    m_Font->InitObjects();
+   // m_Font = new CCustomFont("Calibri", 8, NULL);
+    //m_Font->InitObjects();
 }
 
 void CDebug::DebugAddText(char const*szFormatText, ...)
 {
-    /*char szDebugText[CDEBUG_MAX_CHARACTERS];
+	/*
+    char szDebugText[CDEBUG_MAX_CHARACTERS];
 
     va_list args;
 	va_start(args, szFormatText);
@@ -38,7 +39,7 @@ void CDebug::DebugAddText(char const*szFormatText, ...)
         }
     }
 
-    m_File = fopen("sol_log.txt", "a+");
+    m_File = fopen("log.txt", "a+");
 	fprintf(m_File, "DBG: %s\n", szDebugText);
     fclose(m_File);
 
@@ -53,7 +54,8 @@ void CDebug::DebugAddText(char const*szFormatText, ...)
         else 
         m_szTextBuffer[i] = m_szTextBuffer[i+1];
     }
-    strcpy(m_szTextBuffer[CDEBUG_DISPLAY_LINES - 1], szDebugText);*/
+    strcpy(m_szTextBuffer[CDEBUG_DISPLAY_LINES - 1], szDebugText);
+	*/
 }
 
 void CDebug::DebugDisplayText(void){

@@ -3,6 +3,7 @@
 //
 // Desc: Texture-based font class
 //-----------------------------------------------------------------------------
+/*
 #ifndef CCUSTOMFONT_H
 #define CCUSTOMFONT_H
 #include <tchar.h>
@@ -82,3 +83,4 @@ public:
 
 #endif
 
+*/

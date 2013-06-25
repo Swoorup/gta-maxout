@@ -3,6 +3,7 @@
 //
 // Desc: Texture-based font class
 //-----------------------------------------------------------------------------
+/*
 #include <stdio.h>
 #include <tchar.h>
 #include "CCustomFont.h"
@@ -164,7 +165,7 @@ HRESULT CCustomFont::InitObjects()
     BYTE bAlpha; // 4-bit measure of pixel intensity
 
    //8888 Raster Palette version
-    /*
+    
     for (long Index = 0; Index < m_dwTexHeight * m_dwTexWidth * 4; Index += 4)   
     {   
         BYTE Value = (BYTE)*((BYTE *)pBitmapBits + Index);   
@@ -173,7 +174,7 @@ HRESULT CCustomFont::InitObjects()
         *((BYTE *)m_pRaster->cpPixels + Index + 2) = Value;   
         *((BYTE *)m_pRaster->cpPixels + Index + 3) = Value;   
     }   
-    */
+    
     //4444 Raster palette version
     
     for( y=0; y < m_dwTexHeight; y++ )
@@ -383,7 +384,7 @@ HRESULT CCustomFont::DrawTextScaled( FLOAT x, FLOAT y, FLOAT z,
 
     return S_OK;
 }
-*/
+
 
 
 
@@ -570,7 +571,7 @@ HRESULT CCustomFont::DrawText( FLOAT sx, FLOAT sy, DWORD dwColor,
 
 
 
-/*
+
 //-----------------------------------------------------------------------------
 // Name: Render3DText()
 // Desc: Renders 3D text

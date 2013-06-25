@@ -1,15 +1,20 @@
 #include "main.h"
 
 using namespace HookSystem;
-//==================================================================================
+
+/*
+	The internal assembly has weird referencing stuff,
+	Water Grids are accessed by multipliers of 32 and 16 sometimes to make things confusing,
+	sometimes 4 * 32 = 128 and 2 * 32 = 64
+	this makes things very confusing be warned
+*/
+
+#define WATER_BLOCK_WIDTH 64
+#define WATER_FINEBLOCK_WIDTH 128
 #define WATER_GRID_WIDTH 32
-float	GlobalMapShiftLR	= 3 * 4096.f; // 3 equivalents to VC to the left plus the normal VC shift
-BYTE	MapTileWidth		= 6;
-#define WATER_MAP_WIDTH	6
-//BYTE	VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * WATER_MAP_WIDTH * WATER_MAP_WIDTH];
-BYTE	VisibleWaterGridStore[64 * 64 * WATER_MAP_WIDTH * WATER_MAP_WIDTH];
-BYTE	PhysicalWaterGridStore[128 * 128 * WATER_MAP_WIDTH * WATER_MAP_WIDTH];
-//BYTE	PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * WATER_MAP_WIDTH * WATER_MAP_WIDTH];
+#define JUMPBO_MAP_WIDTH	6
+BYTE	VisibleWaterGridStore[64 * 64 * JUMPBO_MAP_WIDTH * JUMPBO_MAP_WIDTH];
+BYTE	PhysicalWaterGridStore[128 * 128 * JUMPBO_MAP_WIDTH * JUMPBO_MAP_WIDTH];
 float	NorthSouthWaterOffset	= 0.0f;
 float	XYOffset = 0.0f;
 //==================================================================================
@@ -17,10 +22,10 @@ float	XYOffset = 0.0f;
 DWORD	f2048		= 0x69CC54; //2048 
 DWORD	f1By128		= 0x69CD8C; // 1/128
 DWORD	f128		= 0x69CD18; // 128.0
-DWORD	flt_69CD20		= 0x69CD20;
+DWORD	f64			= 0x69CD20;
 DWORD	flt_69CC5C		= 0x69CC5C;
 DWORD	REG_TEMP_EBX	= 0;
-//==================================================================================
+
 void _declspec(naked) Hook_RenderWater_GetWaterTileIndex(void) {
 	_asm {
 		mov REG_TEMP_EBX, ebx
@@ -31,7 +36,7 @@ void _declspec(naked) Hook_RenderWater_GetWaterTileIndex(void) {
 		ret
 	}
 }
-//==================================================================================
+
 void _declspec(naked) Hook_RenderTransparentWater_GetWaterTileIndex_2(void) {
 	_asm {
 		mov REG_TEMP_EBX, ebx
@@ -42,7 +47,7 @@ void _declspec(naked) Hook_RenderTransparentWater_GetWaterTileIndex_2(void) {
 		ret
 	}
 }
-//==================================================================================
+
 void _declspec(naked) Hook_RenderWater_GetWaterTileIndex_3(void) {
 	_asm {
 		mov REG_TEMP_EBX, ebx
@@ -53,7 +58,7 @@ void _declspec(naked) Hook_RenderWater_GetWaterTileIndex_3(void) {
 		ret
 	}
 }
-//==================================================================================
+
 void _declspec(naked) Hook_RenderWater_ToCoords_4(void) {
 	_asm {
 		mov REG_TEMP_EBX, ebx
@@ -64,7 +69,7 @@ void _declspec(naked) Hook_RenderWater_ToCoords_4(void) {
 		ret
 	}
 }
-//==================================================================================
+
 void _declspec(naked) Hook_BothRenderTransparentWater_GetWaterTileIndex(void) {
 	_asm {
 		mov REG_TEMP_EBX, ebx
@@ -80,7 +85,7 @@ void _declspec(naked) Hook_RenderTransparentWater_ToCoords_2(void) {
 	_asm {
 		mov REG_TEMP_EBX, ebx
 		fsub NorthSouthWaterOffset
-		mov ebx, flt_69CD20
+		mov ebx, f64
 		fadd dword ptr ds:[ebx]
 		mov ebx, REG_TEMP_EBX
 		ret
@@ -90,7 +95,7 @@ void _declspec(naked) Hook_RenderTransparentWater_ToCoords_2(void) {
 void _declspec(naked) Hook_RenderTransparentWater_ToCoords_3(void) {
 	_asm {
 		mov REG_TEMP_EBX, ebx
-		mov ebx, flt_69CD20
+		mov ebx, f64
 		fmul dword ptr ds:[ebx]
 		fsub NorthSouthWaterOffset
 		mov ebx, REG_TEMP_EBX
@@ -195,37 +200,12 @@ void _declspec(naked) RenderWaterAndEffects_OnlyWater(void) {
 	}
 }
 
-
-
-
-char	StoredwatermapGrid = -1;
-char GetCurrentwatermapGrid(void) {
-	if(FindPlayerPed()) {
-		RwV3d *Position;
-		Position = FindPlayerCentreOfWorld_NoSniperShift();
-        
-		float	InternalPlayerX = Position->x, InternalPlayerY = Position->y;
-		InternalPlayerX += GlobalMapShiftLR - 1648.f;
-		InternalPlayerY += GlobalMapShiftLR - 2048.f;
-		char	CurrentXTile = (BYTE)(InternalPlayerX / (float)4096.f);
-		char	CurrentYTile = (BYTE)(InternalPlayerY / (float)4096.f);
-		if(CurrentXTile < 0) CurrentXTile = 0;
-		if(CurrentXTile > (MapTileWidth - 1)) CurrentXTile = (MapTileWidth - 1);
-		if(CurrentYTile < 0) CurrentYTile = 0;
-		if(CurrentYTile > (MapTileWidth - 1)) CurrentYTile = (MapTileWidth - 1);
-		return (CurrentXTile + MapTileWidth * CurrentYTile);
-	}
-	return -1;
-}
 // why not have a jumbo one grid instead of thousands of grid;
 /*
 
 */
 //for every huge grids both water render calls are invoked with this
 void RelocateGridDependencies(char watermapGrid) {
-	// lame Justin if(watermapGrid < 0 || watermapGrid >= (WATER_GRID_WIDTH * WATER_GRID_WIDTH)) return;
-
-
 	// These patches relocate offset +0
     //Change references to waterpro segment 3 memory location
 	CMemory::UnProtect(0x5C0618, 0x04); 
@@ -234,12 +214,12 @@ void RelocateGridDependencies(char watermapGrid) {
 	CMemory::UnProtect(0x5C1E54, 0x04);
 	CMemory::UnProtect(0x5C201D, 0x04);
 	CMemory::UnProtect(0x5C39AB, 0x04);
-	*(PDWORD)0x5C0618 = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5C08C8 = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5C1232 = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5C1E54 = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5C201D = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5C39AB = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
+	*(PDWORD)0x5C0618 = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5C08C8 = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5C1232 = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5C1E54 = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5C201D = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5C39AB = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid];
 
 	// These patches relocate offset +1
 
@@ -247,25 +227,25 @@ void RelocateGridDependencies(char watermapGrid) {
 	CMemory::UnProtect(0x5C0644, 0x04);
 	CMemory::UnProtect(0x5C1E78, 0x04);
 	CMemory::UnProtect(0x5C205B, 0x04);
-	*(PDWORD)0x5C0644 = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + 1;
-	*(PDWORD)0x5C1E78 = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + 1;
-	*(PDWORD)0x5C205B = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + 1;
+	*(PDWORD)0x5C0644 = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid] + 1;
+	*(PDWORD)0x5C1E78 = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid] + 1;
+	*(PDWORD)0x5C205B = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid] + 1;
 
-	// These patches relocate offset +(2 * WATER_GRID_WIDTH)
+	// These patches relocate offset +64
 	CMemory::UnProtect(0x5C0631, 0x04);
 	CMemory::UnProtect(0x5C1E69, 0x04);
 	CMemory::UnProtect(0x5C203C, 0x04);
-	*(PDWORD)0x5C0631 = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (2 * WATER_GRID_WIDTH);
-	*(PDWORD)0x5C1E69 = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (2 * WATER_GRID_WIDTH);
-	*(PDWORD)0x5C203C = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (2 * WATER_GRID_WIDTH);
+	*(PDWORD)0x5C0631 = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid] + (WATER_BLOCK_WIDTH);
+	*(PDWORD)0x5C1E69 = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid] + (WATER_BLOCK_WIDTH);
+	*(PDWORD)0x5C203C = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid] + (WATER_BLOCK_WIDTH);
 
-	// These patches relocate offset +(2 * WATER_GRID_WIDTH) + 1
+	// These patches relocate offset +64 + 1
 	CMemory::UnProtect(0x5C0657, 0x04);
 	CMemory::UnProtect(0x5C1E87, 0x04);
 	CMemory::UnProtect(0x5C207A, 0x04);
-	*(PDWORD)0x5C0657 = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (2 * WATER_GRID_WIDTH) + 1;
-	*(PDWORD)0x5C1E87 = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (2 * WATER_GRID_WIDTH) + 1;
-	*(PDWORD)0x5C207A = (DWORD)&VisibleWaterGridStore[4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (2 * WATER_GRID_WIDTH) + 1;
+	*(PDWORD)0x5C0657 = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid] + (WATER_BLOCK_WIDTH) + 1;
+	*(PDWORD)0x5C1E87 = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid] + (WATER_BLOCK_WIDTH) + 1;
+	*(PDWORD)0x5C207A = (DWORD)&VisibleWaterGridStore[WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * watermapGrid] + (WATER_BLOCK_WIDTH) + 1;
 
 	// These patches relocate offset +0
 
@@ -280,54 +260,54 @@ void RelocateGridDependencies(char watermapGrid) {
 	CMemory::UnProtect(0x5C2C56, 0x04);
 	CMemory::UnProtect(0x5C2D03, 0x04);
 	CMemory::UnProtect(0x5C39BE, 0x04);
-	*(PDWORD)0x5BBB7C = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5BBFBC = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5BC6EE = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5BCC2C = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5BCFC6 = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5BF801 = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5C0ACC = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5C2C56 = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5C2D03 = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
-	*(PDWORD)0x5C39BE = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid];
+	*(PDWORD)0x5BBB7C = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5BBFBC = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5BC6EE = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5BCC2C = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5BCFC6 = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5BF801 = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5C0ACC = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5C2C56 = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5C2D03 = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid];
+	*(PDWORD)0x5C39BE = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid];
 
 	// These patches relocate offset +1
 	CMemory::UnProtect(0x5BF83E, 0x04);
 	CMemory::UnProtect(0x5C0E6D, 0x04);
-	*(PDWORD)0x5BF83E = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + 1;
-	*(PDWORD)0x5C0E6D = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + 1;
+	*(PDWORD)0x5BF83E = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + 1;
+	*(PDWORD)0x5C0E6D = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + 1;
 
 	// These patches relocate offset +2
 	CMemory::UnProtect(0x5BF877, 0x04);
-	*(PDWORD)0x5BF877 = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + 2;
+	*(PDWORD)0x5BF877 = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + 2;
 
-	// These patches relocate offset +(4 * WATER_GRID_WIDTH)
+	// These patches relocate offset +(128)
 	CMemory::UnProtect(0x5BF818, 0x04);
 	CMemory::UnProtect(0x5C0C9D, 0x04);
-	*(PDWORD)0x5BF818 = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (4 * WATER_GRID_WIDTH);
-	*(PDWORD)0x5C0C9D = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (4 * WATER_GRID_WIDTH);
+	*(PDWORD)0x5BF818 = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + (WATER_FINEBLOCK_WIDTH );
+	*(PDWORD)0x5C0C9D = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + (WATER_FINEBLOCK_WIDTH );
 
-	// These patches relocate offset +(4 * WATER_GRID_WIDTH) + 1
+	// These patches relocate offset +(129)
 	CMemory::UnProtect(0x5BF851, 0x04);
 	CMemory::UnProtect(0x5C103F, 0x04);
-	*(PDWORD)0x5BF851 = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (4 * WATER_GRID_WIDTH) + 1;
-	*(PDWORD)0x5C103F = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (4 * WATER_GRID_WIDTH) + 1;
+	*(PDWORD)0x5BF851 = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + (WATER_FINEBLOCK_WIDTH ) + 1;
+	*(PDWORD)0x5C103F = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + (WATER_FINEBLOCK_WIDTH ) + 1;
 
-	// These patches relocate offset +(4 * WATER_GRID_WIDTH) + 2
+	// These patches relocate offset +130
 	CMemory::UnProtect(0x5BF88A, 0x04);
-	*(PDWORD)0x5BF88A = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (4 * WATER_GRID_WIDTH) + 2;
+	*(PDWORD)0x5BF88A = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + WATER_FINEBLOCK_WIDTH  + 2;
 
-	// These patches relocate offset +(8 * WATER_GRID_WIDTH)
+	// These patches relocate offset +256
 	CMemory::UnProtect(0x5BF82B, 0x04);
-	*(PDWORD)0x5BF82B = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (8 * WATER_GRID_WIDTH);
+	*(PDWORD)0x5BF82B = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + (2 * WATER_FINEBLOCK_WIDTH );
 
-	// These patches relocate offset +(8 * WATER_GRID_WIDTH) + 1
+	// These patches relocate offset +257
 	CMemory::UnProtect(0x5BF864, 0x04);
-	*(PDWORD)0x5BF864 = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (8 * WATER_GRID_WIDTH) + 1;
+	*(PDWORD)0x5BF864 = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + (2 * WATER_FINEBLOCK_WIDTH ) + 1;
 
-	// These patches relocate offset +(8 * WATER_GRID_WIDTH) + 2
+	// These patches relocate offset +258
 	CMemory::UnProtect(0x5BF8A0, 0x04);
-	*(PDWORD)0x5BF8A0 = (DWORD)&PhysicalWaterGridStore[16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * watermapGrid] + (8 * WATER_GRID_WIDTH) + 2;
+	*(PDWORD)0x5BF8A0 = (DWORD)&PhysicalWaterGridStore[WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * watermapGrid] + (2 * WATER_FINEBLOCK_WIDTH ) + 2;
 }
 
 // water grids are 36 times bigger
@@ -336,9 +316,7 @@ void Hook_PreRenderNearWater(void)
 	*(float*)0x69CC58 = 400.0f;
 	NorthSouthWaterOffset = 0.0f;
 	RenderWaterAndEffects();
-	for(BYTE i = 0; i < MapTileWidth * MapTileWidth; i++) {
-
-		
+	for(BYTE i = 0; i < JUMPBO_MAP_WIDTH * JUMPBO_MAP_WIDTH; i++) {
 
 
 		// These calculations render the designated water plane based off of offets in position.
@@ -352,19 +330,62 @@ void Hook_PreRenderNearWater(void)
 		RelocateGridDependencies(i);
 
 		// : RenderWaterAndEffects_OnlyWater();
-		
-		/*XPart = (float)(StoredwatermapGrid % 6) - 2.0f;
-		YPart = (float)(StoredwatermapGrid / 6) - 2.0f;
+	}
+}
+
+void _hookcall_renderwater(void)
+{
+	*(float*)0x69CC58 = 400.0f;
+	NorthSouthWaterOffset = 0.0f;
+	
+	for(int i = 0; i < JUMPBO_MAP_WIDTH * JUMPBO_MAP_WIDTH; i++) {
+		 float XPart = (float)(i % 6) - 2.0f;
+		 float YPart = (float)(i / 6) - 2.0f;
+
+		 *(float*)0x69CC58 = -4096.0f * XPart + 400.f;
+		NorthSouthWaterOffset = -4096.0f * YPart;
+
+		RelocateGridDependencies(i);
+		float fWaterSpeedtemp1 = *(float*)0x77FA74;
+		float fWaterSpeedtemp2 = *(float*)0x77FA78;
+		float fWaterSpeedtemp3 = *(float*)0x77FA7C;
+		float fWaterSpeedtemp4 = *(float*)0x77FA80;
+		float fWaterSpeedtemp5 = *(float*)0x77FA6C;
+		float fWaterSpeedtemp6 = *(float*)0x77FA70;
+		_asm
+		{
+			mov eax, 5C1710h
+			call eax
+		}
+		*(float*)0x77FA74 = fWaterSpeedtemp1;
+		*(float*)0x77FA78 = fWaterSpeedtemp2;
+		*(float*)0x77FA7C = fWaterSpeedtemp3;
+		*(float*)0x77FA80 = fWaterSpeedtemp4;
+		*(float*)0x77FA6C = fWaterSpeedtemp5;
+		*(float*)0x77FA70 = fWaterSpeedtemp6;
+	}
+}
+
+void _hookcall_rendertransparentwater(void)
+{
+	*(float*)0x69CC58 = 400.0f;
+	NorthSouthWaterOffset = 0.0f;
+	
+	for(int i = 0; i < JUMPBO_MAP_WIDTH * JUMPBO_MAP_WIDTH; i++) {
+		 float XPart = (float)(i % 6) - 2.0f;
+		 float YPart = (float)(i / 6) - 2.0f;
 
 		*(float*)0x69CC58 = -4096.0f * XPart + 400.f;
 		NorthSouthWaterOffset = -4096.0f * YPart;
 
-		RelocateGridDependencies(StoredwatermapGrid);
-
-		char CurrentwatermapGrid = GetCurrentwatermapGrid();
-		if(StoredwatermapGrid != CurrentwatermapGrid) { // They changed water "tiles"
-			StoredwatermapGrid = CurrentwatermapGrid;
-		}*/
+		RelocateGridDependencies(i);
+		float fWaterSpeedtemp = *(float*)0x77FA74;
+		_asm
+		{
+			mov eax, 5BFF00h
+			call eax
+		}
+		*(float*)0x77FA74 = fWaterSpeedtemp;
 	}
 }
 
@@ -379,80 +400,31 @@ void Hook__CWaterLevel_Initialize()
 //-----Crashes on clicking New game on the next run due to this-[THIS-ISSUE-HAS-BEEN-FIXED-BY-RESETING-RELOCATION-ON-EVERY-NEW-RUN]---
 void PatchWater(void) 
 {
-	*(float*)0x69C780 += 8000.0f;
+	/*
+	
     //Relocates the grid for preparation of use everytime New Game is clicked
     InstallNOPs(0x5C3940, 10);
     InstallFnByCall(0x5C3940, Hook__CWaterLevel_Initialize);
 
 	// This patch removes the shiny area which appeared to be distorted below the player.
 	//InstallNOPs(0x5C1525, 0x58);
-
-	// This patch removes the flickering screen issue. RenderFarWater Issue
-	//InstallNOPs(0x5C0093, 0x05);
 	
 	// Instantiate the references to and the new PHYSICAL water tile array itself.
-	memset(&PhysicalWaterGridStore, 0x00, 16 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * WATER_MAP_WIDTH * WATER_MAP_WIDTH);
+	memset(&PhysicalWaterGridStore, 0x00, WATER_FINEBLOCK_WIDTH * WATER_FINEBLOCK_WIDTH * JUMPBO_MAP_WIDTH * JUMPBO_MAP_WIDTH);
 
 	// Instantiate the references to and the new water tile array itself.
-	memset(&VisibleWaterGridStore, 0x00, 4 * WATER_GRID_WIDTH * WATER_GRID_WIDTH * WATER_MAP_WIDTH * WATER_MAP_WIDTH);
+	memset(&VisibleWaterGridStore, 0x00, WATER_BLOCK_WIDTH * WATER_BLOCK_WIDTH * JUMPBO_MAP_WIDTH * JUMPBO_MAP_WIDTH);
 
-	// Static Water planes rendering codes outside the boundary, need to change it so that it changes with the player
-	//InstallNOPs(0x5C20F0, 0x7FC);
 
-	CMemory::UnProtect(0x5C1D84, 0x01);
-	CMemory::UnProtect(0x5C1D9C, 0x01);
-	CMemory::UnProtect(0x5C1DB4, 0x01);
-	CMemory::UnProtect(0x5C1DCC, 0x01);
-	CMemory::UnProtect(0x5C1DDC, 0x01);
-	CMemory::UnProtect(0x5C1DE8, 0x01);
-	CMemory::UnProtect(0x5C1DF8, 0x01);
-	CMemory::UnProtect(0x5C1E04, 0x01);
-
-	CMemory::UnProtect(0x5C04A4, 0x01);
-	CMemory::UnProtect(0x5C04BC, 0x01);
-	CMemory::UnProtect(0x5C04D4, 0x01);
-	CMemory::UnProtect(0x5C04EC, 0x01);
-	CMemory::UnProtect(0x5C0504, 0x01);
-	CMemory::UnProtect(0x5C051C, 0x01);
-	CMemory::UnProtect(0x5C0534, 0x01);
-	CMemory::UnProtect(0x5C054C, 0x01);
-
-	*(PBYTE)0x5C1D84 = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C1D9C = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C1DB4 = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C1DCC = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C1DDC = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C1DE8 = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C1DF8 = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C1E04 = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C04A4 = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C04BC = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C04D4 = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C04EC = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C0504 = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C051C = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C0534 = WATER_GRID_WIDTH - 1;
-	*(PBYTE)0x5C054C = WATER_GRID_WIDTH - 1;
-
-    /*
-	CMemory::UnProtect(0x5C1E36, 0x01);
-	CMemory::UnProtect(0x5C1E98, 0x01);
-	CMemory::UnProtect(0x5C05CE, 0x01);
-	CMemory::UnProtect(0x5C0679, 0x01);
-	*(PBYTE)0x5C1E36 = -WATER_GRID_WIDTH / 2;
-	*(PBYTE)0x5C1E98 = -WATER_GRID_WIDTH / 2;
-	*(PBYTE)0x5C05CE = -WATER_GRID_WIDTH / 2;
-	*(PBYTE)0x5C0679 = -WATER_GRID_WIDTH / 2;
-
-	CMemory::UnProtect(0x5BCF1C, 0x01);
-	CMemory::UnProtect(0x5BCF28, 0x01);
-	CMemory::UnProtect(0x5BCF74, 0x01);
-	CMemory::UnProtect(0x5BCF81, 0x01);
-	*(PBYTE)0x5BCF1C = (4 * WATER_GRID_WIDTH) - 1;
-	*(PBYTE)0x5BCF28 = (4 * WATER_GRID_WIDTH) - 1;
-	*(PBYTE)0x5BCF74 = (4 * WATER_GRID_WIDTH) - 1;
-	*(PBYTE)0x5BCF81 = (4 * WATER_GRID_WIDTH) - 1;
-    */
+	//CMemory::UnProtect(0x5BCF1C, 0x01);
+	//CMemory::UnProtect(0x5BCF28, 0x01);
+	//CMemory::UnProtect(0x5BCF74, 0x01);
+	//CMemory::UnProtect(0x5BCF81, 0x01);
+	//*(PBYTE)0x5BCF1C = (4 * WATER_GRID_WIDTH) - 1;
+	//*(PBYTE)0x5BCF28 = (4 * WATER_GRID_WIDTH) - 1;
+	//*(PBYTE)0x5BCF74 = (4 * WATER_GRID_WIDTH) - 1;
+	//*(PBYTE)0x5BCF81 = (4 * WATER_GRID_WIDTH) - 1;
+   
 	// Install the patch for the size of the waterpro.dat area in CWaterLevel::Initialize
     // Visual Water Map
 	CMemory::UnProtect(0x5C39A6, 0x04); // Inside CWaterLevel::Initialize
@@ -509,12 +481,411 @@ void PatchWater(void)
 	
 	*(float*)0x69CC5C = 1.0f / (float)WATER_GRID_WIDTH;
 
-	// Remove calls to read from the waterpro.dat file.
-	//InstallNOPs(0x5C39A5, 0x13); //Stop reading visual water
-	//InstallNOPs(0x5C39B8, 0x13); //Stop reading physical water
+	InstallFnByCall(0x4A6594, _hookcall_renderwater);
+	InstallFnByCall(0x4A65AE, _hookcall_rendertransparentwater);*/
+	RelocateGridDependencies(0);
+	void HookRenderWater();
+	HookRenderWater();
+	void HookRenderTransparentWater();
+	HookRenderTransparentWater();
+	//InstallNOPs(0x5C1B8C, 1380); //RenderWaters in CWaterLevel::RenderWater
+	InstallNOPs(0x5C20F0, 0x7FC);//WaterLODs
+	//InstallNOPs(0x4A65AE, 5); //rendertransparentwater
+	*(float*)0x69C780 += 8000.0f; // heliheight
+}
 
 
-	// Place calls repeat each grid
-	//InstallNOPs(0x4A6589, 0x2A);
-	//InstallFnByCall(0x4A6589, Hook_PreRenderNearWater);
+
+//SWOOORUP's WAY START 
+// Need fixing dword ptrs and things like that
+#define _NEW_CMP_MOV_OPND 191
+
+//jmp hook at 5c1d82
+void _declspec(naked) _hookCMP5C1D82()
+{
+	_asm
+	{
+		cmp eax, _NEW_CMP_MOV_OPND
+		jge loc_5C1D98
+		mov eax, 5C1D87h
+		jmp eax
+loc_5C1D98:
+		mov eax, 5C1D98h
+		jmp eax
+	}
+}
+
+//jmp hook at 5C1DB2
+void _declspec(naked) _hookCMP5C1DB2()
+{
+	_asm
+	{
+		cmp eax, _NEW_CMP_MOV_OPND
+		jge loc_5C1DC8
+		mov eax, 5C1DB7h
+		jmp eax
+loc_5C1DC8:
+		mov eax, 5C1DC8h
+		jmp eax
+	}
+}
+
+//jmp hook at 5C1DDA
+void _declspec(naked) _hookCMP5C1DDA()
+{
+	_asm
+	{
+		cmp eax, _NEW_CMP_MOV_OPND
+		jge loc_5C1DE7
+		mov eax, 5C1DDFh
+		jmp eax
+loc_5C1DE7:
+		mov eax, 5C1DE7h
+		jmp eax
+	}
+}
+
+//jmp hook at 05C1DF6h
+void _declspec(naked) _hookCMP5C1DF6()
+{
+	_asm
+	{
+		cmp eax, _NEW_CMP_MOV_OPND
+		jge loc_5C1E03
+		mov eax, 5C1DFBh
+		jmp eax
+loc_5C1E03:
+		mov eax, 5C1E03h
+		jmp eax
+	}
+}
+
+//jmp hook at 5C1E1Ah
+void _declspec(naked) _hookSHL5C1E1A()
+{
+	_asm
+	{
+		mov ebx, dword ptr [esp + 1Ch]
+		mov eax, ebx
+		shl eax, 1
+		add eax, ebx
+		shl eax, 7
+		mov dword ptr [esp + 1Ch], eax
+		mov eax, 5C1E1Fh
+		jmp eax
+	}
+}
+
+//jmp hook at 5C20DB
+void _declspec(naked) _hookADD5C20DB()
+{
+	_asm
+	{
+		add dword ptr[esp+1Ch], 384
+		mov ebp, 5C20E0h
+		jmp ebp
+	}
+}
+
+//jmp hook at 5C1E34
+void _declspec(naked) _hookADDMinus165C1E34()
+{
+	_asm
+	{
+		add eax, -96
+		mov [esp+68h], eax
+		mov eax, 5C1E3Bh
+		jmp eax
+	}
+}
+
+//jmp hook at 5C1E96
+
+void _declspec(naked) _hookLEAMinus165C1E96()
+{
+	_asm
+	{
+		lea eax, [ebp - 96]
+		mov [esp+68h], eax
+		mov eax, 5C1E9Dh
+		jmp eax
+	}
+}
+
+void HookRenderWater()
+{
+	DWORD dwVp;
+	VirtualProtect((void*)0x401000, 0x27CE00, PAGE_EXECUTE_READWRITE, &dwVp);
+	
+	int nWaterGridMultiplier = 6;
+	static float fnew2048forRender = 2048.0f * nWaterGridMultiplier;
+	
+	DWORD dwRefsTo2048f[] = {0x5c1b8e,0x5c1bcd,0x5c1c12,0x5c1c47,0x5c1c81,0x5c1cc3,0x5c1d05,0x5c1d3d,};
+	for(int i = 0; i < ARRLEN(dwRefsTo2048f); i++)
+	{
+		*((float**)dwRefsTo2048f[i]) = &fnew2048forRender;
+	}
+	
+	DWORD dw31s[] = {0x5c1d9c,0x5c1dcc,0x5c1de8,0x5c1e04,};
+	
+	for(int i = 0; i < ARRLEN(dw31s); i++)
+	{
+		*((DWORD*)dw31s[i]) = _NEW_CMP_MOV_OPND;
+	}
+	
+	InstallFnByJump(0x5c1d82, _hookCMP5C1D82);
+	InstallFnByJump(0x5C1DB2, _hookCMP5C1DB2);
+	InstallFnByJump(0x5C1DDA, _hookCMP5C1DDA);
+	InstallFnByJump(0x5C1DF6, _hookCMP5C1DF6);
+	
+	InstallFnByJump(0x5C1E1A, _hookSHL5C1E1A);
+	
+	InstallNOPs(0x5C1E34, 7);
+	InstallFnByJump(0x5C1E34, _hookADDMinus165C1E34);
+	InstallNOPs(0x5C1E96, 7);
+	InstallFnByJump(0x5C1E96, _hookLEAMinus165C1E96);
+	
+	InstallFnByJump(0x5C20DB, _hookADD5C20DB);
+	
+	DWORD dwVp2;
+	VirtualProtect((void*)0x401000, 0x27CE00, dwVp, &dwVp2);
+}
+
+
+// Hooks for render transparent water
+//jmp hook 5C04A2
+void _declspec(naked) _hookCMP_5C04A2()
+{
+	_asm
+	{
+		cmp eax, _NEW_CMP_MOV_OPND
+		jge loc_5C04B8
+		mov eax, 5C04A7h
+		jmp eax
+loc_5C04B8:
+		mov eax, 5C04B8h
+		jmp eax
+	}
+}
+
+//jmp hook 5C04D2
+void _declspec(naked) _hookCMP_5C04D2()
+{
+	_asm
+	{
+		cmp eax, _NEW_CMP_MOV_OPND
+		jge loc_5C04E8
+		mov eax, 5C04D7h
+		jmp eax
+loc_5C04E8:
+		mov eax, 5C04E8h
+		jmp eax
+	}
+}
+
+//jmp hook 5C0502
+void _declspec(naked) _hookCMP_5C0502()
+{
+	_asm
+	{
+		cmp eax, _NEW_CMP_MOV_OPND
+		jge loc_5C0518
+		mov eax, 5C0507h
+		jmp eax
+loc_5C0518:
+		mov eax, 5C0518h
+		jmp eax
+	}
+}
+
+//jmp hook 5C0532
+void _declspec(naked) _hookCMP_5C0532()
+{
+	_asm
+	{
+		cmp eax, _NEW_CMP_MOV_OPND
+		jge loc_5C0548
+		mov eax, 5C0537h
+		jmp eax
+loc_5C0548:
+		mov eax, 5C0548h
+		jmp eax
+	}
+}
+
+//jmp hook 5C0578
+int _nTEMP;
+void _declspec(naked) _hookSHL_5C0578()
+{
+	_asm
+	{
+		mov _nTEMP, eax
+		mov eax, [esp + 54h]
+		mov edi, eax
+		shl eax, 1
+		add eax, edi
+		shl eax, 7
+		mov [esp+54h], eax
+		mov eax, 5C057Dh
+		push eax
+		mov eax, _nTEMP
+		ret
+	}
+}
+
+//jmp hook at 5C05CC
+void _declspec(naked) _hookADD_minus16_5C05CC()
+{
+	_asm
+	{
+		add eax, -96
+		mov [esp+0C0h],eax
+		mov eax, 5C05D6h
+		jmp eax
+	}
+}
+
+//jmp hook at 5c0677
+void _declspec(naked) _hookADD_minus16_5c0677()
+{
+	_asm
+	{
+		add eax, -96
+		mov [esp+0C0h],eax
+		mov eax, 5C0681h
+		jmp eax
+	}
+}
+
+//jmp hook at 5C0835, EBX, EAX
+void _declspec(naked) _hookSHL_5C0835()
+{
+	_asm
+	{
+		mov [esp], eax
+		mov eax, [esp+0Ch]
+		mov ebx, eax
+		shl eax, 1
+		add eax, ebx
+		shl eax, 8
+		mov [esp+0Ch], eax
+		mov eax, 5C083Dh
+		jmp eax
+	}
+}
+
+//jmp hook at 5C0857
+void _declspec(naked) _hookSHL_5C0857()
+{
+	_asm
+	{
+		mov [esp+18h], eax
+		mov eax, [esp]
+		mov ebx, eax
+		shl eax, 1
+		add eax, ebx
+		shl eax, 7
+		mov [esp],eax
+		mov eax, 5C085Fh
+		jmp eax
+	}
+}
+
+//jmp hook 5C087E
+void _declspec(naked) _hookADD_minus32_5C087E()
+{
+	_asm
+	{
+		add eax, -192
+		mov [esp+0C0h], eax
+		mov eax, 5C0888h
+		jmp eax
+	}
+}
+
+//jmp hook 5C08DD
+void _declspec(naked) _hookLEA_minus32_5C08DD()
+{
+	_asm
+	{
+		lea eax, [ebx - 192]
+		mov [esp+0C0h],eax
+		mov eax, 5C08E7h
+		jmp eax
+	}
+}
+
+//jmp hook 5C144E
+void _declspec(naked) _hookADD64_128_5C144E()
+{
+	_asm
+	{
+		add dword ptr[esp], 384
+		add dword ptr[esp+0Ch], 768
+		mov eax, 5C1457h
+		jmp eax
+	}
+}
+
+//jmp hook 5C1496
+//assume ebx free
+void _declspec(naked) _hookADD64_5C1496()
+{
+	_asm
+	{
+		add dword ptr[esp+54h], 384
+		mov ebp, 5C149Bh
+		jmp ebp
+	}
+}
+
+void HookRenderTransparentWater(void)
+{
+	DWORD dwVp;
+	VirtualProtect((void*)0x401000, 0x27CE00, PAGE_EXECUTE_READWRITE, &dwVp);
+	DWORD dwRefsTo2048f[] = {0x5c0261,0x5c02a9,0x5c02f7,0x5c0339,0x5c037d,0x5c03c5,0x5c0410,0x5c0455,};
+	
+	int nWaterGridMultiplier = 6;
+	static float fnew2048forRender = 2048.0f * nWaterGridMultiplier;
+	for(int i = 0; i < ARRLEN(dwRefsTo2048f); i++)
+	{
+		*((float**)dwRefsTo2048f[i]) = &fnew2048forRender;
+	}
+	
+	InstallFnByJump(0x5C04A2, _hookCMP_5C04A2);
+	InstallFnByJump(0x5C04D2, _hookCMP_5C04D2);
+	InstallFnByJump(0x5C0502, _hookCMP_5C0502);
+	InstallFnByJump(0x5C0532, _hookCMP_5C0532);
+	
+	DWORD dw31s[] = {0x5c04bc,0x5c04ec,0x5c051c,0x5c054c,};
+	
+	for(int i = 0; i < ARRLEN(dw31s); i++)
+	{
+		*((DWORD*)dw31s[i]) = _NEW_CMP_MOV_OPND;
+	}
+	
+	//assuming I hv control over edi
+	InstallFnByJump(0x5C0578, _hookSHL_5C0578);
+	
+	InstallNOPs(0x5C05CC, 10);
+	InstallFnByJump(0x5C05CC, _hookADD_minus16_5C05CC);
+	InstallNOPs(0x5c0677, 10);
+	InstallFnByJump(0x5c0677, _hookADD_minus16_5c0677);
+		
+	InstallFnByJump(0x5C0835, _hookSHL_5C0835);
+	InstallNOPs(0x5C0857, 8);
+	InstallFnByJump(0x5C0857, _hookSHL_5C0857);
+	
+	InstallNOPs(0x5C087E, 10);
+	InstallFnByJump(0x5C087E, _hookADD_minus32_5C087E);
+	
+	InstallNOPs(0x5C08DD, 10);
+	InstallFnByJump(0x5C08DD, _hookLEA_minus32_5C08DD);
+	
+	InstallNOPs(0x5C144E, 9);
+	InstallFnByJump(0x5C144E, _hookADD64_128_5C144E);
+	
+	InstallFnByJump(0x5C1496, _hookADD64_5C1496);
+	DWORD dwVp2;
+	VirtualProtect((void*)0x401000, 0x27CE00, dwVp, &dwVp2);
 }

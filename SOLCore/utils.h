@@ -4,7 +4,6 @@
 #define M_PI       3.14159265358979323846
 #define ARRLEN(a) (sizeof(a)/sizeof(a[0])) 
 #include <math.h>
-#define _pad(x,n) unsigned char x[n]
 #define OFFSETOF(type, field)    ((unsigned long) &(((type *) 0)->field))
 
 namespace utl{

@@ -1,0 +1,45 @@
+﻿Build started 29/06/2013 12:54:04 AM.
+     1>Project "C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\SJLIB.vcxproj" on node 2 (Build target(s)).
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\Debug\SJLIB.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\Debug\SJLIB.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\Debug\SJLIB.lib" /MACHINE:X86 /DLL Debug\FileLoaderAddIns.obj
+         Debug\automobile.obj
+         Debug\CAutoPilot.obj
+         Debug\CCarCtrl.obj
+         Debug\CCullZones.obj
+         Debug\CCurves.obj
+         Debug\CDebug.obj
+         Debug\CFileLoader.obj
+         Debug\CFileMgr.obj
+         Debug\CFont.obj
+         Debug\CGameHookManager.obj
+         Debug\CGameVariables.obj
+         Debug\CGeneral.obj
+         Debug\CPed.obj
+         Debug\CSprite2D.obj
+         Debug\CTheCarGenerators.obj
+         Debug\CTheZones.obj
+         Debug\CTxdStore.obj
+         Debug\entity.obj
+         Debug\GameVC.obj
+         Debug\hookPathfinding.obj
+         Debug\dxd8_system.obj
+         Debug\pathfinding.obj
+         Debug\RenderWare.obj
+         Debug\timer.obj
+         Debug\trafficlights.obj
+         Debug\vehicle.obj
+         Debug\weather.obj
+         Debug\world.obj
+         Debug\hooksystem.obj
+         Debug\main.obj
+         Debug\MenuMapHack.obj
+         Debug\MiscellaneousPatches.obj
+         Debug\RadarHack.obj
+         Debug\VehicleLimitPatch.obj
+         Debug\WaterHack.obj
+         SJLIB.vcxproj -> C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\Debug\SJLIB.dll
+     1>Done Building Project "C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\SJLIB.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.91

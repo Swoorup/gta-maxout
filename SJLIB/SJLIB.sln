@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SJLIB", "SJLIB.vcxproj", "{BD302BD0-C133-4E8F-8884-0DB5CD5807FA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{848B3172-AAC2-4C9E-8E16-6D0FC2761361}"
+	ProjectSection(SolutionItems) = preProject
+		Performance1.psess = Performance1.psess
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BD302BD0-C133-4E8F-8884-0DB5CD5807FA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BD302BD0-C133-4E8F-8884-0DB5CD5807FA}.Debug|Win32.Build.0 = Debug|Win32
+		{BD302BD0-C133-4E8F-8884-0DB5CD5807FA}.Release|Win32.ActiveCfg = Release|Win32
+		{BD302BD0-C133-4E8F-8884-0DB5CD5807FA}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+EndGlobal

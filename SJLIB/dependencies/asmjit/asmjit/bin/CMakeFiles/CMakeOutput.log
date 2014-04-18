@@ -1,0 +1,120 @@
+The system is: Windows - 6.1 - AMD64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler:  
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+Microsoft (R) Microsoft Visual Studio 2012 Version 11.0.60315.1.
+Copyright (C) Microsoft Corp. All rights reserved.
+1>------ Build started: Project: CompilerIdC, Configuration: Debug Win32 ------
+1>  CMakeCCompilerId.c
+1>  CompilerIdC.vcxproj -> C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\CMakeFiles\2.8.11.1\CompilerIdC\.\CompilerIdC.exe
+1>  CMAKE_C_COMPILER=C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\cl.exe
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+
+The C compiler identification is MSVC, found in "C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/2.8.11.1/CompilerIdC/CompilerIdC.exe"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler:  
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+Microsoft (R) Microsoft Visual Studio 2012 Version 11.0.60315.1.
+Copyright (C) Microsoft Corp. All rights reserved.
+1>------ Build started: Project: CompilerIdCXX, Configuration: Debug Win32 ------
+1>  CMakeCXXCompilerId.cpp
+1>  CompilerIdCXX.vcxproj -> C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\CMakeFiles\2.8.11.1\CompilerIdCXX\.\CompilerIdCXX.exe
+1>  CMAKE_CXX_COMPILER=C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\cl.exe
+1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppCommon.targets(134,5): warning MSB5018: Failed to delete the temporary file "C:\Users\Swoorup\AppData\Local\Temp\tmp8586bdfaf1ce461a887de8b843ae488e.exec.cmd". The process cannot access the file 'C:\Users\Swoorup\AppData\Local\Temp\tmp8586bdfaf1ce461a887de8b843ae488e.exec.cmd' because it is being used by another process.
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+
+The CXX compiler identification is MSVC, found in "C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/2.8.11.1/CompilerIdCXX/CompilerIdCXX.exe"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/CMakeTmp
+
+Run Build Command:C:\PROGRA~2\MICROS~3.0\Common7\IDE\devenv.com CMAKE_TRY_COMPILE.sln /build Debug /project cmTryCompileExec474017907
+
+Microsoft (R) Microsoft Visual Studio 2012 Version 11.0.60315.1.
+Copyright (C) Microsoft Corp. All rights reserved.
+1>------ Build started: Project: cmTryCompileExec474017907, Configuration: Debug Win32 ------
+1>  Microsoft (R) C/C++ Optimizing Compiler Version 17.00.60315.1 for x86
+1>  Copyright (C) Microsoft Corporation.  All rights reserved.
+1>  
+1>  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec474017907.dir\Debug\\" /Fd"C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec474017907.pdb" /Gd /TC /analyze- /errorReport:prompt testCCompiler.c
+1>  
+1>  testCCompiler.c
+1>  cmTryCompileExec474017907.vcxproj -> C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec474017907.exe
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/CMakeTmp
+
+Run Build Command:C:\PROGRA~2\MICROS~3.0\Common7\IDE\devenv.com CMAKE_TRY_COMPILE.sln /build Debug /project cmTryCompileExec3152914216
+
+Microsoft (R) Microsoft Visual Studio 2012 Version 11.0.60315.1.
+Copyright (C) Microsoft Corp. All rights reserved.
+1>------ Build started: Project: cmTryCompileExec3152914216, Configuration: Debug Win32 ------
+1>  Microsoft (R) C/C++ Optimizing Compiler Version 17.00.60315.1 for x86
+1>  Copyright (C) Microsoft Corporation.  All rights reserved.
+1>  
+1>  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec3152914216.dir\Debug\\" /Fd"C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec3152914216.pdb" /Gd /TC /analyze- /errorReport:prompt "C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCCompilerABI.c"
+1>  
+1>  CMakeCCompilerABI.c
+1>  cmTryCompileExec3152914216.vcxproj -> C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec3152914216.exe
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
+
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/CMakeTmp
+
+Run Build Command:C:\PROGRA~2\MICROS~3.0\Common7\IDE\devenv.com CMAKE_TRY_COMPILE.sln /build Debug /project cmTryCompileExec2394815171
+
+Microsoft (R) Microsoft Visual Studio 2012 Version 11.0.60315.1.
+Copyright (C) Microsoft Corp. All rights reserved.
+1>------ Build started: Project: cmTryCompileExec2394815171, Configuration: Debug Win32 ------
+1>  Microsoft (R) C/C++ Optimizing Compiler Version 17.00.60315.1 for x86
+1>  Copyright (C) Microsoft Corporation.  All rights reserved.
+1>  
+1>  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTryCompileExec2394815171.dir\Debug\\" /Fd"C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec2394815171.pdb" /Gd /TP /analyze- /errorReport:prompt testCXXCompiler.cxx
+1>  
+1>  testCXXCompiler.cxx
+1>  cmTryCompileExec2394815171.vcxproj -> C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec2394815171.exe
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/CMakeTmp
+
+Run Build Command:C:\PROGRA~2\MICROS~3.0\Common7\IDE\devenv.com CMAKE_TRY_COMPILE.sln /build Debug /project cmTryCompileExec1087575066
+
+Microsoft (R) Microsoft Visual Studio 2012 Version 11.0.60315.1.
+Copyright (C) Microsoft Corp. All rights reserved.
+1>------ Build started: Project: cmTryCompileExec1087575066, Configuration: Debug Win32 ------
+1>  Microsoft (R) C/C++ Optimizing Compiler Version 17.00.60315.1 for x86
+1>  Copyright (C) Microsoft Corporation.  All rights reserved.
+1>  
+1>  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTryCompileExec1087575066.dir\Debug\\" /Fd"C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec1087575066.pdb" /Gd /TP /analyze- /errorReport:prompt "C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCXXCompilerABI.cpp"
+1>  
+1>  CMakeCXXCompilerABI.cpp
+1>  cmTryCompileExec1087575066.vcxproj -> C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec1087575066.exe
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
+
+

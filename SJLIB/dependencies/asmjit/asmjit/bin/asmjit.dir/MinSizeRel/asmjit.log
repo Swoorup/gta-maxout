@@ -1,0 +1,75 @@
+﻿Build started 30/06/2013 5:28:45 PM.
+     1>Project "C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\asmjit.vcxproj" on node 2 (Build target(s)).
+     1>CustomBuild:
+         Building Custom Rule C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/CMakeLists.txt
+         CMake does not need to re-run because C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\CMakeFiles\generate.stamp is up-to-date.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/src" /nologo /W3 /WX- /O1 /Ob1 /Oy- /D WIN32 /D _WINDOWS /D NDEBUG /D "CMAKE_INTDIR=\"MinSizeRel\"" /D asmjit_EXPORTS /D _WINDLL /D _MBCS /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"asmjit.dir\MinSizeRel\\" /Fd"C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/MinSizeRel/asmjit.pdb" /Gd /TP /analyze- /errorReport:prompt ..\src\asmjit\core\assembler.cpp ..\src\asmjit\core\assert.cpp ..\src\asmjit\core\buffer.cpp ..\src\asmjit\core\compiler.cpp ..\src\asmjit\core\compilercontext.cpp ..\src\asmjit\core\compilerfunc.cpp ..\src\asmjit\core\compileritem.cpp ..\src\asmjit\core\context.cpp ..\src\asmjit\core\cpuinfo.cpp ..\src\asmjit\core\defs.cpp ..\src\asmjit\core\func.cpp ..\src\asmjit\core\logger.cpp ..\src\asmjit\core\memorymanager.cpp ..\src\asmjit\core\memorymarker.cpp ..\src\asmjit\core\operand.cpp ..\src\asmjit\core\stringbuilder.cpp ..\src\asmjit\core\stringutil.cpp ..\src\asmjit\core\virtualmemory.cpp ..\src\asmjit\core\zonememory.cpp ..\src\asmjit\x86\x86assembler.cpp ..\src\asmjit\x86\x86compiler.cpp ..\src\asmjit\x86\x86compilercontext.cpp ..\src\asmjit\x86\x86compilerfunc.cpp ..\src\asmjit\x86\x86compileritem.cpp ..\src\asmjit\x86\x86cpuinfo.cpp ..\src\asmjit\x86\x86defs.cpp ..\src\asmjit\x86\x86func.cpp ..\src\asmjit\x86\x86operand.cpp ..\src\asmjit\x86\x86util.cpp
+         assembler.cpp
+         assert.cpp
+         buffer.cpp
+         compiler.cpp
+         compilercontext.cpp
+         compilerfunc.cpp
+         compileritem.cpp
+         context.cpp
+         cpuinfo.cpp
+         defs.cpp
+         func.cpp
+         logger.cpp
+         memorymanager.cpp
+         memorymarker.cpp
+         operand.cpp
+         stringbuilder.cpp
+         stringutil.cpp
+         virtualmemory.cpp
+         zonememory.cpp
+         x86assembler.cpp
+         Generating Code...
+         Compiling...
+         x86compiler.cpp
+         x86compilercontext.cpp
+         x86compilerfunc.cpp
+         x86compileritem.cpp
+         x86cpuinfo.cpp
+         x86defs.cpp
+         x86func.cpp
+         x86operand.cpp
+         x86util.cpp
+         Generating Code...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\MinSizeRel\asmjit.dll" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:"C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/MinSizeRel/asmjit.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/MinSizeRel/asmjit.lib" /MACHINE:X86 /SAFESEH  /machine:X86 /DLL asmjit.dir\MinSizeRel\assembler.obj
+         asmjit.dir\MinSizeRel\assert.obj
+         asmjit.dir\MinSizeRel\buffer.obj
+         asmjit.dir\MinSizeRel\compiler.obj
+         asmjit.dir\MinSizeRel\compilercontext.obj
+         asmjit.dir\MinSizeRel\compilerfunc.obj
+         asmjit.dir\MinSizeRel\compileritem.obj
+         asmjit.dir\MinSizeRel\context.obj
+         asmjit.dir\MinSizeRel\cpuinfo.obj
+         asmjit.dir\MinSizeRel\defs.obj
+         asmjit.dir\MinSizeRel\func.obj
+         asmjit.dir\MinSizeRel\logger.obj
+         asmjit.dir\MinSizeRel\memorymanager.obj
+         asmjit.dir\MinSizeRel\memorymarker.obj
+         asmjit.dir\MinSizeRel\operand.obj
+         asmjit.dir\MinSizeRel\stringbuilder.obj
+         asmjit.dir\MinSizeRel\stringutil.obj
+         asmjit.dir\MinSizeRel\virtualmemory.obj
+         asmjit.dir\MinSizeRel\zonememory.obj
+         asmjit.dir\MinSizeRel\x86assembler.obj
+         asmjit.dir\MinSizeRel\x86compiler.obj
+         asmjit.dir\MinSizeRel\x86compilercontext.obj
+         asmjit.dir\MinSizeRel\x86compilerfunc.obj
+         asmjit.dir\MinSizeRel\x86compileritem.obj
+         asmjit.dir\MinSizeRel\x86cpuinfo.obj
+         asmjit.dir\MinSizeRel\x86defs.obj
+         asmjit.dir\MinSizeRel\x86func.obj
+         asmjit.dir\MinSizeRel\x86operand.obj
+         asmjit.dir\MinSizeRel\x86util.obj
+         asmjit.vcxproj -> C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\MinSizeRel\asmjit.dll
+     1>Done Building Project "C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\asmjit.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:38.45

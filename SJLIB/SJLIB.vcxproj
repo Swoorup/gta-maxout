@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BD302BD0-C133-4E8F-8884-0DB5CD5807FA}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>SJLIB</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <ExecutablePath>$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(DIRECTX8_SDK)\include;C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies;C:\Downloads\cegui-0.8.2\cegui-0.8.2\cegui\include;C:\Downloads\cegui-0.8.2\cegui-0.8.2\build\cegui\include;C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\src</IncludePath>
+    <LibraryPath>D:\sources\DX8_SDK\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);C:\Downloads\cegui-0.8.2\cegui-0.8.2\build\lib</LibraryPath>
+    <ReferencePath>$(VCInstallDir)atlmfc\lib;$(VCInstallDir)lib;$(DIRECTX8_SDK)\lib;C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\src</ReferencePath>
+    <TargetExt>.asi</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(DIRECTX8_SDK)\include;C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies;C:\Downloads\cegui-0.8.2\cegui-0.8.2\cegui\include;C:\Downloads\cegui-0.8.2\cegui-0.8.2\build\cegui\include;C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\src</IncludePath>
+    <LibraryPath>D:\sources\DX8_SDK\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);C:\Downloads\cegui-0.8.2\cegui-0.8.2\build\lib;C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\lib</LibraryPath>
+    <ReferencePath>$(VCInstallDir)atlmfc\lib;$(VCInstallDir)lib;$(DIRECTX8_SDK)\lib;C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\src</ReferencePath>
+    <TargetExt>.asi</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;SJLIB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;SJLIB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="include\SJLIB\CSingleton.h" />
+    <ClInclude Include="include\SJLIB\GameVC\automobile.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CAutoPilot.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CCamera.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CCarCtrl.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CCullZones.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CCurves.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CDebug.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CFileLoader.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CFileMgr.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CFont.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CGameVariables.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CGeneral.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CMatrix.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CommonDefinations.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CPed.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CSprite2D.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CTheCarGenerators.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CTheZones.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CTxdStore.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CVector.h" />
+    <ClInclude Include="include\SJLIB\GameVC\CVector2D.h" />
+    <ClInclude Include="include\SJLIB\GameVC\entity.h" />
+    <ClInclude Include="include\SJLIB\GameVC\GameVC.h" />
+    <ClInclude Include="include\SJLIB\GameVC\InternalHooks\CGameHookManager.h" />
+    <ClInclude Include="include\SJLIB\GameVC\InternalHooks\CPathFindHook.h" />
+    <ClInclude Include="include\SJLIB\GameVC\InternalHooks\dxd8_system.h" />
+    <ClInclude Include="include\SJLIB\GameVC\InternalHooks\sectorlist_hooks.h" />
+    <ClInclude Include="include\SJLIB\GameVC\pathfinding.h" />
+    <ClInclude Include="include\SJLIB\GameVC\physical.h" />
+    <ClInclude Include="include\SJLIB\GameVC\RenderWare.h" />
+    <ClInclude Include="include\SJLIB\GameVC\renderwaretypes.h" />
+    <ClInclude Include="include\SJLIB\GameVC\timer.h" />
+    <ClInclude Include="include\SJLIB\GameVC\trafficlights.h" />
+    <ClInclude Include="include\SJLIB\GameVC\vehicle.h" />
+    <ClInclude Include="include\SJLIB\GameVC\waterlevel.h" />
+    <ClInclude Include="include\SJLIB\GameVC\weather.h" />
+    <ClInclude Include="include\SJLIB\GameVC\world.h" />
+    <ClInclude Include="include\SJLIB\GamePatches.h" />
+    <ClInclude Include="include\SJLIB\hooksystem.h" />
+    <ClInclude Include="include\SJLIB\main.h" />
+    <ClInclude Include="include\SJLIB\stdinc.h" />
+    <ClInclude Include="include\SJLIB\utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\FileLoaderAddIns.cpp" />
+    <ClCompile Include="src\GameVC\automobile.cpp" />
+    <ClCompile Include="src\GameVC\CAutoPilot.cpp" />
+    <ClCompile Include="src\GameVC\CCarCtrl.cpp" />
+    <ClCompile Include="src\GameVC\CCullZones.cpp" />
+    <ClCompile Include="src\GameVC\CCurves.cpp" />
+    <ClCompile Include="src\GameVC\CDebug.cpp" />
+    <ClCompile Include="src\GameVC\CFileLoader.cpp" />
+    <ClCompile Include="src\GameVC\CFileMgr.cpp" />
+    <ClCompile Include="src\GameVC\CFont.cpp" />
+    <ClCompile Include="src\GameVC\CGameHookManager.cpp" />
+    <ClCompile Include="src\GameVC\CGameVariables.cpp" />
+    <ClCompile Include="src\GameVC\CGeneral.cpp" />
+    <ClCompile Include="src\GameVC\CPed.cpp" />
+    <ClCompile Include="src\GameVC\CSprite2D.cpp" />
+    <ClCompile Include="src\GameVC\CTheCarGenerators.cpp" />
+    <ClCompile Include="src\GameVC\CTheZones.cpp" />
+    <ClCompile Include="src\GameVC\CTxdStore.cpp" />
+    <ClCompile Include="src\GameVC\entity.cpp" />
+    <ClCompile Include="src\GameVC\GameVC.cpp" />
+    <ClCompile Include="src\GameVC\hookPathfinding.cpp" />
+    <ClCompile Include="src\GameVC\InternalHooks\dxd8_system.cpp" />
+    <ClCompile Include="src\GameVC\InternalHooks\sectorlist_hooks.cpp" />
+    <ClCompile Include="src\GameVC\pathfinding.cpp" />
+    <ClCompile Include="src\GameVC\physical.cpp" />
+    <ClCompile Include="src\GameVC\RenderWare.cpp" />
+    <ClCompile Include="src\GameVC\trafficlights.cpp" />
+    <ClCompile Include="src\GameVC\vehicle.cpp" />
+    <ClCompile Include="src\GameVC\waterlevel.cpp" />
+    <ClCompile Include="src\GameVC\weather.cpp" />
+    <ClCompile Include="src\GameVC\world.cpp" />
+    <ClCompile Include="src\hooksystem.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\MenuMapHack.cpp" />
+    <ClCompile Include="src\MiscellaneousPatches.cpp" />
+    <ClCompile Include="src\RadarHack.cpp" />
+    <ClCompile Include="src\VehicleLimitPatch.cpp" />
+    <ClCompile Include="src\WaterHack.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

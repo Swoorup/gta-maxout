@@ -1,0 +1,73 @@
+﻿Build started 30/06/2013 5:35:21 PM.
+     1>Project "C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\asmjit.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/src" /nologo /W3 /WX- /O2 /Ob2 /Oy- /D WIN32 /D _WINDOWS /D NDEBUG /D "CMAKE_INTDIR=\"Release\"" /D asmjit_EXPORTS /D _MBCS /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"asmjit.dir\Release\\" /Fd"C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/Release/asmjit.pdb" /Gd /TP /analyze- /errorReport:prompt ..\src\asmjit\core\assembler.cpp ..\src\asmjit\core\assert.cpp ..\src\asmjit\core\buffer.cpp ..\src\asmjit\core\compiler.cpp ..\src\asmjit\core\compilercontext.cpp ..\src\asmjit\core\compilerfunc.cpp ..\src\asmjit\core\compileritem.cpp ..\src\asmjit\core\context.cpp ..\src\asmjit\core\cpuinfo.cpp ..\src\asmjit\core\defs.cpp ..\src\asmjit\core\func.cpp ..\src\asmjit\core\logger.cpp ..\src\asmjit\core\memorymanager.cpp ..\src\asmjit\core\memorymarker.cpp ..\src\asmjit\core\operand.cpp ..\src\asmjit\core\stringbuilder.cpp ..\src\asmjit\core\stringutil.cpp ..\src\asmjit\core\virtualmemory.cpp ..\src\asmjit\core\zonememory.cpp ..\src\asmjit\x86\x86assembler.cpp ..\src\asmjit\x86\x86compiler.cpp ..\src\asmjit\x86\x86compilercontext.cpp ..\src\asmjit\x86\x86compilerfunc.cpp ..\src\asmjit\x86\x86compileritem.cpp ..\src\asmjit\x86\x86cpuinfo.cpp ..\src\asmjit\x86\x86defs.cpp ..\src\asmjit\x86\x86func.cpp ..\src\asmjit\x86\x86operand.cpp ..\src\asmjit\x86\x86util.cpp
+         assembler.cpp
+         assert.cpp
+         buffer.cpp
+         compiler.cpp
+         compilercontext.cpp
+         compilerfunc.cpp
+         compileritem.cpp
+         context.cpp
+         cpuinfo.cpp
+         defs.cpp
+         func.cpp
+         logger.cpp
+         memorymanager.cpp
+         memorymarker.cpp
+         operand.cpp
+         stringbuilder.cpp
+         stringutil.cpp
+         virtualmemory.cpp
+         zonememory.cpp
+         x86assembler.cpp
+         Generating Code...
+         Compiling...
+         x86compiler.cpp
+         x86compilercontext.cpp
+         x86compilerfunc.cpp
+         x86compileritem.cpp
+         x86cpuinfo.cpp
+         x86defs.cpp
+         x86func.cpp
+         x86operand.cpp
+         x86util.cpp
+         Generating Code...
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\Lib.exe /OUT:"C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\Release\asmjit.dll" /NOLOGO asmjit.dir\Release\assembler.obj
+         asmjit.dir\Release\assert.obj
+         asmjit.dir\Release\buffer.obj
+         asmjit.dir\Release\compiler.obj
+         asmjit.dir\Release\compilercontext.obj
+         asmjit.dir\Release\compilerfunc.obj
+         asmjit.dir\Release\compileritem.obj
+         asmjit.dir\Release\context.obj
+         asmjit.dir\Release\cpuinfo.obj
+         asmjit.dir\Release\defs.obj
+         asmjit.dir\Release\func.obj
+         asmjit.dir\Release\logger.obj
+         asmjit.dir\Release\memorymanager.obj
+         asmjit.dir\Release\memorymarker.obj
+         asmjit.dir\Release\operand.obj
+         asmjit.dir\Release\stringbuilder.obj
+         asmjit.dir\Release\stringutil.obj
+         asmjit.dir\Release\virtualmemory.obj
+         asmjit.dir\Release\zonememory.obj
+         asmjit.dir\Release\x86assembler.obj
+         asmjit.dir\Release\x86compiler.obj
+         asmjit.dir\Release\x86compilercontext.obj
+         asmjit.dir\Release\x86compilerfunc.obj
+         asmjit.dir\Release\x86compileritem.obj
+         asmjit.dir\Release\x86cpuinfo.obj
+         asmjit.dir\Release\x86defs.obj
+         asmjit.dir\Release\x86func.obj
+         asmjit.dir\Release\x86operand.obj
+         asmjit.dir\Release\x86util.obj
+     1>func.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+         asmjit.vcxproj -> C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\Release\asmjit.dll
+     1>Done Building Project "C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\asmjit.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:33.14

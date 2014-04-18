@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\src\asmjit\core\assembler.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\assert.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\buffer.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\compiler.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\compilercontext.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\compilerfunc.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\compileritem.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\context.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\cpuinfo.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\defs.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\func.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\logger.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\memorymanager.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\memorymarker.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\operand.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\stringbuilder.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\stringutil.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\virtualmemory.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\core\zonememory.cpp">
+      <Filter>asmjit/core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\x86\x86assembler.cpp">
+      <Filter>asmjit/x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\x86\x86compiler.cpp">
+      <Filter>asmjit/x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\x86\x86compilercontext.cpp">
+      <Filter>asmjit/x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\x86\x86compilerfunc.cpp">
+      <Filter>asmjit/x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\x86\x86compileritem.cpp">
+      <Filter>asmjit/x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\x86\x86cpuinfo.cpp">
+      <Filter>asmjit/x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\x86\x86defs.cpp">
+      <Filter>asmjit/x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\x86\x86func.cpp">
+      <Filter>asmjit/x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\x86\x86operand.cpp">
+      <Filter>asmjit/x86</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\asmjit\x86\x86util.cpp">
+      <Filter>asmjit/x86</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\asmjit\asmjit.h">
+      <Filter>asmjit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\config.h">
+      <Filter>asmjit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core.h">
+      <Filter>asmjit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86.h">
+      <Filter>asmjit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\apibegin.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\apiend.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\build.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\assembler.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\assert.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\buffer.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\compiler.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\compilercontext.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\compilerfunc.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\compileritem.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\context.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\cpuinfo.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\defs.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\func.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\intutil.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\lock.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\logger.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\memorymanager.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\memorymarker.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\operand.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\podvector.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\stringbuilder.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\stringutil.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\virtualmemory.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\core\zonememory.h">
+      <Filter>asmjit/core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86\x86assembler.h">
+      <Filter>asmjit/x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86\x86compiler.h">
+      <Filter>asmjit/x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86\x86compilercontext.h">
+      <Filter>asmjit/x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86\x86compilerfunc.h">
+      <Filter>asmjit/x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86\x86compileritem.h">
+      <Filter>asmjit/x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86\x86cpuinfo.h">
+      <Filter>asmjit/x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86\x86defs.h">
+      <Filter>asmjit/x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86\x86func.h">
+      <Filter>asmjit/x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86\x86operand.h">
+      <Filter>asmjit/x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\asmjit\x86\x86util.h">
+      <Filter>asmjit/x86</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="asmjit">
+      <UniqueIdentifier>{DD6BDE72-C8FD-49E0-940E-BC0C6691263E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asmjit/core">
+      <UniqueIdentifier>{3DB1DB39-034C-4046-A45C-8B9AF3F6E8D8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asmjit/x86">
+      <UniqueIdentifier>{8AC05561-57FA-48AE-A024-7EE12FF23895}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

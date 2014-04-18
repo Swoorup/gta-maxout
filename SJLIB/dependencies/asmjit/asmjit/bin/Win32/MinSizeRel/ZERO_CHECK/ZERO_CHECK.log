@@ -1,0 +1,10 @@
+﻿Build started 30/06/2013 5:28:45 PM.
+     1>Project "C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\ZERO_CHECK.vcxproj" on node 2 (Build target(s)).
+     1>CustomBuild:
+         Checking Build System
+         CMake does not need to re-run because C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/bin/CMakeFiles/generate.stamp is up-to-date.
+     1>Done Building Project "C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\ZERO_CHECK.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.26

@@ -1,0 +1,11 @@
+﻿Build started 30/06/2013 5:29:24 PM.
+     1>Project "C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\ALL_BUILD.vcxproj" on node 2 (Build target(s)).
+     1>CustomBuild:
+         Building Custom Rule C:/Users/Swoorup/Documents/GitHub/gta-maxout/SJLIB/dependencies/asmjit/asmjit/CMakeLists.txt
+         CMake does not need to re-run because C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\CMakeFiles\generate.stamp is up-to-date.
+         Build all projects
+     1>Done Building Project "C:\Users\Swoorup\Documents\GitHub\gta-maxout\SJLIB\dependencies\asmjit\asmjit\bin\ALL_BUILD.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.42

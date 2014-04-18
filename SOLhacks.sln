@@ -1,9 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SOLCore", "SOLCore\SOLhacks.vcxproj", "{8C5E0F5F-3B63-40B7-82E9-A79B69DCBB86}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SOLcore", "SOLCore\SOLhacks.vcxproj", "{8C5E0F5F-3B63-40B7-82E9-A79B69DCBB86}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client - Loader", "loader\_Loader.vcxproj", "{AF2AF376-1ACD-4F3B-B399-2A30D8BE950E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client - Loader", "Loader\_Loader.vcxproj", "{AF2AF376-1ACD-4F3B-B399-2A30D8BE950E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,5 +32,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

@@ -34,3 +34,9 @@ At around 2010, I teamed with Keith Mckay, well known as [X-Seti](http://www.gta
 ![https://dl.dropbox.com/u/42357312/Posted-Images/SOL/sol-vc-paths.png](https://dl.dropbox.com/u/42357312/Posted-Images/SOL/sol-vc-paths.png)
 ![https://dl.dropbox.com/u/42357312/Posted-Images/SOL/sol-lc-paths.png](https://dl.dropbox.com/u/42357312/Posted-Images/SOL/sol-lc-paths.png)
 ![https://dl.dropbox.com/u/42357312/Posted-Images/SOL/sol-lv-paths.png](https://dl.dropbox.com/u/42357312/Posted-Images/SOL/sol-lv-paths.png)
+
+
+# Installation
+
+This mod now requires an asi loader that loads asi files early before the game starts. Please use ThirteenAG's asi loader from now.
+https://github.com/ThirteenAG/Ultimate_ASI_Loader/releases
